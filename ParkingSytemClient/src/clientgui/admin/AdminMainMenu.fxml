@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane style="-fx-background-color: #f0f0f0;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientgui.admin.AdminMainMenuController">
+
+    <!-- Top Toolbar -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20; -fx-background-color: #1565C0;">
+            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;" text="⚙ Admin Dashboard Menu" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnExit" style="-fx-background-color: #D32F2F; -fx-text-fill: white;" text="Exit" />
+        </HBox>
+    </top>
+
+    <!-- Center Menu -->
+    <center>
+        <VBox alignment="CENTER" spacing="40" style="-fx-padding: 40;">
+            <Label style="-fx-font-size: 20px; -fx-text-fill: #333;" text="Select Section to Manage" />
+
+            <VBox alignment="CENTER" spacing="20">
+                <Button fx:id="btnOrders" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="📋 Active Parking Details" />
+                <Button fx:id="btnSubscribers" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="👤 Manage Subscribers" />
+                <Button fx:id="btnLogs" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="🧾 View System Logs" />
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

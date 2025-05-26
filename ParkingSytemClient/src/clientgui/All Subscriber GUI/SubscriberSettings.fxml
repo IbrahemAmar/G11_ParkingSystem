@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.SubscriberSettingsController">
+
+    <VBox spacing="25" alignment="CENTER"
+          AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+          style="-fx-padding: 40; -fx-background-color: #ffffff;">
+
+        <Label text="⚙ Subscriber Settings"
+               style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <GridPane hgap="15" vgap="15" alignment="CENTER">
+            <Label text="Subscriber ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Label fx:id="lblSubId" text="SUB12345" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Full Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Label fx:id="lblName" text="Asaad B." GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Label fx:id="lblEmail" text="asaad@mail.com" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Phone:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Label fx:id="lblPhone" text="050-1234567" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        </GridPane>
+
+        <HBox spacing="20" alignment="CENTER">
+            <Button text="✏️ Edit Details" fx:id="btnEdit" onAction="#goToEdit" />
+            <Button text="🔙 Back" fx:id="btnBack" />
+        </HBox>
+    </VBox>
+</AnchorPane>

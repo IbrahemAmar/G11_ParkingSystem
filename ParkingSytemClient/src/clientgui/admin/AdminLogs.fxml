@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="25" style="-fx-padding: 30; -fx-background-color: #fdfdfd;" 
+      xmlns="http://javafx.com/javafx/8" 
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="clientgui.admin.AdminLogsController">
+
+    <Label text="🧾 System Logs"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+
+    <!-- Logs Table -->
+    <TableView fx:id="tableLogs" prefHeight="350" prefWidth="900"
+               style="-fx-border-color: #ccc; -fx-border-radius: 8;">
+        <columns>
+            <TableColumn fx:id="colLogId" text="Log ID" prefWidth="80" />
+            <TableColumn fx:id="colAction" text="Action" prefWidth="150" />
+            <TableColumn fx:id="colTarget" text="Target" prefWidth="150" />
+            <TableColumn fx:id="colByUser" text="By User" prefWidth="120" />
+            <TableColumn fx:id="colTime" text="Timestamp" prefWidth="180" />
+            <TableColumn fx:id="colNote" text="Note" prefWidth="200" />
+        </columns>
+    </TableView>
+
+    <!-- Action Buttons -->
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="btnRefreshLogs" text="🔄 Refresh"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 6;" />
+        <Button fx:id="btnBack" text="🔙 Back to Menu"
+                style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 6;" />
+    </HBox>
+</VBox>

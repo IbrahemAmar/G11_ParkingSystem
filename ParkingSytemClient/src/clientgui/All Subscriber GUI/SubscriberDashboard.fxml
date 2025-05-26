@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.SubscriberDashboardController">
+
+    <!-- Top toolbar -->
+    <top>
+        <ToolBar>
+            <Label text="📋 Subscriber Dashboard"
+                   style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="👤 Details" fx:id="btnDetails" onAction="#openDetails"/>
+            <Button text="🔙 Logout" fx:id="btnLogout"/>
+        </ToolBar>
+    </top>
+
+    <!-- Main content -->
+    <center>
+        <VBox spacing="25" alignment="CENTER" style="-fx-padding: 30; -fx-background-color: #fafafa;">
+
+            <!-- Current parking session -->
+            <Label text="🚗 Current Parking Session" style="-fx-font-size: 20px;" />
+
+            <GridPane hgap="15" vgap="10">
+                <Label text="Parking Spot:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label text="A12" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Entry Time:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label text="14:45" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Time Remaining:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label text="30 minutes" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <!-- Show Available Spots -->
+            <Button fx:id="btnAvailableSpots" text="🅿 Show Available Parking Spots"
+                    style="-fx-background-color: #03A9F4; -fx-text-fill: white; -fx-pref-width: 280;" />
+
+            <!-- Action Buttons -->
+            <HBox spacing="20" alignment="CENTER">
+                <Button text="⏱ Extend Parking Time" fx:id="btnExtend"
+                        style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+
+                <Button text="🗓 Reserve Future Parking" fx:id="btnReserve"
+                        style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+
+                <Button text="🚙 Retrieve My Vehicle" fx:id="btnPickup"
+                        style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
+            </HBox>
+
+            <!-- Parking history -->
+            <Separator/>
+            <Label text="📜 Parking History" style="-fx-font-size: 16px;" />
+
+            <TableView fx:id="tableHistory" prefWidth="600" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="colHistoryDate" text="Date" prefWidth="120"/>
+                    <TableColumn fx:id="colHistorySpot" text="Spot" prefWidth="100"/>
+                    <TableColumn fx:id="colDuration" text="Duration (min)" prefWidth="150"/>
+                    <TableColumn fx:id="colWasExtended" text="Extended?" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

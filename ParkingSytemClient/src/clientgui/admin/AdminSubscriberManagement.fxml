@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.admin.AdminSubscribersController"
+            prefWidth="850" prefHeight="600">
+
+    <VBox spacing="25" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
+          style="-fx-padding: 30; -fx-background-color: #f9f9f9;">
+
+        <!-- Title -->
+        <Label text="👤 Subscriber Management"
+               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+
+        <!-- Search -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="txtSearchId" promptText="Search by Subscriber ID" style="-fx-pref-width: 200;" />
+            <Button fx:id="btnSearch" text="🔍 Search"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnRefresh" text="🔄 View All"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+        </HBox>
+
+        <!-- Table -->
+        <TableView fx:id="subscriberTable" prefHeight="280">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="colUsername" text="Username" prefWidth="150"/>
+                <TableColumn fx:id="colFirstName" text="First Name" prefWidth="150"/>
+                <TableColumn fx:id="colLastName" text="Last Name" prefWidth="150"/>
+                <TableColumn fx:id="colRole" text="Role" prefWidth="100"/>
+            </columns>
+        </TableView>
+
+        <!-- Input Fields to Add -->
+        <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+            <Label text="➕ Add New Subscriber (role: subscriber)" style="-fx-font-weight: bold;"/>
+            <HBox spacing="15">
+                <TextField fx:id="txtUsername" promptText="Username" style="-fx-pref-width: 150;" />
+                <PasswordField fx:id="txtPassword" promptText="Password" style="-fx-pref-width: 150;" />
+                <TextField fx:id="txtFirstName" promptText="First Name" style="-fx-pref-width: 150;" />
+                <TextField fx:id="txtLastName" promptText="Last Name" style="-fx-pref-width: 150;" />
+                <Button fx:id="btnAddSubscriber" text="➕ Add Subscriber"
+                        style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                
+            </HBox>
+        </VBox>
+
+        <!-- Footer -->
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnBack" text="🔙 Back"
+                    style="-fx-background-color: #9e9e9e; -fx-text-fill: white;" />
+        </HBox>
+
+        <!-- Status -->
+        <Label fx:id="lblStatus" text="Status messages appear here"
+               style="-fx-text-fill: #777; -fx-font-size: 12px;" />
+    </VBox>
+</AnchorPane>

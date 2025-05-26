@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="25" style="-fx-padding: 30; -fx-background-color: #fafafa;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml">
+    
+    <Label text="📈 Monthly Reports" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+
+    <TabPane prefWidth="900" prefHeight="450"
+             style="-fx-tab-min-width: 220; -fx-tab-max-width: 220; -fx-background-color: white;">
+
+        <!-- Parking Duration Report -->
+        <Tab text="📊 Parking Duration Report">
+            <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
+                <Label text="Total Parking Hours per Subscriber" style="-fx-font-size: 16px;" />
+                <BarChart fx:id="durationChart" title="Parking Duration (Hours)" legendVisible="false"
+                          style="-fx-background-color: white;">
+                    <xAxis>
+                        <CategoryAxis fx:id="durationXAxis" label="Subscriber" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="durationYAxis" label="Total Hours" />
+                    </yAxis>
+                </BarChart>
+            </VBox>
+        </Tab>
+
+        <!-- Subscriber Status Report -->
+        <Tab text="📈 Subscriber Activity Report">
+            <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
+                <Label text="Activity Trends Over the Month" style="-fx-font-size: 16px;" />
+                <LineChart fx:id="statusChart" title="Subscriber Activity (Sessions)"
+                           createSymbols="false"
+                           style="-fx-background-color: white;">
+                    <xAxis>
+                        <CategoryAxis fx:id="statusXAxis" label="Day" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="statusYAxis" label="Sessions" />
+                    </yAxis>
+                </LineChart>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+
+    <!-- Back Button -->
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Button text="🔙 Back to Menu"
+                style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 6;" />
+    </HBox>
+</VBox>

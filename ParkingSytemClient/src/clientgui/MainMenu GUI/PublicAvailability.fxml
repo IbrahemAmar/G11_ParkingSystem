@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.PublicAvailabilityController">
+
+    <VBox spacing="20" alignment="CENTER"
+          AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          style="-fx-padding: 40; -fx-background-color: #ffffff;">
+
+        <Label text="🅿️ Parking Spot Availability"
+               style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <TableView fx:id="tableAvailability" prefHeight="300" prefWidth="600">
+            <columns>
+                <TableColumn fx:id="colSpotNumber" text="Spot Number" prefWidth="120" />
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="120" />
+                <TableColumn fx:id="colLevel" text="Level" prefWidth="100" />
+                <TableColumn fx:id="colLastUpdated" text="Last Updated" prefWidth="200" />
+            </columns>
+        </TableView>
+
+        <Label fx:id="lblAvailable" text="✔ 12 spots available"
+               style="-fx-font-size: 16px; -fx-text-fill: green;" />
+
+        <Button text="🔙 Back to Main Menu" fx:id="btnBack"
+                style="-fx-background-color: #E0E0E0;" />
+    </VBox>
+</AnchorPane>

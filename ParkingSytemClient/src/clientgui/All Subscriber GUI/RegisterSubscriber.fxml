@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.RegisterSubscriberController">
+
+    <VBox spacing="20" alignment="CENTER"
+          AnchorPane.topAnchor="0.0"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          style="-fx-padding: 40; -fx-background-color: #f9f9f9;">
+
+        <Label text="📝 Register New Subscriber"
+               style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <HBox spacing="10">
+            <Label text="Full Name:" />
+            <TextField fx:id="txtFullName" promptText="Enter full name" prefWidth="250" />
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Phone Number:" />
+            <TextField fx:id="txtPhone" promptText="Enter phone" prefWidth="250" />
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Email (optional):" />
+            <TextField fx:id="txtEmail" promptText="example@mail.com" prefWidth="250" />
+        </HBox>
+
+        <Button text="📥 Save and Generate ID" fx:id="btnRegister"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+
+        <Label fx:id="lblGeneratedId" text=""
+               style="-fx-font-size: 14px; -fx-text-fill: green;" />
+
+        <Button text="🔙 Back" fx:id="btnBack"
+                style="-fx-background-color: #e0e0e0;" />
+    </VBox>
+</AnchorPane>

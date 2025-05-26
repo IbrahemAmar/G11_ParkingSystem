@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientgui.MainMenuController">
+
+    <VBox alignment="CENTER" spacing="30" style="-fx-padding: 50; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+        <!-- Welcome Header -->
+        <Label style="-fx-font-size: 26px; -fx-font-weight: bold;" text="🚗 Welcome to BPARK" />
+
+        <!-- Login Section with ID & Password -->
+        <VBox alignment="CENTER" spacing="15">
+            <Label style="-fx-font-size: 14px; -fx-text-fill: #444;" text="🔑 Please log in" />
+
+            <TextField fx:id="txtUsername" prefWidth="260" promptText="Username or ID" text="supervisor" />
+            <PasswordField fx:id="txtPassword" prefWidth="260" promptText="Password" text="1" />
+
+            <Button fx:id="btnLogin" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-pref-width: 200;" text="➡ Login" />
+        </VBox>
+
+        <Separator />
+        <Label fx:id="statusLabel" text="Status will appear here" />
+
+
+        <!-- Visitor Access -->
+        <VBox alignment="CENTER" spacing="10">
+            <Label style="-fx-font-weight: bold;" text="🧭 Just Visiting?" />
+            <Button fx:id="btnCheckAvailability" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 250;" text="🅿️ Check Available Parking Spots" />
+            <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="No login required." />
+        </VBox>
+    </VBox>
+</AnchorPane>

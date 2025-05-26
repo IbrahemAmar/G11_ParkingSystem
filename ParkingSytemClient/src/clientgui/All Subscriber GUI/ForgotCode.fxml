@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.ForgotCodeController">
+
+    <VBox spacing="25" alignment="CENTER"
+          AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          style="-fx-padding: 50; -fx-background-color: #ffffff;">
+
+        <Label text="❓ Forgot Your Parking Code"
+               style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+        <Label text="Choose how to receive your code:" style="-fx-font-size: 14px; -fx-text-fill: #555;" />
+
+        <VBox spacing="15">
+            <RadioButton fx:id="radioEmail" toggleGroup="$toggleMethod"
+                         text="Send to Email: mo***@gmail.com" />
+            <RadioButton fx:id="radioPhone" toggleGroup="$toggleMethod"
+                         text="Send to Phone: 05*-***-1294" />
+        </VBox>
+
+        <Button text="📨 Send Code" fx:id="btnSendCode"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 180;" />
+
+        <Label fx:id="lblResult" text="" style="-fx-text-fill: green;" />
+
+        <Button text="🔙 Back" fx:id="btnBack"
+                style="-fx-background-color: #e0e0e0; -fx-pref-width: 180;" />
+    </VBox>
+</AnchorPane>

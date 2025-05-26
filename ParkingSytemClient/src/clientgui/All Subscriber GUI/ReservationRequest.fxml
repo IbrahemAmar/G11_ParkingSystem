@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="clientgui.ReservationRequestController">
+
+    <VBox spacing="20" alignment="CENTER"
+          AnchorPane.topAnchor="0.0"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          style="-fx-padding: 40; -fx-background-color: #f9f9f9;">
+
+        <Label text="🗓 Reserve Parking Spot"
+               style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <HBox spacing="10">
+            <Label text="Date:" />
+            <DatePicker fx:id="datePicker" promptText="Select date" />
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Time:" />
+            <ComboBox fx:id="timeCombo" promptText="Select time" prefWidth="150"/>
+        </HBox>
+
+        <Button text="📥 Submit Reservation" fx:id="btnReserve"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+
+        <Label fx:id="lblResult" text="" style="-fx-text-fill: green;" />
+
+        <Button text="🔙 Back" fx:id="btnBack"
+                style="-fx-background-color: #e0e0e0;" />
+    </VBox>
+</AnchorPane>
