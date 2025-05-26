@@ -1,4 +1,4 @@
-package clientgui;
+package subscriberGui;
 
 import client.ClientController;
 import java.net.InetAddress;
@@ -46,7 +46,7 @@ public class ConnectViewController {
 
         try {
             // Load MainMenu.fxml
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/clientgui/MainMenu GUI/MainMenu.fxml"));
+        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/MainMenu GUI/MainMenu.fxml"));
         	Parent root = loader.load();
 
         	MainMenuController controller = loader.getController();

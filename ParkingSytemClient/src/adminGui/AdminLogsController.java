@@ -1,4 +1,4 @@
-package clientgui.admin;
+package adminGui;
 
 import client.ClientController;
 import javafx.fxml.FXML;
@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-public class AdminSubscribersController {
+public class AdminLogsController {
 
     private ClientController client;
 
@@ -16,11 +16,13 @@ public class AdminSubscribersController {
         this.client = client;
     }
 
+    @FXML private Button btnRefreshLogs;
     @FXML private Button btnBack;
 
     @FXML
     public void initialize() {
         btnBack.setOnAction(e -> handleBack());
+        // btnRefreshLogs.setOnAction(e -> refreshLogs()); // Optional: bind logic here
     }
 
     private void handleBack() {

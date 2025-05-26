@@ -4,7 +4,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="clientgui.SubscriberDashboardController">
+            fx:controller="subscriberGui.SubscriberDashboardController">
 
     <!-- Top toolbar -->
     <top>

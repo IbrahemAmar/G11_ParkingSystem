@@ -1,14 +1,15 @@
 package client;
 
-import clientgui.admin.AdminOrdersController;
-import clientgui.MainMenuController;
 import common.ChatIF;
 import common.ClientRequest;
 import common.ParkingSession;
 import ocsf.client.AbstractClient;
+import subscriberGui.MainMenuController;
 
 import java.io.IOException;
 import java.util.List;
+
+import adminGui.AdminOrdersController;
 
 public class ClientController extends AbstractClient {
     private ChatIF ui;

@@ -1,4 +1,4 @@
-package clientgui.admin;
+package adminGui;
 
 import java.io.IOException;
 

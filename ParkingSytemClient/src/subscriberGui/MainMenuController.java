@@ -1,7 +1,7 @@
-package clientgui;
+package subscriberGui;
 
+import adminGui.AdminMainMenuController;
 import client.ClientController;
-import clientgui.admin.AdminMainMenuController;
 import common.ChatIF;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -75,11 +75,11 @@ public class MainMenuController implements ChatIF {
 			switch (role) {
 			case "admin":
 			case "supervisor":
-				loader = new FXMLLoader(getClass().getResource("/clientgui/admin/AdminMainMenu.fxml"));
+				loader = new FXMLLoader(getClass().getResource("/subscriberGui/admin/AdminMainMenu.fxml"));
 				break;
 			case "subscriber":
 				loader = new FXMLLoader(
-						getClass().getResource("/clientgui/All Subscriber GUI/SubscriberDashboard.fxml"));
+						getClass().getResource("/subscriberGui/SubscriberDashboard.fxml"));
 				break;
 			default:
 				showAlert("Unknown role: " + role);

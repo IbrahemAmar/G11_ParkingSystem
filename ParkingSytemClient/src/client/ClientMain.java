@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 public class ClientMain extends Application {
   public void start(Stage primaryStage) throws Exception {
-    FXMLLoader loader = new FXMLLoader(ClientMain.class.getResource("/clientgui/ConnectView.fxml"));
+    FXMLLoader loader = new FXMLLoader(ClientMain.class.getResource("/subscriberGui/ConnectView.fxml"));
     Scene scene = new Scene((Parent)loader.load());
     primaryStage.setTitle("Connect to Server");
     primaryStage.setScene(scene);

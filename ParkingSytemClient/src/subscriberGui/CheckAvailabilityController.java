@@ -1,4 +1,4 @@
-package clientgui;
+package subscriberGui;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
