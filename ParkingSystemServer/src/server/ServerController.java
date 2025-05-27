@@ -19,7 +19,7 @@ public class ServerController extends AbstractServer {
 	private Map<ConnectionToClient, String[]> clientInfoMap = new ConcurrentHashMap<>();
 
 	// Database access object
-	private DBController db = new DBController();
+	private DBController db = new DBController(); 
 
 	// Reference to the server GUI controller
 	private ServerMainController guiController;

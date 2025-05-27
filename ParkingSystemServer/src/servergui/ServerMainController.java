@@ -22,7 +22,7 @@ public class ServerMainController {
 
     private ServerController server;
 
-    private ObservableList<ClientInfo> clients = FXCollections.observableArrayList();
+    private ObservableList<ClientInfo> clients = FXCollections.observableArrayList(); 
 
     @FXML
     public void initialize() {

@@ -1,4 +1,4 @@
-package clientgui.admin;
+package adminGui;
 
 import client.ClientController;
 import javafx.fxml.FXML;
@@ -27,7 +27,7 @@ public class AdminLogsController {
 
     private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clientgui/admin/AdminMainMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("adminGui/AdminMainMenu.fxml"));
             Parent root = loader.load();
 
             AdminMainMenuController controller = loader.getController();

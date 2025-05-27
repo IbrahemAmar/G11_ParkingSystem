@@ -1,4 +1,4 @@
-package clientgui;
+package subscriberGui;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,7 +21,7 @@ public class CheckAvailabilityController {
             stage.setTitle("Available Parking Spots");
             stage.show();
 
-        } catch (IOException e) {
+        } catch (IOException e) { 
             e.printStackTrace();
         }
     }

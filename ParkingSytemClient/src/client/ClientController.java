@@ -1,7 +1,5 @@
 package client;
 
-import clientgui.admin.AdminOrdersController;
-import clientgui.MainMenuController;
 import common.ChatIF;
 import common.ClientRequest;
 import common.ParkingSession;
@@ -9,6 +7,8 @@ import ocsf.client.AbstractClient;
 
 import java.io.IOException;
 import java.util.List;
+
+import adminGui.AdminOrdersController;
 
 public class ClientController extends AbstractClient {
     private ChatIF ui;
@@ -24,8 +24,8 @@ public class ClientController extends AbstractClient {
      */
     public ClientController(String host, int port, ChatIF ui) throws IOException {
         super(host, port);
-        this.ui = ui;
-        openConnection();
+        this.ui = ui; 
+        openConnection(); 
     }
 
     /**

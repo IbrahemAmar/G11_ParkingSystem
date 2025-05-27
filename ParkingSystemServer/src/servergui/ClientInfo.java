@@ -11,7 +11,7 @@ public class ClientInfo {
         this.host = host;
         this.status = status;
         this.id = id;
-    }
+    } 
 
     public String getIp() { return ip; }
     public String getHost() { return host; }

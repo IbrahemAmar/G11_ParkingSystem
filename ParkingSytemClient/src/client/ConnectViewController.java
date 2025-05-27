@@ -1,6 +1,5 @@
-package clientgui;
+package client;
 
-import client.ClientController;
 import java.net.InetAddress;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +28,7 @@ public class ConnectViewController {
         } catch (Exception e) {
             this.ipField.setText("localhost");
         }
-        this.portField.setText("5555");
+        this.portField.setText("5555"); 
     }
 
     @FXML
@@ -44,9 +43,9 @@ public class ConnectViewController {
             return;  
         }
 
-        try {
+        try { 
             // Load MainMenu.fxml
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/clientgui/MainMenu GUI/MainMenu.fxml"));
+        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
         	Parent root = loader.load();
 
         	MainMenuController controller = loader.getController();

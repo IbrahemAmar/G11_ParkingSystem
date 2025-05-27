@@ -1,13 +1,21 @@
 module ParkingSytemC {
-	requires javafx.controls;
+    requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
     requires java.sql;
-    opens clientgui to javafx.fxml;
-    opens client to javafx.graphics; // 👈 This is required to let JavaFX instantiate ClientMain
-    opens clientgui.admin to javafx.fxml; // ✅ this line is required now
+	requires java.desktop;
+	requires javafx.base;
 
+    // Required so JavaFX can inject @FXML fields in these packages
+    opens client to javafx.fxml;
+    opens subscriberGui to javafx.fxml;
+    opens adminGui to javafx.fxml;
+    opens guestGui to javafx.fxml;
+
+
+    // Exported packages for use elsewhere
     exports client;
-    exports clientgui;
+    exports subscriberGui;
+    exports adminGui;
     exports common;
 }
