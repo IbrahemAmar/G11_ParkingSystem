@@ -12,7 +12,7 @@ import common.Order;
 import common.ParkingSession;
 
 public class DBController { 
-//TESTIN G FIRST
+
 	// JDBC connection parameters
 	private static final String URL = "jdbc:mysql://localhost:3306/bpark?serverTimezone=Asia/Jerusalem&useSSL=false&allowPublicKeyRetrieval=true";
 	private static final String USER = "root";
@@ -86,6 +86,6 @@ public class DBController {
 			e.printStackTrace();
 		}
 		return null; // login failed
-	}
+	} 
 
 }
