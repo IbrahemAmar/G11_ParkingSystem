@@ -11,9 +11,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-
-
-
 public class AdminMainMenuController {
 
     private ClientController client;
@@ -26,32 +23,28 @@ public class AdminMainMenuController {
             }
         }
     }
-    
 
-    @FXML
-    private Button btnOrders;   
-    @FXML
-    private Button btnSubscribers;
-
+    @FXML private Button btnOrders;
+    @FXML private Button btnSubscribers;
     @FXML private Button btnLogs;
     @FXML private Button btnExit;
-  
+
     @FXML
     private void initialize() {
         btnOrders.setOnAction(e -> handleViewActiveParking());
         btnSubscribers.setOnAction(e -> handleManageSubscribers());
-        btnLogs.setOnAction(e -> handleViewLogs()); // ✅ New
-        btnExit.setOnAction(e -> handleExit()); // ✅ New
-    }
-    private void handleExit() {
-    	try {
-            client.sendToServer(new ClientRequest("DISCONNECT", new Object[]{}));
-        } catch (IOException e) {
-            //ui.display("❌ Failed to send disconnect request: " + e.getMessage());
-        }
-    	System.exit(0);
+        btnLogs.setOnAction(e -> handleViewLogs());
+        btnExit.setOnAction(e -> handleExit());
     }
 
+    private void handleExit() {
+        try {
+        	client.handleMessageFromClientUI(new DisconnectRequest());
+        } catch (IOException e) {
+            // ui.display("❌ Failed to send disconnect request: " + e.getMessage());
+        }
+        System.exit(0);
+    }
 
     private void handleViewLogs() {
         try {
@@ -59,10 +52,10 @@ public class AdminMainMenuController {
             Parent root = loader.load();
 
             AdminLogsController controller = loader.getController();
-            controller.setClient(client); // if needed
+            controller.setClient(client);
 
             Stage stage = (Stage) btnLogs.getScene().getWindow();
-            stage.setScene(new Scene(root)); 
+            stage.setScene(new Scene(root));
             stage.setTitle("System Logs");
             stage.show();
         } catch (Exception ex) {
@@ -70,13 +63,13 @@ public class AdminMainMenuController {
         }
     }
 
-  
     private void handleViewActiveParking() {
         try {
-            // Send request to server to fetch active parking sessions
-            client.sendRequest(new ClientRequest("GET_ACTIVE_PARKING", new Object[]{}));
+            /**
+             * Sends a typed request to the server using full object-based communication.
+             */
+            client.handleMessageFromClientUI(new GetActiveParkingRequest());
 
-            // Preload AdminOrders.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
             Parent root = loader.load();
 
@@ -91,13 +84,15 @@ public class AdminMainMenuController {
             ex.printStackTrace();
         }
     }
+
     private void handleManageSubscribers() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminSubscriberManagement.fxml"));
             Parent root = loader.load();
             AdminSubscribersController controller = loader.getController();
             controller.setClient(client);
-			Stage stage = (Stage) btnSubscribers.getScene().getWindow();
+
+            Stage stage = (Stage) btnSubscribers.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Manage Subscribers");
             stage.show();

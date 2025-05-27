@@ -1,17 +1,24 @@
-package servergui;
+package serverGui;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.collections.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import server.ServerController;
+import server.BParkServer;
+import server.ClientInfo;
 
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/**
+ * Controller for the server GUI. Manages server startup, database connection,
+ * and displays connected clients in a table.
+ */
 public class ServerMainController {
+
+    // ─────────────── UI Components ───────────────
 
     @FXML private TextField serverIpField, serverPortField, dbIpField, dbPortField, dbUserField;
     @FXML private PasswordField dbPassField;
@@ -20,10 +27,17 @@ public class ServerMainController {
     @FXML private TableView<ClientInfo> clientTable;
     @FXML private TableColumn<ClientInfo, String> ipColumn, hostColumn, statusColumn;
 
-    private ServerController server;
+    // ─────────────── Server & Client List ───────────────
 
-    private ObservableList<ClientInfo> clients = FXCollections.observableArrayList(); 
+    /** Reference to the main server instance */
+    private BParkServer server;
 
+    /** Observable list of connected clients displayed in the table */
+    private ObservableList<ClientInfo> clients = FXCollections.observableArrayList();
+
+    /**
+     * Initializes the server GUI. Sets default values for input fields and configures the table.
+     */
     @FXML
     public void initialize() {
         try {
@@ -44,12 +58,16 @@ public class ServerMainController {
         clientTable.setItems(clients);
     }
 
+    /**
+     * Handles the connect button click. Tries to connect to the database and starts the server.
+     */
     @FXML
     void handleConnect() {
         if (server != null && server.isListening()) {
             statusLabel.setText("⚠️ Server is already running.");
             return;
         }
+
         String dbIp = dbIpField.getText();
         String dbPort = dbPortField.getText();
         String user = dbUserField.getText();
@@ -64,7 +82,8 @@ public class ServerMainController {
 
             statusLabel.setText("✅ DB connected. Starting server...");
 
-            server = new ServerController(serverPort, this);
+            // ✅ Pass controller reference to the server
+            server = new BParkServer(serverPort, this);
             server.listen();
 
             statusLabel.setText("✅ Server running on port " + serverPort);
@@ -74,6 +93,9 @@ public class ServerMainController {
         }
     }
 
+    /**
+     * Stops the server and updates the GUI when disconnect button is clicked.
+     */
     @FXML
     void handleDisconnect() {
         if (server != null) {
@@ -95,30 +117,36 @@ public class ServerMainController {
         }
     }
 
+    /**
+     * Exits the application completely.
+     */
     @FXML
     void handleExit() {
         System.exit(0);
     }
 
     /**
-     * Adds or updates a client entry.
+     * Adds or updates a client entry in the GUI table.
      * Ensures duplicate or stale entries are removed.
+     *
+     * @param ip the IP address of the client
+     * @param host the hostname of the client
+     * @param id a unique identifier (usually hashcode)
      */
     public void addClient(String ip, String host, int id) {
         Platform.runLater(() -> {
-            // Remove by unique ID (preferred)
             clients.removeIf(client -> client.getId() == id);
-
-            // Optional: Remove by IP+host in case ID isn't consistent
             clients.removeIf(client -> client.getIp().equals(ip) && client.getHost().equals(host));
-
             clients.add(new ClientInfo(ip, host, "Connected", id));
             clientTable.refresh();
         });
     }
 
     /**
-     * Updates client status based on ID.
+     * Updates a client's status in the table.
+     *
+     * @param id the client's ID
+     * @param status the new status (e.g., "Connected", "Disconnected")
      */
     public void updateClientStatus(int id, String status) {
         Platform.runLater(() -> {

@@ -22,7 +22,7 @@ public class AdminLogsController {
     @FXML
     public void initialize() {
         btnBack.setOnAction(e -> handleBack());
-        // btnRefreshLogs.setOnAction(e -> refreshLogs()); // Optional: bind logic here
+        // btnRefreshLogs.setOnAction(e -> refreshLogs()); // Optional
     }
 
     private void handleBack() {

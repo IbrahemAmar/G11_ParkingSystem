@@ -6,6 +6,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/G11_ParkingSystem/mysqlconnector/mysql-connector-java-8.0.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="/G11_ParkingSystem/mysqlconnector/mysql-connector-java-8.0.13.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/ParkingSystemServer"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OCSF"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/SharedEntites"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

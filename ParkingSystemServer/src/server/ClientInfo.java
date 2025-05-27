@@ -1,4 +1,4 @@
-package servergui;
+package server;
 
 public class ClientInfo {
     private String ip;

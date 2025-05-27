@@ -6,7 +6,7 @@
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="servergui.ServerMainController"
+      fx:controller="serverGui.ServerMainController"
       spacing="20"
       stylesheets="@server-style.css"
       style="-fx-padding: 20; -fx-background-color: #f4f4f4;">

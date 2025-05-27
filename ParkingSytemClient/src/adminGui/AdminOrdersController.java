@@ -18,14 +18,12 @@ import java.util.List;
 import common.ChatIF;
 
 public class AdminOrdersController implements ChatIF {
-    @FXML private Label lblStatus; // Add this to your FXML
+    @FXML private Label lblStatus;
 
     @Override
     public void display(String message) {
         Platform.runLater(() -> lblStatus.setText(message));
     }
-
-
 
     private ClientController client;
 
@@ -43,8 +41,7 @@ public class AdminOrdersController implements ChatIF {
 
     @FXML private Button btnSearch;
     @FXML private Button btnClear;
-    @FXML
-    private Button btnBack;
+    @FXML private Button btnBack;
 
     @FXML
     private void handleBack() {
@@ -53,7 +50,7 @@ public class AdminOrdersController implements ChatIF {
             Parent root = loader.load();
 
             AdminMainMenuController controller = loader.getController();
-            controller.setClient(client); // Pass client back to the main menu
+            controller.setClient(client);
 
             Stage stage = (Stage) btnBack.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -63,7 +60,6 @@ public class AdminOrdersController implements ChatIF {
             e.printStackTrace();
         }
     }
-
 
     public void setClient(ClientController client) {
         this.client = client;
@@ -75,15 +71,17 @@ public class AdminOrdersController implements ChatIF {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         colActiveSubId.setCellValueFactory(data ->
-        new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getSubscriberId()));
-        colActiveCarPlate.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getCarPlate()));
+            new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getSubscriberId()));
+        colActiveCarPlate.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getCarPlate()));
         colActiveSpotId.setCellValueFactory(data ->
-        new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getSpotId()));
+            new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getSpotId()));
         colActiveEntryTime.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(formatter.format(data.getValue().getEntryTime())));
+            new javafx.beans.property.SimpleStringProperty(formatter.format(data.getValue().getEntryTime())));
         colActiveExpectedExitTime.setCellValueFactory(data ->
-                new javafx.beans.property.SimpleStringProperty(formatter.format(data.getValue().getExpectedExitTime())));
-        colActiveCode.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getParkingCode()));
+            new javafx.beans.property.SimpleStringProperty(formatter.format(data.getValue().getExpectedExitTime())));
+        colActiveCode.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getParkingCode()));
     }
 
     public void loadActiveParking(List<ParkingSession> sessions) {

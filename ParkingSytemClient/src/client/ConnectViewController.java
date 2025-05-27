@@ -1,69 +1,75 @@
 package client;
 
-import java.net.InetAddress;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
+/**
+ * Controller for the initial connection screen.
+ */
 public class ConnectViewController {
 
     @FXML
-    private TextField ipField;
+    private TextField txtServerIp;
 
     @FXML
-    private TextField portField;
+    private TextField txtServerPort;
+
+    @FXML
+    private Button connectButton;
 
     @FXML
     private Label statusLabel;
-
+    
     @FXML
     public void initialize() {
-        try {
-            String localIp = InetAddress.getLocalHost().getHostAddress();
-            this.ipField.setText(localIp);
-        } catch (Exception e) {
-            this.ipField.setText("localhost");
-        }
-        this.portField.setText("5555"); 
+        txtServerIp.setText("localhost");
+        txtServerPort.setText("5555");
+        statusLabel.setText("Enter server details to connect.");
     }
 
-    @FXML
-    private void handleConnect() {
-        int port;
-        String ip = this.ipField.getText().trim();
 
-        try {
-            port = Integer.parseInt(this.portField.getText().trim());
-        } catch (NumberFormatException e) {
-            this.statusLabel.setText("Invalid port number.");
-            return;  
+    @FXML
+    void handleConnect(ActionEvent event) {
+        String ip = txtServerIp.getText().trim();
+        String portText = txtServerPort.getText().trim();
+
+        if (ip.isEmpty() || portText.isEmpty()) {
+            statusLabel.setText("❌ Please enter server IP and port.");
+            return;
         }
 
-        try { 
-            // Load MainMenu.fxml
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
-        	Parent root = loader.load();
+        try {
+            int port = Integer.parseInt(portText);
 
-        	MainMenuController controller = loader.getController();
+            // Load MainMenu scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
+            Parent root = loader.load();
 
-        	// ✅ pass the controller as ChatIF
-        	ClientController client = new ClientController(ip, port, controller);
-        	controller.setClient(client);
-        	client.setGuiController(controller);
+            // Get MainMenuController
+            MainMenuController mainMenuController = loader.getController();
 
-            // Open main menu scene
-            Stage stage = (Stage) this.ipField.getScene().getWindow();
-            stage.setTitle("Main Menu");
+            // Create and connect client
+            ClientController.setClient(new ClientController(ip, port, mainMenuController));
+            mainMenuController.setClient(ClientController.getClient());
+
+            // Switch scene
+            Stage stage = (Stage) connectButton.getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.setTitle("BPARK - Main Menu");
             stage.show();
 
-        } catch (Exception e) {
-            this.statusLabel.setText("Failed to connect or load menu: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            statusLabel.setText("❌ Invalid port number.");
+        } catch (IOException e) {
             e.printStackTrace();
+            statusLabel.setText("❌ Could not connect to server.");
         }
     }
 }

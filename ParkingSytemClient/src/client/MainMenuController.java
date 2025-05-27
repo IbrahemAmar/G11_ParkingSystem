@@ -2,6 +2,8 @@ package client;
 
 import adminGui.AdminMainMenuController;
 import common.ChatIF;
+import entities.LoginRequest;
+import entities.LoginResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +14,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import subscriberGui.SubscriberDashboardController;
 
-import java.io.IOException; // ✅ Required for FXMLLoader.load()
+import java.io.IOException;
 
 public class MainMenuController implements ChatIF {
 
@@ -45,7 +47,7 @@ public class MainMenuController implements ChatIF {
     @FXML
     private void initialize() {
         btnLogin.setOnAction(e -> handleLogin());
-        btnCheckAvailability.setOnAction(this::checkAvailability); // ✅ Add button handler
+        btnCheckAvailability.setOnAction(this::checkAvailability);
     }
 
     private void handleLogin() {
@@ -57,9 +59,11 @@ public class MainMenuController implements ChatIF {
             return;
         }
 
-        boolean sent = client.sendLoginRequest(username, password);
-        if (!sent) {
-            showAlert("Login request could not be sent.");
+        try {
+            ClientController.getClient().sendToServer(new LoginRequest(username, password));
+        } catch (IOException e) {
+            showAlert("❌ Failed to send login request.");
+            e.printStackTrace();
         }
     }
 
@@ -108,7 +112,6 @@ public class MainMenuController implements ChatIF {
         }
     }
 
-    // ✅ New method for opening PublicAvailability.fxml
     @FXML
     private void checkAvailability(ActionEvent event) {
         try {
@@ -122,5 +125,20 @@ public class MainMenuController implements ChatIF {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Called automatically by ClientController when LoginResponse is received.
+     */
+    public void handleLoginResponse(LoginResponse response) {
+        Platform.runLater(() -> {
+            if (response.isSuccess()) {
+                String[] parts = response.getMessage().split(":");
+                String role = parts.length > 1 ? parts[1].trim() : "unknown";
+                redirectBasedOnRole(role);
+            } else {
+                showAlert("❌ " + response.getMessage());
+            }
+        });
     }
 }
