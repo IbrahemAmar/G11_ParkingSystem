@@ -56,7 +56,7 @@ public class ServerMainController {
         String pass = dbPassField.getText();
         int serverPort = Integer.parseInt(serverPortField.getText());
 
-        String jdbcUrl = "jdbc:mysql://" + dbIp + ":" + dbPort + "/parking_db?serverTimezone=Asia/Jerusalem&useSSL=false&allowPublicKeyRetrieval=true";
+        String jdbcUrl = "jdbc:mysql://" + dbIp + ":" + dbPort + "/bpark?serverTimezone=Asia/Jerusalem&useSSL=false&allowPublicKeyRetrieval=true";
 
         try {
             Connection conn = DriverManager.getConnection(jdbcUrl, user, pass);
