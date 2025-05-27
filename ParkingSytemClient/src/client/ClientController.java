@@ -4,7 +4,6 @@ import common.ChatIF;
 import common.ClientRequest;
 import common.ParkingSession;
 import ocsf.client.AbstractClient;
-import subscriberGui.MainMenuController;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,8 +24,8 @@ public class ClientController extends AbstractClient {
      */
     public ClientController(String host, int port, ChatIF ui) throws IOException {
         super(host, port);
-        this.ui = ui;
-        openConnection();
+        this.ui = ui; 
+        openConnection(); 
     }
 
     /**

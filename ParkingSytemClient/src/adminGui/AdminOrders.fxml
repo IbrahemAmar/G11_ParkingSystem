@@ -4,7 +4,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="clientgui.admin.AdminOrdersController"
+      fx:controller="adminGui.AdminOrdersController"
       spacing="25" style="-fx-padding: 20;">
 
     <!-- Title -->

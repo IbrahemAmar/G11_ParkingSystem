@@ -21,7 +21,7 @@ public class CheckAvailabilityController {
             stage.setTitle("Available Parking Spots");
             stage.show();
 
-        } catch (IOException e) {
+        } catch (IOException e) { 
             e.printStackTrace();
         }
     }

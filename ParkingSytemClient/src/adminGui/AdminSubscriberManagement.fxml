@@ -4,7 +4,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="clientgui.admin.AdminSubscribersController"
+            fx:controller="adminGui.AdminSubscribersController"
             prefWidth="850" prefHeight="600">
 
     <VBox spacing="25" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"

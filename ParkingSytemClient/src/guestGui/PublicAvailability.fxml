@@ -4,7 +4,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="subscriberGui.PublicAvailabilityController">
+            fx:controller="guestGui.PublicAvailabilityController">
 
     <VBox spacing="20" alignment="CENTER"
           AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"

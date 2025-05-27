@@ -55,14 +55,14 @@ public class AdminMainMenuController {
 
     private void handleViewLogs() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clientgui/admin/AdminLogs.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminLogs.fxml"));
             Parent root = loader.load();
 
             AdminLogsController controller = loader.getController();
             controller.setClient(client); // if needed
 
             Stage stage = (Stage) btnLogs.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root)); 
             stage.setTitle("System Logs");
             stage.show();
         } catch (Exception ex) {
@@ -77,7 +77,7 @@ public class AdminMainMenuController {
             client.sendRequest(new ClientRequest("GET_ACTIVE_PARKING", new Object[]{}));
 
             // Preload AdminOrders.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clientgui/admin/AdminOrders.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
             Parent root = loader.load();
 
             AdminOrdersController controller = loader.getController();
@@ -93,7 +93,7 @@ public class AdminMainMenuController {
     }
     private void handleManageSubscribers() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/clientgui/admin/AdminSubscriberManagement.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminSubscriberManagement.fxml"));
             Parent root = loader.load();
             AdminSubscribersController controller = loader.getController();
             controller.setClient(client);
