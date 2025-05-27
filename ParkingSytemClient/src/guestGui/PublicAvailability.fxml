@@ -11,17 +11,22 @@
 
     <VBox alignment="CENTER" spacing="20" style="-fx-padding: 40; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
+        <!-- NEW TITLE ADDED -->
+        <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="👤 My Details" />
+
+        <!-- EXISTING SECTION UNCHANGED -->
         <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="🅿️ Parking Spot Availability" />
 
         <TableView fx:id="tableAvailability" prefHeight="300" prefWidth="600">
             <columns>
-                <TableColumn fx:id="colSpotNumber" prefWidth="221.60003662109375" text="Spot Number" />
-                <TableColumn fx:id="colStatus" minWidth="0.0" prefWidth="377.5999755859375" text="Status" />
+                <TableColumn fx:id="colSpotNumber" prefWidth="221.6" text="Spot Number" />
+                <TableColumn fx:id="colStatus" prefWidth="377.6" text="Status" />
             </columns>
         </TableView>
 
         <Label fx:id="lblAvailable" style="-fx-font-size: 16px; -fx-text-fill: green;" text="✔ 12 spots available" />
 
+        <!-- BUTTON AT THE END -->
         <Button fx:id="btnBack" style="-fx-background-color: #E0E0E0;" text="🔙 Back to Main Menu" />
     </VBox>
 </AnchorPane>
