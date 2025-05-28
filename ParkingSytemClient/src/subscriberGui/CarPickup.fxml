@@ -30,6 +30,7 @@
             <Button text="Extend Parking Time (4 more hours)" fx:id="btnExtend" />
         </VBox>
 
-        <Button text="🔙 Back to Menu" fx:id="btnBack" />
+        <Button text="🔙 Back to Menu" fx:id="btnBack" onAction="#goBack"
+                style="-fx-background-color: #e0e0e0;" />
     </VBox>
 </AnchorPane>

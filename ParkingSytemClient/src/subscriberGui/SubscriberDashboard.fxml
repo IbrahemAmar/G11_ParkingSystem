@@ -13,7 +13,7 @@
                    style="-fx-font-size: 18px; -fx-font-weight: bold;" />
             <Pane HBox.hgrow="ALWAYS"/>
             <Button text="👤 Details" fx:id="btnDetails" onAction="#openDetails"/>
-            <Button text="🔙 Logout" fx:id="btnLogout"/>
+            <Button text="🔙 Logout" fx:id="btnLogout" onAction="#logout"/>
         </ToolBar>
     </top>
 
@@ -42,12 +42,15 @@
             <!-- Action Buttons -->
             <HBox spacing="20" alignment="CENTER">
                 <Button text="⏱ Extend Parking Time" fx:id="btnExtend"
+                        onAction="#openExtendParking"
                         style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
 
                 <Button text="🗓 Reserve Future Parking" fx:id="btnReserve"
+                        onAction="#openReservationRequest"
                         style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
 
                 <Button text="🚙 Retrieve My Vehicle" fx:id="btnPickup"
+                        onAction="#openCarPickup"
                         style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
             </HBox>
 
