@@ -25,6 +25,7 @@ import java.net.URL;
 public class MainMenuController implements ChatIF {
 
     private ClientController client;
+    private Stage stage; // 👈 stage שמתקבל מבחוץ
 
     @FXML
     private TextField txtUsername;
@@ -40,6 +41,13 @@ public class MainMenuController implements ChatIF {
 
     @FXML
     private Label statusLabel;
+
+    /**
+     * Allows external controllers (like logout) to pass the current stage.
+     */
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
 
     /**
      * Displays messages received from the server.
@@ -134,10 +142,11 @@ public class MainMenuController implements ChatIF {
                 ((SubscriberDashboardController) controller).setClient(client);
             }
 
-            Stage stage = (Stage) txtUsername.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("BPARK - " + role);
-            stage.show();
+            // ✨ משתמשים ב-stage שהועבר מבחוץ או נשלף מהשדה אם הוא null
+            Stage currentStage = this.stage != null ? this.stage : (Stage) txtUsername.getScene().getWindow();
+            currentStage.setScene(new Scene(root));
+            currentStage.setTitle("BPARK - " + role);
+            currentStage.show();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +156,6 @@ public class MainMenuController implements ChatIF {
 
     /**
      * Handles the action of checking public parking availability.
-     * Hides the current window and opens the PublicAvailability screen.
      *
      * @param event The action event triggered by button click.
      */
@@ -176,7 +184,6 @@ public class MainMenuController implements ChatIF {
 
     /**
      * Called automatically when a LoginResponse is received.
-     * Redirects user to their respective dashboard.
      *
      * @param response The LoginResponse received from the server.
      */
