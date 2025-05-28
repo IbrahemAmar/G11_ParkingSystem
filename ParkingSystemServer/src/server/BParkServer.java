@@ -1,14 +1,12 @@
 package server;
 
-import entities.LoginRequest;
-import entities.LoginResponse;
-import entities.ErrorResponse;
+import entities.*;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 import serverGui.ServerMainController;
 
-
 import java.io.IOException;
+import java.util.List;
 
 /**
  * BParkServer handles client messages and interacts with the database.
@@ -33,25 +31,68 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Handles messages received from the client.
+     * Handles incoming messages from a client.
+     * Supports login requests and string-based commands such as "check available".
+     *
+     * @param msg    The message received from the client.
+     * @param client The client that sent the message.
      */
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
         if (msg instanceof LoginRequest request) {
-            String role = dbController.checkUserCredentials(request.getUsername(), request.getPassword());
-            boolean isValid = role != null;
-            String message = isValid ? "Login successful: " + role : "Invalid credentials";
-            try {
-                client.sendToClient(new LoginResponse(isValid, message));
-            } catch (IOException e) {
-                e.printStackTrace();
+            // Delegate login request to a separate method
+            handleLoginRequest(request, client);
+
+        } else if (msg instanceof String str) {
+            // Handle known string-based commands
+            switch (str.toLowerCase()) {
+                case "check available" -> {
+                    List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
+                    try {
+                        client.sendToClient(spots);
+                    } catch (IOException e) {
+                        System.err.println("❌ Failed to send parking availability to client");
+                        e.printStackTrace();
+                    }
+                }
+
+                default -> {
+                    // Handle unknown string command
+                    try {
+                        client.sendToClient(new ErrorResponse("Unknown command: " + str));
+                    } catch (IOException e) {
+                        System.err.println("❌ Failed to send error response to client");
+                        e.printStackTrace();
+                    }
+                }
             }
+
         } else {
+            // Fallback for unsupported message types
             try {
                 client.sendToClient(new ErrorResponse("Unsupported message type."));
             } catch (IOException e) {
+                System.err.println("❌ Failed to send error response to client");
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Processes a login request by checking credentials and sending a response back to the client.
+     *
+     * @param request the login request object containing username and password
+     * @param client  the connection to the client who sent the login request
+     */
+    private void handleLoginRequest(LoginRequest request, ConnectionToClient client) {
+        String role = dbController.checkUserCredentials(request.getUsername(), request.getPassword());
+        boolean isValid = role != null;
+        String message = isValid ? "Login successful: " + role : "Invalid credentials";
+
+        try {
+            client.sendToClient(new LoginResponse(isValid, message));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

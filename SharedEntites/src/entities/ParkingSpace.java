@@ -8,28 +8,36 @@ import java.io.Serializable;
 public class ParkingSpace implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** ID of the parking space */
+    /** ID of the parking space */ 
     private int parkingSpaceId;
 
     /** Availability status of the parking space */
     private boolean isAvailable;
 
-	public int getParkingSpaceId() {
-		return parkingSpaceId;
-	}
+    /**
+     * Constructor for ParkingSpace.
+     *
+     * @param parkingSpaceId The unique ID of the parking space.
+     * @param isAvailable Whether the spot is available.
+     */
+    public ParkingSpace(int parkingSpaceId, boolean isAvailable) {
+        this.parkingSpaceId = parkingSpaceId;
+        this.isAvailable = isAvailable;
+    }
 
-	public void setParkingSpaceId(int parkingSpaceId) {
-		this.parkingSpaceId = parkingSpaceId;
-	}
+    public int getParkingSpaceId() {
+        return parkingSpaceId;
+    }
 
-	public boolean isAvailable() {
-		return isAvailable;
-	}
+    public void setParkingSpaceId(int parkingSpaceId) {
+        this.parkingSpaceId = parkingSpaceId;
+    }
 
-	public void setAvailable(boolean isAvailable) {
-		this.isAvailable = isAvailable;
-	}
+    public boolean isAvailable() {
+        return isAvailable; 
+    }
 
-    // Getters and setters can be added here
+    public void setAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
 }
-

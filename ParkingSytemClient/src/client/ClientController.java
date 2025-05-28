@@ -1,8 +1,12 @@
 package client;
 
 import entities.*;
+import guestGui.PublicAvailabilityController;
+import javafx.application.Platform;
 import ocsf.client.AbstractClient;
+
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The ClientController manages the connection between the client GUI and the server.
@@ -39,6 +43,11 @@ public class ClientController extends AbstractClient {
     /**
      * Private constructor with GUI controller, host and port.
      * Automatically opens the connection.
+     *
+     * @param host         The server host.
+     * @param port         The server port.
+     * @param guiController Reference to the login/main menu controller.
+     * @throws IOException if the connection fails to open.
      */
     public ClientController(String host, int port, MainMenuController guiController) throws IOException {
         super(host, port);
@@ -48,6 +57,8 @@ public class ClientController extends AbstractClient {
 
     /**
      * Singleton setter.
+     *
+     * @param client The ClientController instance to set.
      */
     public static void setClient(ClientController client) {
         clientInstance = client;
@@ -55,20 +66,26 @@ public class ClientController extends AbstractClient {
 
     /**
      * Singleton getter.
+     *
+     * @return The current ClientController instance.
      */
     public static ClientController getClient() {
         return clientInstance;
     }
 
     /**
-     * Allows assigning/changing the GUI controller at runtime (optional).
+     * Allows assigning/changing the GUI controller at runtime.
+     *
+     * @param guiController The controller to attach to.
      */
     public void setGuiController(MainMenuController guiController) {
         this.guiController = guiController;
     }
 
     /**
-     * Handles messages received from the server.
+     * Handles messages received from the server and dispatches them to the appropriate GUI.
+     *
+     * @param msg The message received from the server.
      */
     @Override
     protected void handleMessageFromServer(Object msg) {
@@ -83,6 +100,15 @@ public class ClientController extends AbstractClient {
         } else if (msg instanceof ErrorResponse) {
             ErrorResponse error = (ErrorResponse) msg;
             System.out.println("❌ Server error: " + error.getErrorMessage());
+
+        } else if (msg instanceof List<?>) {
+            List<?> list = (List<?>) msg;
+
+            if (!list.isEmpty() && list.get(0) instanceof ParkingSpace) {
+                Platform.runLater(() -> {
+                    PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
+                });
+            }
 
         } else {
             System.out.println("⚠️ Unknown message from server.");

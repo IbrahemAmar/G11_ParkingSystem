@@ -19,20 +19,26 @@
         <VBox alignment="CENTER" spacing="15">
             <Label style="-fx-font-size: 14px; -fx-text-fill: #444;" text="🔑 Please log in" />
 
-            <TextField fx:id="txtUsername" prefWidth="260" promptText="Username or ID" text="supervisor" />
-            <PasswordField fx:id="txtPassword" prefWidth="260" promptText="Password" text="1" />
+            <TextField fx:id="txtUsername" prefWidth="260" promptText="Username or ID" />
+            <PasswordField fx:id="txtPassword" prefWidth="260" promptText="Password" />
 
-            <Button fx:id="btnLogin" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-pref-width: 200;" text="➡ Login" />
+            <Button fx:id="btnLogin"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-pref-width: 200;"
+                    text="➡ Login" />
         </VBox>
 
         <Separator />
-        <Label fx:id="statusLabel" text="Status will appear here" />
 
+        <!-- Status Label -->
+        <Label fx:id="statusLabel" text="Status will appear here" style="-fx-text-fill: red;" />
 
         <!-- Visitor Access -->
         <VBox alignment="CENTER" spacing="10">
             <Label style="-fx-font-weight: bold;" text="🧭 Just Visiting?" />
-            <Button fx:id="btnCheckAvailability" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 250;" text="🅿️ Check Available Parking Spots" />
+            <Button fx:id="btnCheckAvailability"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 250;"
+                    text="🅿️ Check Available Parking Spots"
+                    onAction="#checkAvailability" />
             <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="No login required." />
         </VBox>
     </VBox>

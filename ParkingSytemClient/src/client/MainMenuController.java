@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,7 +16,12 @@ import javafx.stage.Stage;
 import subscriberGui.SubscriberDashboardController;
 
 import java.io.IOException;
+import java.net.URL;
 
+/**
+ * Controller for the main client menu.
+ * Handles login actions and access to public parking availability.
+ */
 public class MainMenuController implements ChatIF {
 
     private ClientController client;
@@ -35,21 +41,38 @@ public class MainMenuController implements ChatIF {
     @FXML
     private Label statusLabel;
 
+    /**
+     * Displays messages received from the server.
+     *
+     * @param message The message to display.
+     */
     @Override
     public void display(String message) {
         Platform.runLater(() -> statusLabel.setText(message));
     }
 
+    /**
+     * Injects the client controller instance.
+     *
+     * @param client The client controller.
+     */
     public void setClient(ClientController client) {
         this.client = client;
     }
 
+    /**
+     * Initializes UI elements and their handlers.
+     */
     @FXML
     private void initialize() {
         btnLogin.setOnAction(e -> handleLogin());
         btnCheckAvailability.setOnAction(this::checkAvailability);
     }
 
+    /**
+     * Handles login button click.
+     * Sends login request to the server.
+     */
     private void handleLogin() {
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText().trim();
@@ -67,6 +90,11 @@ public class MainMenuController implements ChatIF {
         }
     }
 
+    /**
+     * Displays an error alert to the user.
+     *
+     * @param msg The message to show in the alert.
+     */
     public void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Login Error");
@@ -75,6 +103,11 @@ public class MainMenuController implements ChatIF {
         alert.showAndWait();
     }
 
+    /**
+     * Redirects user to the dashboard based on their role.
+     *
+     * @param role The role returned by the server (e.g., "admin", "subscriber").
+     */
     public void redirectBasedOnRole(String role) {
         try {
             FXMLLoader loader;
@@ -112,23 +145,40 @@ public class MainMenuController implements ChatIF {
         }
     }
 
+    /**
+     * Handles the action of checking public parking availability.
+     * Hides the current window and opens the PublicAvailability screen.
+     *
+     * @param event The action event triggered by button click.
+     */
     @FXML
     private void checkAvailability(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/guestGui/PublicAvailability.fxml"));
+            URL fxmlLocation = getClass().getResource("/guestGui/PublicAvailability.fxml");
+
+            if (fxmlLocation == null) {
+                throw new IOException("FXML file not found: /guestGui/PublicAvailability.fxml");
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Public Parking Availability");
-            stage.setScene(new Scene(root));
-            stage.show();
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.setScene(new Scene(root));
+            currentStage.setTitle("🅿️ Parking Availability");
+            currentStage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert("❌ Failed to load Public Availability screen.");
         }
     }
 
     /**
-     * Called automatically by ClientController when LoginResponse is received.
+     * Called automatically when a LoginResponse is received.
+     * Redirects user to their respective dashboard.
+     *
+     * @param response The LoginResponse received from the server.
      */
     public void handleLoginResponse(LoginResponse response) {
         Platform.runLater(() -> {

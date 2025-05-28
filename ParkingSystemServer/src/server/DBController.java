@@ -1,25 +1,29 @@
 package server;
 
+import entities.ParkingSpace;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DBController handles database connectivity and operations
- * related to user authentication for the parking system.
+ * related to user authentication and parking space management.
  */
 public class DBController {
 
     // Update these to match your MySQL setup if needed
-	private static final String URL = "jdbc:mysql://localhost:3306/bpark?serverTimezone=Asia/Jerusalem&useSSL=false&allowPublicKeyRetrieval=true";
-	private static final String USER = "root";
-	private static final String PASSWORD = "Aa123456";
+    private static final String URL = "jdbc:mysql://localhost:3306/bpark?serverTimezone=Asia/Jerusalem&useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String USER = "root";
+    private static final String PASSWORD = "Aa123456";
 
     /**
      * Opens a connection to the MySQL database.
-     * 
+     *
      * @return a Connection object
      * @throws SQLException if the connection fails
      */
@@ -29,7 +33,7 @@ public class DBController {
 
     /**
      * Validates a user's credentials by querying the users table.
-     * 
+     *
      * @param username the username to check
      * @param password the password to check
      * @return true if the user exists and credentials match, false otherwise
@@ -50,7 +54,7 @@ public class DBController {
             return false;
         }
     }
-    
+
     /**
      * Validates a user's credentials against the database and retrieves their role.
      *
@@ -61,18 +65,47 @@ public class DBController {
      */
     public String checkUserCredentials(String username, String password) {
         String sql = "SELECT role FROM users WHERE username = ? AND password = ?";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, username);
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getString("role"); // ✅ returns admin/supervisor/subscriber
+                return rs.getString("role");
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * Retrieves all parking spaces that are currently marked as available.
+     *
+     * @return List of available parking spaces.
+     */
+    public List<ParkingSpace> getAvailableParkingSpaces() {
+        List<ParkingSpace> spots = new ArrayList<>();
+        String sql = "SELECT * FROM parking_space WHERE is_available = TRUE";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("parking_space_id");
+                boolean isAvailable = rs.getBoolean("is_available");
+                spots.add(new ParkingSpace(id, isAvailable));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return spots;
+    }
 }
