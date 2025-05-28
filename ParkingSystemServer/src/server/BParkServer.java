@@ -40,11 +40,9 @@ public class BParkServer extends AbstractServer {
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
         if (msg instanceof LoginRequest request) {
-            // Delegate login request to a separate method
             handleLoginRequest(request, client);
 
         } else if (msg instanceof String str) {
-            // Handle known string-based commands
             switch (str.toLowerCase()) {
                 case "check available" -> {
                     List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
@@ -57,7 +55,6 @@ public class BParkServer extends AbstractServer {
                 }
 
                 default -> {
-                    // Handle unknown string command
                     try {
                         client.sendToClient(new ErrorResponse("Unknown command: " + str));
                     } catch (IOException e) {
@@ -68,7 +65,6 @@ public class BParkServer extends AbstractServer {
             }
 
         } else {
-            // Fallback for unsupported message types
             try {
                 client.sendToClient(new ErrorResponse("Unsupported message type."));
             } catch (IOException e) {
@@ -80,6 +76,7 @@ public class BParkServer extends AbstractServer {
 
     /**
      * Processes a login request by checking credentials and sending a response back to the client.
+     * If the user is a subscriber, their detailed data is also sent as a Subscriber object.
      *
      * @param request the login request object containing username and password
      * @param client  the connection to the client who sent the login request
@@ -91,6 +88,14 @@ public class BParkServer extends AbstractServer {
 
         try {
             client.sendToClient(new LoginResponse(isValid, message));
+
+            // ✅ Send full subscriber object if applicable
+            if (isValid && "subscriber".equals(role)) {
+                Subscriber subscriber = dbController.getSubscriberByUsername(request.getUsername());
+                if (subscriber != null) {
+                    client.sendToClient(subscriber);
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

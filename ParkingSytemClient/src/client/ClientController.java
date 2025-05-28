@@ -17,10 +17,11 @@ public class ClientController extends AbstractClient {
     private static ClientController clientInstance;
     private MainMenuController guiController;
 
-    /**
-     * The role of the currently logged-in user (e.g., "admin", "subscriber", "supervisor").
-     */
+    /** The role of the currently logged-in user (e.g., "admin", "subscriber", "supervisor"). */
     private String userRole;
+
+    /** The currently logged-in subscriber object. */
+    private Subscriber currentSubscriber;
 
     /**
      * Returns the role of the currently logged-in user.
@@ -41,13 +42,17 @@ public class ClientController extends AbstractClient {
     }
 
     /**
+     * Returns the currently logged-in subscriber object.
+     *
+     * @return the Subscriber object.
+     */
+    public Subscriber getCurrentSubscriber() {
+        return currentSubscriber;
+    }
+
+    /**
      * Private constructor with GUI controller, host and port.
      * Automatically opens the connection.
-     *
-     * @param host         The server host.
-     * @param port         The server port.
-     * @param guiController Reference to the login/main menu controller.
-     * @throws IOException if the connection fails to open.
      */
     public ClientController(String host, int port, MainMenuController guiController) throws IOException {
         super(host, port);
@@ -58,7 +63,7 @@ public class ClientController extends AbstractClient {
     /**
      * Singleton setter.
      *
-     * @param client The ClientController instance to set.
+     * @param client The client controller instance.
      */
     public static void setClient(ClientController client) {
         clientInstance = client;
@@ -67,51 +72,59 @@ public class ClientController extends AbstractClient {
     /**
      * Singleton getter.
      *
-     * @return The current ClientController instance.
+     * @return the client controller instance.
      */
     public static ClientController getClient() {
         return clientInstance;
     }
 
     /**
-     * Allows assigning/changing the GUI controller at runtime.
+     * Allows assigning/changing the GUI controller at runtime (optional).
      *
-     * @param guiController The controller to attach to.
+     * @param guiController The main menu controller.
      */
     public void setGuiController(MainMenuController guiController) {
         this.guiController = guiController;
     }
 
     /**
-     * Handles messages received from the server and dispatches them to the appropriate GUI.
+     * Handles messages received from the server.
      *
-     * @param msg The message received from the server.
+     * @param msg The message sent by the server.
      */
     @Override
     protected void handleMessageFromServer(Object msg) {
-        if (msg instanceof LoginResponse) {
-            LoginResponse response = (LoginResponse) msg;
+        if (msg instanceof LoginResponse response) {
             System.out.println("🔐 Login: " + response.getMessage());
 
             if (guiController != null) {
                 guiController.handleLoginResponse(response);
             }
 
-        } else if (msg instanceof ErrorResponse) {
-            ErrorResponse error = (ErrorResponse) msg;
+        } else if (msg instanceof ErrorResponse error) {
             System.out.println("❌ Server error: " + error.getErrorMessage());
 
-        } else if (msg instanceof List<?>) {
-            List<?> list = (List<?>) msg;
+        } else if (msg instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingSpace) {
+            Platform.runLater(() -> {
+                PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
+            });
 
-            if (!list.isEmpty() && list.get(0) instanceof ParkingSpace) {
-                Platform.runLater(() -> {
-                    PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
-                });
-            }
-
-        } else {
-            System.out.println("⚠️ Unknown message from server.");
+        } else if (msg instanceof Subscriber subscriber) {
+            // Store the subscriber object received from the server
+            this.currentSubscriber = subscriber;
+            System.out.println("👤 Subscriber received: " + subscriber.getFullName());
+         
+        }else if (msg instanceof Subscriber sub) {
+            System.out.println("✅ Received subscriber from server: " + sub.getFullName()); // check console
+            setCurrentSubscriber(sub);
+            
+        }else {
+            System.out.println("⚠️ Unknown message from server: " + msg);
         }
     }
+
+	private void setCurrentSubscriber(Subscriber sub) {
+		// TODO Auto-generated method stub
+		
+	}
 }

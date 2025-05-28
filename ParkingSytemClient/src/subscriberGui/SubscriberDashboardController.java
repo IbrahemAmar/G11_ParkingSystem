@@ -27,7 +27,7 @@ public class SubscriberDashboardController {
     @FXML
     private void openDetails(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/SubscriberSettings.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/subscriberSettings.fxml"));
             Parent root = loader.load();
 
             // Replace scene in the same stage

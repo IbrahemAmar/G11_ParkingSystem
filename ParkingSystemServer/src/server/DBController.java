@@ -1,6 +1,7 @@
 package server;
 
 import entities.ParkingSpace;
+import entities.Subscriber;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,7 +13,7 @@ import java.util.List;
 
 /**
  * DBController handles database connectivity and operations
- * related to user authentication and parking space management.
+ * related to user authentication, subscribers, and parking space management.
  */
 public class DBController {
 
@@ -107,5 +108,41 @@ public class DBController {
         }
 
         return spots;
+    }
+
+    /**
+     * Retrieves full subscriber details by their username.
+     *
+     * @param username the subscriber's username
+     * @return a populated Subscriber object or null if not found
+     */
+    public Subscriber getSubscriberByUsername(String username) {
+        String sql = """
+            SELECT u.id, u.first_name, u.last_name, u.username, s.email, s.phone_number
+            FROM users u
+            JOIN subscriber s ON s.subscriber_id = u.id
+            WHERE u.username = ?
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
+                String email = rs.getString("email");
+                String phone = rs.getString("phone_number");
+
+                return new Subscriber(id, fullName, username, email, phone);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
