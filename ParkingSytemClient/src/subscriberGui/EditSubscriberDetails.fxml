@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -11,18 +10,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="subscriberGui.EditSubscriberDetailsController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.EditSubscriberDetailsController">
 
-    <VBox alignment="CENTER" spacing="25"
-          style="-fx-padding: 40; -fx-background-color: #ffffff;"
-          AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
-          AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+    <VBox alignment="CENTER" spacing="25" style="-fx-padding: 40; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
         <!-- Back Button -->
         <HBox alignment="TOP_LEFT">
-            <Button fx:id="btnBack" text="🔙 Back" />
+            <Button fx:id="btnBack" text="🔙 Back" onAction="#handleBack" />
         </HBox>
 
         <!-- Edit Info Title -->
@@ -38,9 +32,6 @@
 
             <Label text="New Phone:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
             <TextField fx:id="txtNewPhone" promptText="Enter new phone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-            <Label text="New Password:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <PasswordField fx:id="txtNewPass" promptText="New password" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
             <columnConstraints>
                 <ColumnConstraints />

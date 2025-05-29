@@ -23,7 +23,7 @@ public class DBController {
     private static final String PASSWORD = "Aa123456";
 
     /**
-     * Opens a connection to the MySQL database.
+     * Opens a connection to the MySQL database. 
      *
      * @return a Connection object
      * @throws SQLException if the connection fails
@@ -118,7 +118,7 @@ public class DBController {
      */
     public Subscriber getSubscriberByUsername(String username) {
         String sql = """
-            SELECT u.id, u.first_name, u.last_name, u.username, s.email, s.phone_number
+            SELECT u.id, u.first_name, u.last_name, u.username, s.email, s.phone_number, s.subscriber_code
             FROM users u
             JOIN subscriber s ON s.subscriber_id = u.id
             WHERE u.username = ?
@@ -135,8 +135,9 @@ public class DBController {
                 String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
                 String email = rs.getString("email");
                 String phone = rs.getString("phone_number");
+                String subscriberCode = rs.getString("subscriber_code");
 
-                return new Subscriber(id, fullName, username, email, phone);
+                return new Subscriber(id, fullName, username, email, phone, subscriberCode);
             }
 
         } catch (SQLException e) {
@@ -145,4 +146,5 @@ public class DBController {
 
         return null;
     }
+
 }

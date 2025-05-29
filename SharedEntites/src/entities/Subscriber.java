@@ -25,21 +25,26 @@ public class Subscriber implements Serializable {
     /** Phone number of the subscriber */
     private String phone;
 
+    /** Unique subscriber code */
+    private String subscriberCode;
+
     /**
      * Constructs a Subscriber object with all details.
      *
-     * @param id        Subscriber ID
-     * @param fullName  Full name of the subscriber
-     * @param username  Username used to login
-     * @param email     Current email address
-     * @param phone     Current phone number
+     * @param id              Subscriber ID
+     * @param fullName        Full name of the subscriber
+     * @param username        Username used to login
+     * @param email           Current email address
+     * @param phone           Current phone number
+     * @param subscriberCode  Unique subscriber code
      */
-    public Subscriber(int id, String fullName, String username, String email, String phone) {
+    public Subscriber(int id, String fullName, String username, String email, String phone, String subscriberCode) {
         this.id = id;
         this.fullName = fullName;
         this.username = username;
         this.email = email;
         this.phone = phone;
+        this.subscriberCode = subscriberCode;
     }
 
     /** @return the subscriber's ID */
@@ -66,6 +71,9 @@ public class Subscriber implements Serializable {
     public String getPhone() {
         return phone;
     }
-    
-    
+
+    /** @return the unique subscriber code */
+    public String getSubscriberCode() {
+        return subscriberCode;
+    }
 }

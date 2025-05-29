@@ -18,7 +18,7 @@ public class BParkServer extends AbstractServer {
     // ✅ Reference to the GUI controller for updating the client table
     private ServerMainController guiController;
 
-    /**
+    /** 
      * Constructs the server and initializes DB controller.
      *
      * @param port the port to listen on
@@ -42,7 +42,12 @@ public class BParkServer extends AbstractServer {
         if (msg instanceof LoginRequest request) {
             handleLoginRequest(request, client);
 
-        } else if (msg instanceof String str) {
+        }
+        else if (msg instanceof ParkingSpace)
+        {
+        	
+        }
+        else if (msg instanceof String str) {
             switch (str.toLowerCase()) {
                 case "check available" -> {
                     List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();

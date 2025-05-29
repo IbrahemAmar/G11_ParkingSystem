@@ -1,44 +1,78 @@
-package adminGui;
+package subscriberGui;
 
 import client.ClientController;
+import entities.Subscriber;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
 
-public class AdminLogsController {
-
-    private ClientController client;
-
-    public void setClient(ClientController client) {
-        this.client = client;
-    }
-
-    @FXML private Button btnRefreshLogs;
-    @FXML private Button btnBack;
+/**
+ * Controller for SubscriberSettings.fxml.
+ * Displays the currently logged-in subscriber's details using labels.
+ */
+public class SubscriberSettingsController {
 
     @FXML
+    private Label lblFullName;
+
+    @FXML
+    private Label lblSubscriberId;
+
+    @FXML
+    private Label lblUsername;
+
+    @FXML
+    private Label lblCurrentEmail;
+
+    @FXML
+    private Label lblCurrentPhone;
+
+    @FXML
+    private Button btnBack;
+
+    /**
+     * Called automatically after the FXML is loaded.
+     * Safely updates the UI once the subscriber is available.
+     */
+    @FXML
     public void initialize() {
-        btnBack.setOnAction(e -> handleBack());
-        // btnRefreshLogs.setOnAction(e -> refreshLogs()); // Optional
+        Platform.runLater(() -> {
+            Subscriber subscriber = ClientController.getClient().getCurrentSubscriber();
+            if (subscriber == null) {
+                System.out.println("❌ No subscriber in client");
+                return;
+            }
+            System.out.println("✅ Populating fields for: " + subscriber.getFullName());
+
+            lblFullName.setText(subscriber.getFullName());
+            lblSubscriberId.setText(String.valueOf(subscriber.getId()));
+            lblUsername.setText(subscriber.getUsername());
+            lblCurrentEmail.setText(subscriber.getEmail());
+            lblCurrentPhone.setText(subscriber.getPhone());
+        });
     }
 
-    private void handleBack() {
+    /**
+     * Handles the Back button click.
+     * Loads the SubscriberDashboard.fxml scene.
+     *
+     * @param event The action event triggered by the button click.
+     */
+    @FXML
+    private void handleBackButton(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("adminGui/AdminMainMenu.fxml"));
-            Parent root = loader.load();
-
-            AdminMainMenuController controller = loader.getController();
-            controller.setClient(client);
-
+            Parent root = FXMLLoader.load(getClass().getResource("SubscriberDashboard.fxml"));
             Stage stage = (Stage) btnBack.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Admin Dashboard");
-            stage.show();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            stage.setTitle("Subscriber Dashboard");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
