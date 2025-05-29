@@ -14,7 +14,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import subscriberGui.SubscriberDashboardController;
-import common.ChatIF;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,7 +25,7 @@ import java.net.URL;
 public class MainMenuController implements ChatIF {
 
     private ClientController client;
-    private Stage stage; // 👈 stage שמתקבל מבחוץ
+    private Stage stage; // The window used to change scenes
 
     @FXML
     private TextField txtUsername;
@@ -51,6 +50,7 @@ public class MainMenuController implements ChatIF {
     public void setStage(Stage stage) {
         this.stage = stage;
     }
+
     @Override
     public void display(String message) {
         Platform.runLater(() -> statusLabel.setText(message));
@@ -125,9 +125,10 @@ public class MainMenuController implements ChatIF {
     }
 
     /**
-     * Redirects the user to their respective dashboard screen based on role.
+     * Redirects the user to their respective dashboard screen based on their role.
+     * Reuses the current login stage instead of opening a new one.
      *
-     * @param role The role returned by the server (e.g., "subscriber", "admin")
+     * @param role The role returned from the server (e.g., "subscriber", "admin").
      */
     public void redirectBasedOnRole(String role) {
         try {
@@ -151,31 +152,28 @@ public class MainMenuController implements ChatIF {
             Object controller = loader.getController();
 
             // Pass client to the correct controller
-            if (controller instanceof AdminMainMenuController) {
-                ((AdminMainMenuController) controller).setClient(client);
-            } else if (controller instanceof SubscriberDashboardController) {
-                ((SubscriberDashboardController) controller).setClient(client);
+            if (controller instanceof AdminMainMenuController adminController) {
+                adminController.setClient(client);
+            } else if (controller instanceof SubscriberDashboardController subscriberController) {
+                subscriberController.setClient(client);
             }
 
-            // Fallback: stage from this.stage → scene → global fallback
+            // Reuse the current login stage instead of opening a new window
             Stage currentStage = this.stage;
-
             if (currentStage == null && txtUsername != null && txtUsername.getScene() != null) {
                 currentStage = (Stage) txtUsername.getScene().getWindow();
             }
-
             if (currentStage == null) {
-                currentStage = ClientController.getPrimaryStage(); // ✅ critical fallback
+                currentStage = ClientController.getPrimaryStage(); // fallback
             }
 
-            if (currentStage == null) {
+            if (currentStage != null) {
+                currentStage.setScene(new Scene(root));
+                currentStage.setTitle("BPARK - " + role);
+                currentStage.show();
+            } else {
                 showAlert("❌ Could not find a valid window to load the scene.");
-                return;
             }
-
-            currentStage.setScene(new Scene(root));
-            currentStage.setTitle("BPARK - " + role);
-            currentStage.show();
 
         } catch (Exception e) {
             e.printStackTrace();

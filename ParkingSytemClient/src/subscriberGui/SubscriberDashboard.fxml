@@ -52,6 +52,10 @@
                 <Button text="🚙 Retrieve My Vehicle" fx:id="btnPickup"
                         onAction="#openCarPickup"
                         style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
+
+                <Button text="🚗 Deposit Car" fx:id="btnDeposit"
+                        onAction="#openCarDeposit"
+                        style="-fx-background-color: #9C27B0; -fx-text-fill: white;" />
             </HBox>
 
             <!-- Parking history -->

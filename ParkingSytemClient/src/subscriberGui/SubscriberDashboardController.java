@@ -49,40 +49,65 @@ public class SubscriberDashboardController {
     }
 
     /**
-     * Handles logout: opens MainMenu.fxml and sets the stage appropriately.
+     * Opens the Car Deposit screen where the user sees the assigned spot.
+     *
+     * @param event The action event.
+     */
+    @FXML
+    private void openCarDeposit(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/CarDeposit.fxml"));
+            Parent root = loader.load();
+
+            // Optional: pass the client to the CarDepositController
+            Object controller = loader.getController();
+            if (controller instanceof CarDepositController depositController) {
+                depositController.setClient(client);
+                depositController.setSpot("A12"); // Optionally change to dynamic spot from DB
+            }
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setTitle("BPARK - Vehicle Deposit");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Handles logout: opens MainMenu.fxml and reuses the current stage.
      *
      * @param event The logout button click event.
      */
     @FXML
     private void logout(ActionEvent event) {
         try {
+            // Load the MainMenu.fxml UI
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
             Parent root = loader.load();
 
-            // יצירת stage חדש
-            Stage newStage = new Stage();
-            newStage.setScene(new Scene(root));
-            newStage.setTitle("BPARK - Main Menu");
-
-            // מעבירים את ה-stage לקונטרולר
-            MainMenuController controller = loader.getController();
-            controller.setClient(client); // 👈 להעביר את הקליינט שוב
-            controller.setStage(newStage); // 👈 קריטי להמשך
-
-            // שומרים את ה-stage הראשי גם ב-ClientController
-            ClientController.setPrimaryStage(newStage);
-
-            // מציגים את המסך
-            newStage.show();
-
-            // סוגרים את המסך הנוכחי
+            // Get the current active stage (dashboard)
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            currentStage.close();
+
+            // Set the new login scene on the current stage
+            currentStage.setScene(new Scene(root));
+            currentStage.setTitle("BPARK - Main Menu");
+            currentStage.show();
+
+            // Pass the current stage back to the login controller
+            MainMenuController controller = loader.getController();
+            controller.setClient(client);
+            controller.setStage(currentStage);
+
+            // Optionally update the reference in ClientController
+            ClientController.setPrimaryStage(currentStage);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Utility method to navigate between FXML screens.
@@ -95,6 +120,8 @@ public class SubscriberDashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+
+            // Optional: pass the client to the next controller if it supports it
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
