@@ -13,69 +13,54 @@ import java.util.List;
  */
 public class BParkServer extends AbstractServer {
 
-    private DBController dbController;
+    private final DBController dbController;
 
-    // ✅ Reference to the GUI controller for updating the client table
-    private ServerMainController guiController;
+    // Reference to the GUI controller for updating the client table
+    private final ServerMainController guiController;
 
-    /** 
+    /**
      * Constructs the server and initializes DB controller.
      *
-     * @param port the port to listen on
+     * @param port          the port to listen on
      * @param guiController the GUI controller to update client info
      */
     public BParkServer(int port, ServerMainController guiController) {
         super(port);
         this.guiController = guiController;
-        dbController = new DBController();
+        this.dbController = new DBController();
     }
 
     /**
      * Handles incoming messages from a client.
-     * Supports login requests and string-based commands such as "check available".
+     * Supports login requests, subscriber updates, and string-based commands.
      *
      * @param msg    The message received from the client.
      * @param client The client that sent the message.
      */
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
-        if (msg instanceof LoginRequest request) {
-            handleLoginRequest(request, client);
+        try {
+            if (msg instanceof LoginRequest request) {
+                handleLoginRequest(request, client);
 
-        }
-        else if (msg instanceof ParkingSpace)
-        {
-        	
-        }
-        else if (msg instanceof String str) {
-            switch (str.toLowerCase()) {
-                case "check available" -> {
-                    List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
-                    try {
+            } else if (msg instanceof Subscriber subscriber) {
+                handleEditData(subscriber, client);
+
+            } else if (msg instanceof String str) {
+                switch (str.toLowerCase()) {
+                    case "check available" -> {
+                        List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
                         client.sendToClient(spots);
-                    } catch (IOException e) {
-                        System.err.println("❌ Failed to send parking availability to client");
-                        e.printStackTrace();
                     }
+                    default -> client.sendToClient(new ErrorResponse("Unknown command: " + str));
                 }
 
-                default -> {
-                    try {
-                        client.sendToClient(new ErrorResponse("Unknown command: " + str));
-                    } catch (IOException e) {
-                        System.err.println("❌ Failed to send error response to client");
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-        } else {
-            try {
+            } else {
                 client.sendToClient(new ErrorResponse("Unsupported message type."));
-            } catch (IOException e) {
-                System.err.println("❌ Failed to send error response to client");
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            System.err.println("❌ Failed to send response to client");
+            e.printStackTrace();
         }
     }
 
@@ -86,29 +71,27 @@ public class BParkServer extends AbstractServer {
      * @param request the login request object containing username and password
      * @param client  the connection to the client who sent the login request
      */
-    private void handleLoginRequest(LoginRequest request, ConnectionToClient client) {
+    private void handleLoginRequest(LoginRequest request, ConnectionToClient client) throws IOException {
         String role = dbController.checkUserCredentials(request.getUsername(), request.getPassword());
         boolean isValid = role != null;
         String message = isValid ? "Login successful: " + role : "Invalid credentials";
 
-        try {
-            client.sendToClient(new LoginResponse(isValid, message));
+        client.sendToClient(new UpdateResponse(isValid, message));
 
-            // ✅ Send full subscriber object if applicable
-            if (isValid && "subscriber".equals(role)) {
-                Subscriber subscriber = dbController.getSubscriberByUsername(request.getUsername());
-                if (subscriber != null) {
-                    client.sendToClient(subscriber);
-                }
+        // Send full subscriber object if applicable
+        if (isValid && "subscriber".equals(role)) {
+            Subscriber subscriber = dbController.getSubscriberByUsername(request.getUsername());
+            if (subscriber != null) {
+                client.sendToClient(subscriber);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     /**
      * Called when a new client connects to the server.
      * Updates the GUI client table.
+     *
+     * @param client the client connection
      */
     @Override
     protected void clientConnected(ConnectionToClient client) {
@@ -121,5 +104,17 @@ public class BParkServer extends AbstractServer {
         }
 
         System.out.println("✅ Client connected: " + ip + " / " + host);
+    }
+
+    /**
+     * Handles subscriber update requests.
+     *
+     * @param subscriber The Subscriber object with updated info.
+     * @param client     The client connection to respond to.
+     */
+    private void handleEditData(Subscriber subscriber, ConnectionToClient client) throws IOException {
+        boolean success = dbController.updateSubscriberInfo(subscriber);
+        String message = success ? "Subscriber update successful." : "Subscriber update failed.";
+        client.sendToClient(new UpdateResponse(success, message));
     }
 }

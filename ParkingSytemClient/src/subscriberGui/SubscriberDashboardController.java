@@ -76,13 +76,25 @@ public class SubscriberDashboardController {
     }
 
     /**
-     * Handles logout: opens MainMenu.fxml and reuses the current stage.
+     * Handles logout by clearing the client user session data,
+     * then loading and displaying the Main Menu (login) screen
+     * on the current stage.
      *
-     * @param event The logout button click event.
+     * @param event The ActionEvent triggered by clicking the logout button.
      */
     @FXML
     private void logout(ActionEvent event) {
         try {
+            // Clear client-side user session data
+            ClientController client = ClientController.getClient();
+            if (client != null) {
+                client.setUserRole(null);
+                client.setCurrentSubscriber(null);
+                // Optionally close and reopen connection if needed
+                // client.closeConnection();
+                // client.openConnection();
+            }
+
             // Load the MainMenu.fxml UI
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
             Parent root = loader.load();
@@ -100,13 +112,14 @@ public class SubscriberDashboardController {
             controller.setClient(client);
             controller.setStage(currentStage);
 
-            // Optionally update the reference in ClientController
+            // Update the primary stage reference in ClientController
             ClientController.setPrimaryStage(currentStage);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 
     /**
@@ -132,4 +145,9 @@ public class SubscriberDashboardController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleOpenPublicAvailability(ActionEvent event) {
+    	navigateTo(event, "/guestGui/PublicAvailability.fxml", "Public Availability");
+    }
+
 }

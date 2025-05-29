@@ -3,7 +3,7 @@ package client;
 import adminGui.AdminMainMenuController;
 import common.ChatIF;
 import entities.LoginRequest;
-import entities.LoginResponse;
+import entities.UpdateResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -112,7 +112,7 @@ public class MainMenuController implements ChatIF {
      *
      * @param response The login response from the server.
      */
-    public void handleLoginResponse(LoginResponse response) {
+    public void handleLoginResponse(UpdateResponse response) {
         Platform.runLater(() -> {
             if (response.isSuccess()) {
                 String[] parts = response.getMessage().split(":");

@@ -95,19 +95,37 @@ public class PublicAvailabilityController {
 
     /**
      * Handles back button click.
-     * Returns to the main menu screen.
+     * Returns to the main menu if not logged in,
+     * or to the subscriber dashboard if logged in as subscriber.
      *
      * @param event The action event from the button.
      */
     @FXML
     private void handleBackToMenu(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
-            Parent root = loader.load();
-
+            String role = client.ClientController.getClient().getUserRole();
+            FXMLLoader loader;
+            Parent root;
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            if (role == null || role.isEmpty()) {
+                // Not logged in — go to Main Menu
+                loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
+                root = loader.load();
+                stage.setTitle("BPARK - Main Menu");
+            } else if ("subscriber".equalsIgnoreCase(role)) {
+                // Logged in as subscriber — go to Subscriber Dashboard
+                loader = new FXMLLoader(getClass().getResource("/subscriberGui/SubscriberDashboard.fxml"));
+                root = loader.load();
+                stage.setTitle("BPARK - Subscriber Dashboard");
+            } else {
+                // Default fallback to Main Menu
+                loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
+                root = loader.load();
+                stage.setTitle("BPARK - Main Menu");
+            }
+
             stage.setScene(new Scene(root));
-            stage.setTitle("BPARK - Main Menu");
             stage.show();
 
         } catch (IOException e) {

@@ -23,7 +23,7 @@ public class DBController {
     private static final String PASSWORD = "Aa123456";
 
     /**
-     * Opens a connection to the MySQL database. 
+     * Opens a connection to the MySQL database.
      *
      * @return a Connection object
      * @throws SQLException if the connection fails
@@ -147,4 +147,26 @@ public class DBController {
         return null;
     }
 
+    /**
+     * Updates the email and phone number of a subscriber in the database.
+     *
+     * @param subscriber The Subscriber object containing updated information.
+     * @return true if the update was successful (at least one row affected), false otherwise.
+     */
+    public boolean updateSubscriberInfo(Subscriber subscriber) {
+        String sql = "UPDATE subscriber SET email = ?, phone_number = ? WHERE subscriber_code = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, subscriber.getEmail());
+            stmt.setString(2, subscriber.getPhone());
+            stmt.setString(3, subscriber.getSubscriberCode());
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

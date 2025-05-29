@@ -43,10 +43,17 @@ public class Subscriber implements Serializable {
         this.fullName = fullName;
         this.username = username;
         this.email = email;
-        this.phone = phone;
+        this.phone = phone; 
         this.subscriberCode = subscriberCode;
     }
-
+    /**
+     * Constructs a Subscriber object.
+     *
+     * @param subscriberCode unique subscriber code (primary key)
+     * @param subscriberId   ID referencing the users table
+     * @param email          email address
+     * @param phoneNumber    phone number
+     */
     /** @return the subscriber's ID */
     public int getId() {
         return id;

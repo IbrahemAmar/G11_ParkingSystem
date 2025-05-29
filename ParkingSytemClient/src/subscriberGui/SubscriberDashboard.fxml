@@ -1,73 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="subscriberGui.SubscriberDashboardController">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.SubscriberDashboardController">
 
     <!-- Top toolbar -->
     <top>
         <ToolBar>
-            <Label text="📋 Subscriber Dashboard"
-                   style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Button text="👤 Details" fx:id="btnDetails" onAction="#openDetails"/>
-            <Button text="🔙 Logout" fx:id="btnLogout" onAction="#logout"/>
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="📋 Subscriber Dashboard" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnDetails" onAction="#openDetails" text="👤 Details" />
+            <Button fx:id="btnLogout" onAction="#logout" text="🔙 Logout" />
         </ToolBar>
     </top>
 
     <!-- Main content -->
     <center>
-        <VBox spacing="25" alignment="CENTER" style="-fx-padding: 30; -fx-background-color: #fafafa;">
+        <VBox alignment="CENTER" spacing="25" style="-fx-padding: 30; -fx-background-color: #fafafa;">
 
             <!-- Current parking session -->
-            <Label text="🚗 Current Parking Session" style="-fx-font-size: 20px;" />
+            <Label style="-fx-font-size: 20px;" text="🚗 Current Parking Session" />
 
             <GridPane hgap="15" vgap="10">
-                <Label text="Parking Spot:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <Label text="A12" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Parking Spot:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="A12" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Entry Time:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <Label text="14:45" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Entry Time:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="14:45" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Time Remaining:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <Label text="30 minutes" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Time Remaining:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label text="30 minutes" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <columnConstraints>
+               <ColumnConstraints />
+               <ColumnConstraints />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
             </GridPane>
 
             <!-- Show Available Spots -->
-            <Button fx:id="btnAvailableSpots" text="🅿 Show Available Parking Spots"
-                    style="-fx-background-color: #03A9F4; -fx-text-fill: white; -fx-pref-width: 280;" />
+            <Button fx:id="btnAvailableSpots" onAction="#handleOpenPublicAvailability" style="-fx-background-color: #03A9F4; -fx-text-fill: white; -fx-pref-width: 280;" text="🅿 Show Available Parking Spots" />
 
             <!-- Action Buttons -->
-            <HBox spacing="20" alignment="CENTER">
-                <Button text="⏱ Extend Parking Time" fx:id="btnExtend"
-                        onAction="#openExtendParking"
-                        style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+            <HBox alignment="CENTER" spacing="20">
+                <Button fx:id="btnExtend" onAction="#openExtendParking" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="⏱ Extend Parking Time" />
 
-                <Button text="🗓 Reserve Future Parking" fx:id="btnReserve"
-                        onAction="#openReservationRequest"
-                        style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+                <Button fx:id="btnReserve" onAction="#openReservationRequest" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="🗓 Reserve Future Parking" />
 
-                <Button text="🚙 Retrieve My Vehicle" fx:id="btnPickup"
-                        onAction="#openCarPickup"
-                        style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
+                <Button fx:id="btnPickup" onAction="#openCarPickup" style="-fx-background-color: #FF9800; -fx-text-fill: white;" text="🚙 Retrieve My Vehicle" />
 
-                <Button text="🚗 Deposit Car" fx:id="btnDeposit"
-                        onAction="#openCarDeposit"
-                        style="-fx-background-color: #9C27B0; -fx-text-fill: white;" />
+                <Button fx:id="btnDeposit" onAction="#openCarDeposit" style="-fx-background-color: #9C27B0; -fx-text-fill: white;" text="🚗 Deposit Car" />
             </HBox>
 
             <!-- Parking history -->
-            <Separator/>
-            <Label text="📜 Parking History" style="-fx-font-size: 16px;" />
+            <Separator />
+            <Label style="-fx-font-size: 16px;" text="📜 Parking History" />
 
-            <TableView fx:id="tableHistory" prefWidth="600" prefHeight="200">
+            <TableView fx:id="tableHistory" prefHeight="200" prefWidth="600">
                 <columns>
-                    <TableColumn fx:id="colHistoryDate" text="Date" prefWidth="120"/>
-                    <TableColumn fx:id="colHistorySpot" text="Spot" prefWidth="100"/>
-                    <TableColumn fx:id="colDuration" text="Duration (min)" prefWidth="150"/>
-                    <TableColumn fx:id="colWasExtended" text="Extended?" prefWidth="100"/>
+                    <TableColumn fx:id="colHistoryDate" prefWidth="120" text="Date" />
+                    <TableColumn fx:id="colHistorySpot" prefWidth="100" text="Spot" />
+                    <TableColumn fx:id="colDuration" prefWidth="150" text="Duration (min)" />
+                    <TableColumn fx:id="colWasExtended" prefWidth="100" text="Extended?" />
                 </columns>
             </TableView>
         </VBox>
