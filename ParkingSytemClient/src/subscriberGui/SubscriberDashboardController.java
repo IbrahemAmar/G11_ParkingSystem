@@ -19,65 +19,39 @@ public class SubscriberDashboardController {
 
     private ClientController client;
 
+    /**
+     * Injects the active client controller into this controller.
+     *
+     * @param client The active ClientController instance.
+     */
+    public void setClient(ClientController client) {
+        this.client = client;
+    }
+
     @FXML
     private void openDetails(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/subscriberSettings.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("BPARK - Subscriber Settings");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo(event, "/subscriberGui/subscriberSettings.fxml", "BPARK - Subscriber Settings");
     }
 
     @FXML
     private void openExtendParking(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/ExtendParking.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("BPARK - Extend Parking");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo(event, "/subscriberGui/ExtendParking.fxml", "BPARK - Extend Parking");
     }
 
     @FXML
     private void openReservationRequest(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/ReservationRequest.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("BPARK - Reserve Parking");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo(event, "/subscriberGui/ReservationRequest.fxml", "BPARK - Reserve Parking");
     }
 
     @FXML
     private void openCarPickup(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/CarPickup.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("BPARK - Car Pickup");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo(event, "/subscriberGui/CarPickup.fxml", "BPARK - Car Pickup");
     }
 
     /**
-     * Logs out the user and returns to the main menu.
-     * Loads MainMenu.fxml into a new stage and passes the stage to the controller.
+     * Handles logout: opens MainMenu.fxml and sets the stage appropriately.
+     *
+     * @param event The logout button click event.
      */
     @FXML
     private void logout(ActionEvent event) {
@@ -85,18 +59,23 @@ public class SubscriberDashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
             Parent root = loader.load();
 
-            // יצירת Stage חדש
+            // יצירת stage חדש
             Stage newStage = new Stage();
             newStage.setScene(new Scene(root));
             newStage.setTitle("BPARK - Main Menu");
 
-            // העברת ה-Stage לקונטרולר
+            // מעבירים את ה-stage לקונטרולר
             MainMenuController controller = loader.getController();
-            controller.setStage(newStage);  // 👈 שורה קריטית
+            controller.setClient(client); // 👈 להעביר את הקליינט שוב
+            controller.setStage(newStage); // 👈 קריטי להמשך
 
+            // שומרים את ה-stage הראשי גם ב-ClientController
+            ClientController.setPrimaryStage(newStage);
+
+            // מציגים את המסך
             newStage.show();
 
-            // סגירת החלון הנוכחי
+            // סוגרים את המסך הנוכחי
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
@@ -105,8 +84,25 @@ public class SubscriberDashboardController {
         }
     }
 
+    /**
+     * Utility method to navigate between FXML screens.
+     *
+     * @param event The action event.
+     * @param fxmlPath Path to the FXML file.
+     * @param title Title for the new stage.
+     */
+    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
 
-    public void setClient(ClientController client) {
-        this.client = client;
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -14,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import subscriberGui.SubscriberDashboardController;
+import common.ChatIF;
 
 import java.io.IOException;
 import java.net.URL;
@@ -44,16 +45,12 @@ public class MainMenuController implements ChatIF {
 
     /**
      * Allows external controllers (like logout) to pass the current stage.
+     *
+     * @param stage The JavaFX window used for scene changes.
      */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
-
-    /**
-     * Displays messages received from the server.
-     *
-     * @param message The message to display.
-     */
     @Override
     public void display(String message) {
         Platform.runLater(() -> statusLabel.setText(message));
@@ -69,7 +66,7 @@ public class MainMenuController implements ChatIF {
     }
 
     /**
-     * Initializes UI elements and their handlers.
+     * Called automatically after FXML is loaded. Sets up button actions.
      */
     @FXML
     private void initialize() {
@@ -78,8 +75,7 @@ public class MainMenuController implements ChatIF {
     }
 
     /**
-     * Handles login button click.
-     * Sends login request to the server.
+     * Sends a login request to the server with the entered credentials.
      */
     private void handleLogin() {
         String username = txtUsername.getText().trim();
@@ -99,9 +95,9 @@ public class MainMenuController implements ChatIF {
     }
 
     /**
-     * Displays an error alert to the user.
+     * Displays an error alert with the given message.
      *
-     * @param msg The message to show in the alert.
+     * @param msg The error message to display.
      */
     public void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -112,9 +108,26 @@ public class MainMenuController implements ChatIF {
     }
 
     /**
-     * Redirects user to the dashboard based on their role.
+     * Called by the ClientController after receiving a login response.
      *
-     * @param role The role returned by the server (e.g., "admin", "subscriber").
+     * @param response The login response from the server.
+     */
+    public void handleLoginResponse(LoginResponse response) {
+        Platform.runLater(() -> {
+            if (response.isSuccess()) {
+                String[] parts = response.getMessage().split(":");
+                String role = parts.length > 1 ? parts[1].trim() : "unknown";
+                redirectBasedOnRole(role);
+            } else {
+                showAlert("❌ " + response.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Redirects the user to their respective dashboard screen based on role.
+     *
+     * @param role The role returned by the server (e.g., "subscriber", "admin")
      */
     public void redirectBasedOnRole(String role) {
         try {
@@ -136,28 +149,44 @@ public class MainMenuController implements ChatIF {
 
             root = loader.load();
             Object controller = loader.getController();
+
+            // Pass client to the correct controller
             if (controller instanceof AdminMainMenuController) {
                 ((AdminMainMenuController) controller).setClient(client);
             } else if (controller instanceof SubscriberDashboardController) {
                 ((SubscriberDashboardController) controller).setClient(client);
             }
 
-            // ✨ משתמשים ב-stage שהועבר מבחוץ או נשלף מהשדה אם הוא null
-            Stage currentStage = this.stage != null ? this.stage : (Stage) txtUsername.getScene().getWindow();
+            // Fallback: stage from this.stage → scene → global fallback
+            Stage currentStage = this.stage;
+
+            if (currentStage == null && txtUsername != null && txtUsername.getScene() != null) {
+                currentStage = (Stage) txtUsername.getScene().getWindow();
+            }
+
+            if (currentStage == null) {
+                currentStage = ClientController.getPrimaryStage(); // ✅ critical fallback
+            }
+
+            if (currentStage == null) {
+                showAlert("❌ Could not find a valid window to load the scene.");
+                return;
+            }
+
             currentStage.setScene(new Scene(root));
             currentStage.setTitle("BPARK - " + role);
             currentStage.show();
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Failed to load " + role + " dashboard.");
+            showAlert("Failed to load " + role + " dashboard: " + e.getMessage());
         }
     }
 
     /**
-     * Handles the action of checking public parking availability.
+     * Navigates to the Public Availability screen (for guests).
      *
-     * @param event The action event triggered by button click.
+     * @param event The action event from button click.
      */
     @FXML
     private void checkAvailability(ActionEvent event) {
@@ -180,22 +209,5 @@ public class MainMenuController implements ChatIF {
             e.printStackTrace();
             showAlert("❌ Failed to load Public Availability screen.");
         }
-    }
-
-    /**
-     * Called automatically when a LoginResponse is received.
-     *
-     * @param response The LoginResponse received from the server.
-     */
-    public void handleLoginResponse(LoginResponse response) {
-        Platform.runLater(() -> {
-            if (response.isSuccess()) {
-                String[] parts = response.getMessage().split(":");
-                String role = parts.length > 1 ? parts[1].trim() : "unknown";
-                redirectBasedOnRole(role);
-            } else {
-                showAlert("❌ " + response.getMessage());
-            }
-        });
     }
 }

@@ -3,6 +3,7 @@ package client;
 import entities.*;
 import guestGui.PublicAvailabilityController;
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
 
 import java.io.IOException;
@@ -20,39 +21,37 @@ public class ClientController extends AbstractClient {
     /** The role of the currently logged-in user (e.g., "admin", "subscriber", "supervisor"). */
     private String userRole;
 
-    /** The currently logged-in subscriber object. */
+    /** The currently logged-in subscriber object (if role is subscriber). */
     private Subscriber currentSubscriber;
 
+    /** The globally shared JavaFX stage used for transitions (fallback). */
+    private static Stage primaryStage;
+
     /**
-     * Returns the role of the currently logged-in user.
+     * Returns the singleton instance of the client controller.
      *
-     * @return the user's role, or null if not set.
+     * @return the current ClientController instance.
      */
-    public String getUserRole() {
-        return userRole;
+    public static ClientController getClient() {
+        return clientInstance;
     }
 
     /**
-     * Sets the user's role after successful login.
+     * Sets the singleton instance of the client controller.
      *
-     * @param userRole the role of the logged-in user.
+     * @param client the ClientController to set.
      */
-    public void setUserRole(String userRole) {
-        this.userRole = userRole;
+    public static void setClient(ClientController client) {
+        clientInstance = client;
     }
 
     /**
-     * Returns the currently logged-in subscriber object.
+     * Constructor that establishes connection to the server.
      *
-     * @return the Subscriber object.
-     */
-    public Subscriber getCurrentSubscriber() {
-        return currentSubscriber;
-    }
-
-    /**
-     * Private constructor with GUI controller, host and port.
-     * Automatically opens the connection.
+     * @param host          the server hostname.
+     * @param port          the server port.
+     * @param guiController the MainMenuController for initial UI communication.
+     * @throws IOException if connection fails.
      */
     public ClientController(String host, int port, MainMenuController guiController) throws IOException {
         super(host, port);
@@ -61,36 +60,72 @@ public class ClientController extends AbstractClient {
     }
 
     /**
-     * Singleton setter.
+     * Sets the GUI controller that handles login responses.
      *
-     * @param client The client controller instance.
-     */
-    public static void setClient(ClientController client) {
-        clientInstance = client;
-    }
-
-    /**
-     * Singleton getter.
-     *
-     * @return the client controller instance.
-     */
-    public static ClientController getClient() {
-        return clientInstance;
-    }
-
-    /**
-     * Allows assigning/changing the GUI controller at runtime (optional).
-     *
-     * @param guiController The main menu controller.
+     * @param guiController the main menu controller.
      */
     public void setGuiController(MainMenuController guiController) {
         this.guiController = guiController;
     }
 
     /**
+     * Returns the currently logged-in role.
+     *
+     * @return the user role string.
+     */
+    public String getUserRole() {
+        return userRole;
+    }
+
+    /**
+     * Sets the user role (used after successful login).
+     *
+     * @param userRole the role to set.
+     */
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
+    }
+
+    /**
+     * Returns the logged-in subscriber entity.
+     *
+     * @return the current Subscriber, or null if not a subscriber.
+     */
+    public Subscriber getCurrentSubscriber() {
+        return currentSubscriber;
+    }
+
+    /**
+     * Sets the current subscriber object.
+     *
+     * @param subscriber the subscriber to store.
+     */
+    public void setCurrentSubscriber(Subscriber subscriber) {
+        this.currentSubscriber = subscriber;
+    }
+
+    /**
+     * Sets the global JavaFX stage for fallback use across controllers.
+     *
+     * @param stage the JavaFX primary stage.
+     */
+    public static void setPrimaryStage(Stage stage) {
+        primaryStage = stage;
+    }
+
+    /**
+     * Gets the global JavaFX stage for fallback use.
+     *
+     * @return the JavaFX primary stage.
+     */
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    /**
      * Handles messages received from the server.
      *
-     * @param msg The message sent by the server.
+     * @param msg the object received from the server.
      */
     @Override
     protected void handleMessageFromServer(Object msg) {
@@ -110,21 +145,11 @@ public class ClientController extends AbstractClient {
             });
 
         } else if (msg instanceof Subscriber subscriber) {
-            // Store the subscriber object received from the server
             this.currentSubscriber = subscriber;
             System.out.println("👤 Subscriber received: " + subscriber.getFullName());
-         
-        }else if (msg instanceof Subscriber sub) {
-            System.out.println("✅ Received subscriber from server: " + sub.getFullName()); // check console
-            setCurrentSubscriber(sub);
-            
-        }else {
+
+        } else {
             System.out.println("⚠️ Unknown message from server: " + msg);
         }
     }
-
-	private void setCurrentSubscriber(Subscriber sub) {
-		// TODO Auto-generated method stub
-		
-	}
 }
