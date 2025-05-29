@@ -1,5 +1,6 @@
 package server;
 
+import entities.ParkingHistory;
 import entities.ParkingSpace;
 import entities.Subscriber;
 
@@ -8,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class DBController {
      *
      * @return a Connection object
      * @throws SQLException if the connection fails
-     */
+     */ 
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
@@ -169,4 +171,45 @@ public class DBController {
             return false;
         }
     }
+    
+    /**
+     * Retrieves the parking history records for a given subscriber (by code), ordered from latest to oldest.
+     *
+     * @param subscriberCode The code of the subscriber (e.g., SUB0005)
+     * @return A list of ParkingHistory objects representing their parking history.
+     */
+    public List<ParkingHistory> getParkingHistoryForSubscriber(String subscriberCode) {
+        List<ParkingHistory> history = new ArrayList<>();
+        String sql = """
+            SELECT history_id, subscriber_code, parking_space_id, entry_time, exit_time, extended, was_late
+            FROM parking_history
+            WHERE subscriber_code = ?
+            ORDER BY entry_time DESC
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, subscriberCode);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int historyId = rs.getInt("history_id");
+                String subCode = rs.getString("subscriber_code");
+                int parkingSpaceId = rs.getInt("parking_space_id");
+                LocalDateTime entryTime = rs.getTimestamp("entry_time").toLocalDateTime();
+                LocalDateTime exitTime = rs.getTimestamp("exit_time").toLocalDateTime();
+                boolean extended = rs.getBoolean("extended");
+                boolean wasLate = rs.getBoolean("was_late");
+
+                // Constructor: ParkingHistory(int historyId, String subscriberCode, int parkingSpaceId, LocalDateTime entryTime, LocalDateTime exitTime, boolean extended, boolean wasLate)
+                history.add(new ParkingHistory(historyId, subCode, parkingSpaceId, entryTime, exitTime, extended, wasLate));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return history;
+    }    
 }

@@ -26,10 +26,10 @@ public class BParkServer extends AbstractServer {
      */
     public BParkServer(int port, ServerMainController guiController) {
         super(port);
-        this.guiController = guiController;
+        this.guiController = guiController; 
         this.dbController = new DBController();
     }
-
+ 
     /**
      * Handles incoming messages from a client.
      * Supports login requests, subscriber updates, and string-based commands.
@@ -45,6 +45,10 @@ public class BParkServer extends AbstractServer {
 
             } else if (msg instanceof Subscriber subscriber) {
                 handleEditData(subscriber, client);
+
+            } 
+            else if (msg instanceof ParkingHistoryRequest request) {
+                handleParkingHistoryRequest(request, client);
 
             } else if (msg instanceof String str) {
                 switch (str.toLowerCase()) {
@@ -116,5 +120,22 @@ public class BParkServer extends AbstractServer {
         boolean success = dbController.updateSubscriberInfo(subscriber);
         String message = success ? "Subscriber update successful." : "Subscriber update failed.";
         client.sendToClient(new UpdateResponse(success, message));
+    }
+    /**
+     * Handles a ParkingHistoryRequest from a client.
+     * Retrieves the parking history for the specified subscriber code and sends it to the client.
+     *
+     * @param request the ParkingHistoryRequest containing the subscriber code
+     * @param client  the client connection to send the result to
+     */
+    private void handleParkingHistoryRequest(ParkingHistoryRequest request, ConnectionToClient client) {
+        String code = request.getSubscriberCode();
+        List<ParkingHistory> history = dbController.getParkingHistoryForSubscriber(code);
+
+        try {
+            client.sendToClient(history);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

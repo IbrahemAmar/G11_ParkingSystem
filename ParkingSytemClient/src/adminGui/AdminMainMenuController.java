@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import client.ClientController;
 import common.ClientRequest;
+import entities.DisconnectRequest;
+import entities.GetActiveParkingRequest;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,6 +13,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+/**
+ * Controller for the Admin Main Menu screen.
+ * Handles navigation to system logs, active parking orders, and subscriber management.
+ */
 public class AdminMainMenuController {
 
     private ClientController client;
@@ -24,7 +30,7 @@ public class AdminMainMenuController {
         }
     }
 
-    @FXML private Button btnOrders;
+    @FXML private Button btnOrders; 
     @FXML private Button btnSubscribers;
     @FXML private Button btnLogs;
     @FXML private Button btnExit;
@@ -37,15 +43,22 @@ public class AdminMainMenuController {
         btnExit.setOnAction(e -> handleExit());
     }
 
+    /**
+     * Handles the exit button by sending a disconnect request to the server and closing the app.
+     */
     private void handleExit() {
         try {
-        	client.handleMessageFromClientUI(new DisconnectRequest());
+            client.handleMessageFromClientUI(new DisconnectRequest());
         } catch (IOException e) {
-            // ui.display("❌ Failed to send disconnect request: " + e.getMessage());
+            e.printStackTrace();
         }
         System.exit(0);
     }
 
+    /**
+     * Handles the "View System Logs" button click.
+     * Loads AdminLogs.fxml and transfers the ClientController via setClient().
+     */
     private void handleViewLogs() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminLogs.fxml"));
@@ -63,11 +76,12 @@ public class AdminMainMenuController {
         }
     }
 
+    /**
+     * Handles the "View Active Parking Orders" button click.
+     * Sends a typed object request to the server, and loads the AdminOrders screen.
+     */
     private void handleViewActiveParking() {
         try {
-            /**
-             * Sends a typed request to the server using full object-based communication.
-             */
             client.handleMessageFromClientUI(new GetActiveParkingRequest());
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
@@ -85,6 +99,10 @@ public class AdminMainMenuController {
         }
     }
 
+    /**
+     * Handles the "Manage Subscribers" button click.
+     * Loads AdminSubscriberManagement.fxml and passes the client to the next controller.
+     */
     private void handleManageSubscribers() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminSubscriberManagement.fxml"));

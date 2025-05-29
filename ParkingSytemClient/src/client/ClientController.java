@@ -3,6 +3,7 @@ package client;
 import entities.*;
 import guestGui.PublicAvailabilityController;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
 import subscriberGui.EditSubscriberDetailsController;
@@ -21,7 +22,14 @@ public class ClientController extends AbstractClient {
     private String userRole;
     private Subscriber currentSubscriber;
     private static Stage primaryStage;
+    
+    private subscriberGui.SubscriberDashboardController subscriberDashboardController;
 
+    public void setSubscriberDashboardController(subscriberGui.SubscriberDashboardController controller) {
+        this.subscriberDashboardController = controller;
+    }
+
+ 
     public static ClientController getClient() {
         return clientInstance;
     }
@@ -95,7 +103,23 @@ public class ClientController extends AbstractClient {
                 PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
             });
 
-        } else if (msg instanceof Subscriber subscriber) {
+        } else if (msg instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingHistory) {
+            List<ParkingHistory> historyList = (List<ParkingHistory>) list;
+            Platform.runLater(() -> {
+                System.out.println("📋 Received parking history: " + historyList.size() + " records");
+
+                if (subscriberDashboardController != null) {
+                    subscriberDashboardController.setParkingHistoryData(
+                        FXCollections.observableArrayList(historyList)
+                    );
+                } else {
+                    System.out.println("⚠️ subscriberDashboardController is null.");
+                }
+            });
+        }
+
+
+        else if (msg instanceof Subscriber subscriber) {
             this.currentSubscriber = subscriber;
             System.out.println("👤 Subscriber received: " + subscriber.getFullName());
 
@@ -118,4 +142,19 @@ public class ClientController extends AbstractClient {
         setUserRole("unknown");
         System.out.println("User role set to unknown");
     }
+    
+    /**
+     * Sends an object to the server safely via OCSF AbstractClient.
+     *
+     * @param msg The object to send to the server.
+     */
+    public void sendObjectToServer(Object msg) {
+        try {
+            super.sendToServer(msg); // ✅ calls the real method in AbstractClient
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
 }

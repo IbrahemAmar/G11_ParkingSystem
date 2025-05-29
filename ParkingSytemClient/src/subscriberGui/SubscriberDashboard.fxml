@@ -71,14 +71,16 @@
             <Separator />
             <Label style="-fx-font-size: 16px;" text="📜 Parking History" />
 
-            <TableView fx:id="tableHistory" prefHeight="200" prefWidth="600">
-                <columns>
-                    <TableColumn fx:id="colHistoryDate" prefWidth="120" text="Date" />
-                    <TableColumn fx:id="colHistorySpot" prefWidth="100" text="Spot" />
-                    <TableColumn fx:id="colDuration" prefWidth="150" text="Duration (min)" />
-                    <TableColumn fx:id="colWasExtended" prefWidth="100" text="Extended?" />
-                </columns>
-            </TableView>
+            <TableView fx:id="tableHistory" prefHeight="200" prefWidth="700">
+    			<columns>
+        			<TableColumn fx:id="colEntryTime" prefWidth="150" text="Entry Time" />
+        			<TableColumn fx:id="colExitTime" prefWidth="150" text="Exit Time" />
+        			<TableColumn fx:id="colHistorySpot" prefWidth="100" text="Spot" />
+        			<TableColumn fx:id="colWasExtended" prefWidth="100" text="Extended?" />
+        			<TableColumn fx:id="colWasLate" prefWidth="100" text="Was Late?" />
+    			</columns>
+			</TableView>
+
         </VBox>
     </center>
 </BorderPane>

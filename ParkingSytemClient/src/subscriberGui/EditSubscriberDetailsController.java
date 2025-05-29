@@ -45,6 +45,10 @@ public class EditSubscriberDetailsController {
     /** Holds the current subscriber loaded from ClientController */
     private Subscriber currentSubscriber;
 
+    /**
+     * Initializes the controller by loading subscriber data into fields.
+     * Registers this controller with the ClientController for callback support.
+     */
     @FXML
     public void initialize() {
         currentSubscriber = ClientController.getClient().getCurrentSubscriber();
@@ -60,7 +64,6 @@ public class EditSubscriberDetailsController {
         // Register this controller instance with ClientController so it can callback on UpdateResponse
         ClientController.getClient().setEditSubscriberDetailsController(this);
     }
-
 
     /**
      * Handles the Back button click event.
@@ -102,14 +105,13 @@ public class EditSubscriberDetailsController {
         lblStatus.setText("Sending update...");
 
         Subscriber updatedSubscriber = new Subscriber(
-        	    currentSubscriber.getId(),
-        	    currentSubscriber.getFullName(),
-        	    currentSubscriber.getUsername(),
-        	    email,
-        	    phone,
-        	    currentSubscriber.getSubscriberCode()
-        	);
-
+                currentSubscriber.getId(),
+                currentSubscriber.getFullName(),
+                currentSubscriber.getUsername(),
+                email,
+                phone,
+                currentSubscriber.getSubscriberCode()
+        );
 
         ClientController.getClient().sendToServer(updatedSubscriber);
     }
@@ -126,17 +128,17 @@ public class EditSubscriberDetailsController {
 
             if (response.isSuccess()) {
                 // Update local subscriber data
-            	currentSubscriber = new Subscriber(
-            		    currentSubscriber.getId(),
-            		    currentSubscriber.getFullName(),
-            		    currentSubscriber.getUsername(),
-            		    txtNewEmail.getText().trim(),
-            		    txtNewPhone.getText().trim(),
-            		    currentSubscriber.getSubscriberCode()
-            		);
-
+                currentSubscriber = new Subscriber(
+                        currentSubscriber.getId(),
+                        currentSubscriber.getFullName(),
+                        currentSubscriber.getUsername(),
+                        txtNewEmail.getText().trim(),
+                        txtNewPhone.getText().trim(),
+                        currentSubscriber.getSubscriberCode()
+                );
                 ClientController.getClient().setCurrentSubscriber(currentSubscriber);
-             // Show success popup
+
+                // Show success popup
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
                 alert.setTitle("Update Successful");
                 alert.setHeaderText(null);
@@ -150,15 +152,27 @@ public class EditSubscriberDetailsController {
     }
 
     /**
-     * Loads the SubscriberSettings.fxml scene.
+     * Loads and displays the Subscriber Settings screen.
+     * Uses the navigation utility method to switch scenes and set the window title.
      */
     private void switchToSettingsScreen() {
+        navigateTo("/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
+    }
+
+    /**
+     * Utility method to navigate to a specified FXML scene.
+     * Loads the given FXML file, sets it as the current scene, and updates the window title.
+     *
+     * @param fxmlPath The relative path to the FXML file.
+     * @param title    The title to display on the stage after navigation.
+     */
+    private void navigateTo(String fxmlPath, String title) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("SubscriberSettings.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
             Stage stage = (Stage) btnBack.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Subscriber Settings");
-        } catch (Exception e) {
+            stage.setTitle(title);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
