@@ -46,20 +46,37 @@ public class BParkServer extends AbstractServer {
             } else if (msg instanceof Subscriber subscriber) {
                 handleEditData(subscriber, client);
 
-            } 
+            }else if (msg instanceof ParkingHistory history) {
+                handleParkingHistoryDeposit(history,client);
+            }
+
             else if (msg instanceof ParkingHistoryRequest request) {
                 handleParkingHistoryRequest(request, client);
 
             } else if (msg instanceof String str) {
-                switch (str.toLowerCase()) {
-                    case "check available" -> {
-                        List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
-                        client.sendToClient(spots);
+                if (str.toLowerCase().startsWith("check_active:")) {
+                    String subCode = str.substring("check_active:".length());
+                    boolean hasActive = dbController.hasActiveReservation(subCode);
+                    try {
+                        client.sendToClient(hasActive ? "active deposit exists" : "no deposit");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    default -> client.sendToClient(new ErrorResponse("Unknown command: " + str));
-                }
 
-            } else {
+                } else {
+                    switch (str.toLowerCase()) {
+                        case "check available" -> {
+                            List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
+                            client.sendToClient(spots);
+                        }
+
+                        case "get random spot" -> handleRandomSpotRequest(client);
+
+                        default -> client.sendToClient(new ErrorResponse("Unknown command: " + str));
+                    }
+                }
+            }
+ else {
                 client.sendToClient(new ErrorResponse("Unsupported message type."));
             }
         } catch (IOException e) {
@@ -138,4 +155,56 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    /**
+     * Handles a request to send a random available parking space that:
+     * - Is not reserved for the next 4 hours.
+     * - Has a numeric spot ID.
+     *
+     * If no spot is found, returns a special {@link ParkingSpace} with ID -1 and availability false.
+     *
+     * @param client the requesting {@link ConnectionToClient}
+     */
+    private void handleRandomSpotRequest(ConnectionToClient client) {
+        try {
+            int spotId = dbController.getRandomAvailableSpotWithoutA();
+            System.out.println("📤 Selected spot from DB: " + spotId);
+            // If no spot is found, use -1 as a signal
+            ParkingSpace spot = new ParkingSpace(spotId, spotId != -1);
+            client.sendToClient(spot);
+
+        } catch (IOException e) {
+            System.err.println("❌ Failed to send ParkingSpace to client.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Handles a parking deposit message sent from a subscriber client.
+     * Checks for active reservations before inserting the deposit.
+     *
+     * @param history The ParkingHistory entity representing the deposit action.
+     * @param client  The ConnectionToClient instance to send responses back.
+     */
+    private void handleParkingHistoryDeposit(ParkingHistory history, ConnectionToClient client) {
+        System.out.println("📥 Deposit request: " + history.getSubscriberCode());
+
+        // 🛑 Check for existing reservation
+        if (dbController.hasActiveReservation(history.getSubscriberCode())) {
+            try {
+                client.sendToClient(new ErrorResponse("You already have an active parking reservation."));
+            } catch (IOException e) {
+                System.err.println("❌ Failed to send error to client.");
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        // ✅ Insert into DB
+        dbController.insertParkingHistory(history);
+        dbController.setSpotAvailability(history.getParkingSpaceId(), false);
+        dbController.insertSystemLog("Deposit", "Spot " + history.getParkingSpaceId(), history.getSubscriberCode());
+    }
+
+
+
 }

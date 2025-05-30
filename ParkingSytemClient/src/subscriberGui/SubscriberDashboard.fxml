@@ -35,13 +35,13 @@
 
             <GridPane hgap="15" vgap="10">
                 <Label text="Parking Spot:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <Label text="A12" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+				<Label fx:id="labelSpot"   text="---" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Entry Time:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <Label text="14:45" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+				<Label text="Entry Time:"   GridPane.columnIndex="0" GridPane.rowIndex="1" />
+				<Label fx:id="labelEntryTime" text="---" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Time Remaining:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <Label text="30 minutes" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+				<Label text="Time Remaining:"   GridPane.columnIndex="0" GridPane.rowIndex="2" />
+				<Label fx:id="labelTimeRemaining" text="---" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <columnConstraints>
                <ColumnConstraints />
                <ColumnConstraints />

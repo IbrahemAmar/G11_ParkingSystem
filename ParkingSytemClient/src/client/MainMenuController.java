@@ -168,6 +168,9 @@ public class MainMenuController implements ChatIF {
             }
 
             if (currentStage != null) {
+                // ✅ Set primary stage for future event-less navigation
+                ClientController.setPrimaryStage(currentStage);
+
                 currentStage.setScene(new Scene(root));
                 currentStage.setTitle("BPARK - " + role);
                 currentStage.show();
@@ -180,6 +183,7 @@ public class MainMenuController implements ChatIF {
             showAlert("Failed to load " + role + " dashboard: " + e.getMessage());
         }
     }
+
 
     /**
      * Navigates to the Public Availability screen (for guests).

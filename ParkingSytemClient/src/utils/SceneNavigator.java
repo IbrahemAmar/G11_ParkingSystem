@@ -19,7 +19,9 @@ public class SceneNavigator {
      * Navigates to the specified FXML scene and sets the window title.
      * If the destination is the SubscriberDashboard, it injects the ClientController.
      *
-     * @param event    The ActionEvent that triggered the navigation.
+     * Supports both ActionEvent and null (for non-button-based navigation).
+     *
+     * @param event    The ActionEvent that triggered the navigation, or null.
      * @param fxmlPath The relative path to the FXML file (e.g., "/subscriberGui/SubscriberDashboard.fxml").
      * @param title    The title to display on the stage after navigation.
      */
@@ -36,23 +38,34 @@ public class SceneNavigator {
                 }
             }
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
+            Stage stage;
+
+            if (event != null) {
+                stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            } else {
+                stage = ClientController.getPrimaryStage();
+            }
+
+            if (stage != null) {
+                stage.setScene(new Scene(root));
+                stage.setTitle(title);
+                stage.show();
+            } else {
+                System.err.println("❌ Could not determine a valid stage for navigation.");
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     /**
-     * Loads the given FXML and returns its controller, while showing the scene.
-     * This is useful when you need to perform custom controller setup (e.g., inject client).
+     * Loads the given FXML, returns its controller, and sets the window scene and title.
+     * Useful for retrieving the controller to call methods like setClient().
      *
-     * @param event The ActionEvent that triggered the navigation.
+     * @param event    The ActionEvent that triggered the navigation, or null.
      * @param fxmlPath Path to the FXML file.
-     * @param title The window title.
+     * @param title    The window title.
      * @return The controller of the loaded FXML, or null if there was an error.
      */
     public static <T> T navigateToAndGetController(ActionEvent event, String fxmlPath, String title) {
@@ -62,10 +75,21 @@ public class SceneNavigator {
 
             T controller = loader.getController();
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
+            Stage stage;
+
+            if (event != null) {
+                stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            } else {
+                stage = ClientController.getPrimaryStage();
+            }
+
+            if (stage != null) {
+                stage.setScene(new Scene(root));
+                stage.setTitle(title);
+                stage.show();
+            } else {
+                System.err.println("❌ Could not determine a valid stage for navigation.");
+            }
 
             return controller;
 
@@ -74,6 +98,4 @@ public class SceneNavigator {
             return null;
         }
     }
-
-    
 }

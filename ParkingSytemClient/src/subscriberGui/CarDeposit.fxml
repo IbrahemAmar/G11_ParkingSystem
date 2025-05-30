@@ -22,7 +22,7 @@
             <Label text="Your assigned parking spot is:"
                    style="-fx-font-size: 14px; -fx-text-fill: #666;" />
 
-            <Label fx:id="labelSpotNumber" text="A12"
+            <Label fx:id="labelSpotNumber" text="---"
                    style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
 
             <!-- Description -->

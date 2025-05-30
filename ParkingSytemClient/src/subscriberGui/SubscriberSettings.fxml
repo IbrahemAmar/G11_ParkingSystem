@@ -3,22 +3,19 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="subscriberGui.SubscriberSettingsController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.SubscriberSettingsController">
 
-    <VBox alignment="CENTER" spacing="25"
-          style="-fx-padding: 40; -fx-background-color: #ffffff;"
-          AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
-          AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+    <VBox alignment="CENTER" prefHeight="430.0" prefWidth="395.0" spacing="25" style="-fx-padding: 40; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="-8.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-8.0" AnchorPane.topAnchor="0.0">
 
         <!-- Back Button -->
         <HBox alignment="TOP_LEFT">
-            <Button fx:id="btnBack" text="🔙 Back" onAction="#handleBackButton" />
+            <Button fx:id="btnBack" onAction="#handleBackButton" text="🔙 Back" />
         </HBox>
 
         <!-- My Details Title -->
@@ -43,11 +40,23 @@
 
             <Label text="Current Phone:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
             <Label fx:id="lblCurrentPhone" text="—" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+         <columnConstraints>
+            <ColumnConstraints />
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
         </GridPane>
 
         <!-- Buttons -->
         <HBox alignment="CENTER" spacing="20">
-            <Button fx:id="btnEdit" text="✏️ Edit" onAction="#handleEditButton" />
+            <Button fx:id="btnEdit" onAction="#handleEditButton" text="✏️ Edit" />
         </HBox>
     </VBox>
 </AnchorPane>

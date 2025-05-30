@@ -10,15 +10,15 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-import java.io.IOException;
+import utils.SceneNavigator;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -35,129 +35,97 @@ public class SubscriberDashboardController {
     @FXML private TableColumn<ParkingHistory, String> colHistorySpot;
     @FXML private TableColumn<ParkingHistory, String> colWasExtended;
     @FXML private TableColumn<ParkingHistory, String> colWasLate;
-
+    @FXML private Label labelSpot;
+    @FXML private Label labelEntryTime;
+    @FXML private Label labelTimeRemaining;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+ // Save the last ActionEvent so we can reuse it for scene navigation
+    private ActionEvent lastEvent;
 
     /**
      * Injects the active client controller into this controller.
+     *
      * @param client The active ClientController instance.
      */
     public void setClient(ClientController client) {
         this.client = client;
         if (client != null) {
-            client.setSubscriberDashboardController(this); // Register this controller in the client
+            client.setSubscriberDashboardController(this);
         }
     }
 
     @FXML
     private void openDetails(ActionEvent event) {
-        navigateTo(event, "/subscriberGui/subscriberSettings.fxml", "BPARK - Subscriber Settings");
+        SceneNavigator.navigateTo(event, "/subscriberGui/subscriberSettings.fxml", "BPARK - Subscriber Settings");
     }
 
     @FXML
     private void openExtendParking(ActionEvent event) {
-        navigateTo(event, "/subscriberGui/ExtendParking.fxml", "BPARK - Extend Parking");
+        SceneNavigator.navigateTo(event, "/subscriberGui/ExtendParking.fxml", "BPARK - Extend Parking");
     }
 
     @FXML
     private void openReservationRequest(ActionEvent event) {
-        navigateTo(event, "/subscriberGui/ReservationRequest.fxml", "BPARK - Reserve Parking");
+        SceneNavigator.navigateTo(event, "/subscriberGui/ReservationRequest.fxml", "BPARK - Reserve Parking");
     }
 
     @FXML
     private void openCarPickup(ActionEvent event) {
-        navigateTo(event, "/subscriberGui/CarPickup.fxml", "BPARK - Car Pickup");
-    }
-
-    /**
-     * Opens the Car Deposit screen where the user sees the assigned spot.
-     * @param event The action event.
-     */
-    @FXML
-    private void openCarDeposit(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/CarDeposit.fxml"));
-            Parent root = loader.load();
-
-            Object controller = loader.getController();
-            if (controller instanceof CarDepositController depositController) {
-                depositController.setClient(client);
-                depositController.setSpot("A12"); // Change to dynamic spot if needed
-            }
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setTitle("BPARK - Vehicle Deposit");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Handles logout by clearing the client user session data,
-     * then loading and displaying the Main Menu (login) screen
-     * on the current stage.
-     * @param event The ActionEvent triggered by clicking the logout button.
-     */
-    @FXML
-    private void logout(ActionEvent event) {
-        try {
-            ClientController client = ClientController.getClient();
-            if (client != null) {
-                client.setUserRole(null);
-                client.setCurrentSubscriber(null);
-            }
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
-            Parent root = loader.load();
-
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            currentStage.setScene(new Scene(root));
-            currentStage.setTitle("BPARK - Main Menu");
-            currentStage.show();
-
-            MainMenuController controller = loader.getController();
-            controller.setClient(client);
-            controller.setStage(currentStage);
-            ClientController.setPrimaryStage(currentStage);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Utility method to navigate between FXML screens.
-     * @param event The action event.
-     * @param fxmlPath Path to the FXML file.
-     * @param title Title for the new stage.
-     */
-    private void navigateTo(ActionEvent event, String fxmlPath, String title) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SceneNavigator.navigateTo(event, "/subscriberGui/CarPickup.fxml", "BPARK - Car Pickup");
     }
 
     @FXML
     private void handleOpenPublicAvailability(ActionEvent event) {
-        navigateTo(event, "/guestGui/PublicAvailability.fxml", "Public Availability");
+        SceneNavigator.navigateTo(event, "/guestGui/PublicAvailability.fxml", "Public Availability");
+    }
+    /**
+     * Requests the server to verify whether the user has an active deposit.
+     * If the check passes, navigates to the Car Deposit screen.
+     *
+     * @param event The action event triggering the request.
+     */
+    @FXML
+    private void openCarDeposit(ActionEvent event) {
+        // Save the event if needed for later navigation (optional)
+        this.lastEvent = event;
+
+        // Send the check request to the server
+        String code = client.getCurrentSubscriber().getSubscriberCode();
+        client.sendObjectToServer("check_active:" + code);
+    }
+
+
+
+    /**
+     * Handles logout: clears session data and loads main menu screen.
+     *
+     * @param event The logout button action event.
+     */
+    @FXML
+    private void logout(ActionEvent event) {
+        ClientController client = ClientController.getClient();
+        if (client != null) {
+            client.setUserRole(null);
+            client.setCurrentSubscriber(null);
+        }
+
+        MainMenuController controller = SceneNavigator.navigateToAndGetController(event,
+                "/client/MainMenu.fxml", "BPARK - Main Menu");
+
+        if (controller != null) {
+            Stage stage = ClientController.getPrimaryStage();
+            controller.setClient(client);
+            controller.setStage(stage);
+        }
     }
 
     /**
-     * Sets the parking history data into the TableView.
-     * @param history List of ParkingHistory objects to display.
+     * Populates the parking history TableView and updates the current parking session labels.
+     *
+     * @param history the list of ParkingHistory objects to display
      */
     public void setParkingHistoryData(ObservableList<ParkingHistory> history) {
+        // Configure table columns
         colEntryTime.setCellValueFactory(cell ->
             new SimpleStringProperty(cell.getValue().getEntryTime().format(formatter))
         );
@@ -168,12 +136,13 @@ public class SubscriberDashboardController {
             new SimpleStringProperty(String.valueOf(cell.getValue().getParkingSpaceId()))
         );
         colWasExtended.setCellValueFactory(cell ->
-            new SimpleStringProperty(cell.getValue().isExtended() ? "Yes" : "No")
-        );
+            new SimpleStringProperty(cell.getValue().isExtended() ? "Yes" : "No"))
+        ;
         colWasLate.setCellValueFactory(cell ->
-            new SimpleStringProperty(cell.getValue().isWasLate() ? "Yes" : "No")
-        );
+            new SimpleStringProperty(cell.getValue().isWasLate() ? "Yes" : "No"))
+        ;
 
+        // Highlight late sessions
         tableHistory.setRowFactory(tv -> new TableRow<>() {
             @Override
             protected void updateItem(ParkingHistory item, boolean empty) {
@@ -188,18 +157,34 @@ public class SubscriberDashboardController {
             }
         });
 
+        // Bind data
         tableHistory.setItems(history);
+
+        // Detect and display active session
+        LocalDateTime now = LocalDateTime.now();
+        history.stream()
+            .filter(h -> !h.getEntryTime().isAfter(now) && h.getExitTime().isAfter(now))
+            .findFirst()
+            .ifPresentOrElse(active -> {
+                labelSpot.setText(String.valueOf(active.getParkingSpaceId()));
+                labelEntryTime.setText(active.getEntryTime().format(formatter));
+                long minsLeft = Duration.between(now, active.getExitTime()).toMinutes();
+                labelTimeRemaining.setText(minsLeft + " min");
+            }, () -> {
+                labelSpot.setText("---");
+                labelEntryTime.setText("---");
+                labelTimeRemaining.setText("---");
+            });
     }
 
+
     /**
-     * Initializes the dashboard controller by sending a request
-     * to load the current subscriber's parking history from the server.
-     * Also sets up a listener to refresh the data every time the window gains focus.
-     * This method is automatically called after the FXML is loaded.
+     * Initializes the dashboard controller by loading the subscriber's parking history.
+     * Also refreshes when the window regains focus.
      */
     @FXML
     public void initialize() {
-        refreshParkingHistory(); // First load
+        refreshParkingHistory();
 
         tableHistory.sceneProperty().addListener((sceneObs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -215,7 +200,6 @@ public class SubscriberDashboardController {
             }
         });
     }
-
 
     /**
      * Requests the latest parking history from the server for the current subscriber.

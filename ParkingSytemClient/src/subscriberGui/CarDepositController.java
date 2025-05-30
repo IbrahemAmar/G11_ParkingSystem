@@ -1,16 +1,15 @@
 package subscriberGui;
 
+import java.time.LocalDateTime;
+
 import client.ClientController;
+import entities.ParkingHistory;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import utils.SceneNavigator;
-import java.io.IOException;
 
 /**
  * Controller for the Car Deposit confirmation screen.
@@ -25,8 +24,25 @@ public class CarDepositController {
     @FXML
     private Label labelSpotNumber;
 
+    private int selectedSpotId = -1;
+
+    /** Flag to track if the deposit was rejected by the server. */
+    private boolean depositRejected = false;
+
     /**
-     * Injects the active client controller instance.
+     * Called manually after the client is injected.
+     * Sends a request to the server for a random available parking spot.
+     */
+    public void onLoaded() {
+        if (client != null) {
+            client.sendObjectToServer("get random spot");
+        } else {
+            System.out.println("❌ Client not set — cannot request parking spot.");
+        }
+    }
+
+    /**
+     * Injects the active ClientController instance.
      *
      * @param client the active ClientController
      */
@@ -35,46 +51,77 @@ public class CarDepositController {
     }
 
     /**
-     * Sets the assigned parking spot number to display on screen.
+     * Sets the rejection flag for the current deposit attempt.
      *
-     * @param spot the assigned parking spot (e.g., "A12")
+     * @param rejected true if the deposit was rejected by the server
      */
-    public void setSpot(String spot) {
-        labelSpotNumber.setText(spot);
+    public void setDepositRejected(boolean rejected) {
+        this.depositRejected = rejected;
     }
 
     /**
-     * Called when the user clicks "Finish" to confirm the deposit.
-     * Redirects the user back to the Subscriber Dashboard screen with client injected.
+     * Sets the assigned parking spot number to display on screen and stores it for saving.
      *
-     * @param event the ActionEvent from the button click
+     * @param spot the assigned parking spot (e.g., "6")
      */
-    @FXML
-    private void confirmDeposit(ActionEvent event) {
+    public void setSpot(String spot) {
+        labelSpotNumber.setText(spot);
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/SubscriberDashboard.fxml"));
-            Parent root = loader.load();
-
-            // Pass client back to dashboard to ensure it has proper context
-            SubscriberDashboardController controller = loader.getController();
-            controller.setClient(client);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setTitle("BPARK - Subscriber Dashboard");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+            selectedSpotId = Integer.parseInt(spot); // 🟢 store the ID
+        } catch (NumberFormatException e) {
+            System.err.println("❌ Invalid spot format: " + spot);
+            selectedSpotId = -1;
         }
     }
 
     /**
-     * Optional "Back" action. Uses the same logic as confirmDeposit to ensure context.
+     * Called when the user clicks "Finish" to confirm the deposit.
+     * Sends the ParkingHistory object to the server. Waits briefly for any
+     * rejection response before showing a success alert and returning to dashboard.
      *
-     * @param event the ActionEvent from the back button
+     * @param event The button click event
      */
     @FXML
-    private void goBack(ActionEvent event) {
-        confirmDeposit(event);
+    private void confirmDeposit(ActionEvent event) {
+        if (client != null && selectedSpotId != -1) {
+            depositRejected = false; // reset before sending
+
+            String subscriberCode = client.getCurrentSubscriber().getSubscriberCode();
+
+            ParkingHistory deposit = new ParkingHistory(
+                0,
+                subscriberCode,
+                selectedSpotId,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(4),
+                false,
+                false
+            );
+
+            client.sendObjectToServer(deposit);
+
+            // Wait briefly to allow server to respond with error if needed
+            new Thread(() -> {
+                try {
+                    Thread.sleep(300); // brief delay
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Platform.runLater(() -> {
+                    if (!depositRejected) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Deposit Confirmed");
+                        alert.setHeaderText(null);
+                        alert.setContentText("✅ Your vehicle was successfully deposited.");
+                        alert.showAndWait();
+
+                        SceneNavigator.navigateTo(null,
+                            "/subscriberGui/SubscriberDashboard.fxml",
+                            "BPARK - Subscriber Dashboard");
+                    }
+                });
+            }).start();
+        }
     }
 }

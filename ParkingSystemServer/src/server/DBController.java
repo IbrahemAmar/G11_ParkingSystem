@@ -211,5 +211,161 @@ public class DBController {
         }
 
         return history;
-    }    
+    }
+    /**
+     * Returns a random available parking spot (numeric ID only) that:
+     * - Is marked as available in the `parking_space` table.
+     * - Is NOT reserved in the `parking_history` table for the next 4 hours.
+     *
+     * @return a valid parking_space_id or -1 if none are available
+     */
+    public int getRandomAvailableSpotWithoutA() {
+        String sql = """
+            SELECT ps.parking_space_id
+            FROM parking_space ps
+            WHERE ps.is_available = TRUE
+              AND ps.parking_space_id NOT IN (
+                  SELECT parking_space_id
+                  FROM parking_history
+                  WHERE NOW() < exit_time
+                    AND entry_time < DATE_ADD(NOW(), INTERVAL 4 HOUR)
+              )
+            ORDER BY RAND()
+            LIMIT 1
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt("parking_space_id");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1; // No suitable spot found
+    }
+    /**
+     * Updates the availability status of a parking space.
+     *
+     * @param parkingSpaceId The ID of the parking space to update.
+     * @param isAvailable    True to mark the space as available; false to mark as unavailable.
+     */
+    public void setSpotAvailability(int parkingSpaceId, boolean isAvailable) {
+        String sql = "UPDATE parking_space SET is_available = ? WHERE parking_space_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, isAvailable);
+            stmt.setInt(2, parkingSpaceId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to update spot availability.");
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Inserts a system log entry for a user action, such as a vehicle deposit.
+     *
+     * @param action         The action performed (e.g., "Deposit").
+     * @param target         The target of the action (e.g., "Spot 6").
+     * @param subscriberCode The subscriber's code who performed the action.
+     */
+    public void insertSystemLog(String action, String target, String subscriberCode) {
+        String sql = """
+            INSERT INTO system_log (action, target, by_user, log_time)
+            SELECT ?, ?, u.id, NOW()
+            FROM users u
+            JOIN subscriber s ON s.subscriber_id = u.id
+            WHERE s.subscriber_code = ?
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, action);
+            stmt.setString(2, target);
+            stmt.setString(3, subscriberCode);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to insert system log.");
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Inserts a new parking deposit into the parking_history table.
+     *
+     * @param history A fully populated ParkingHistory object representing the current deposit.
+     */
+    public void insertParkingHistory(ParkingHistory history) {
+        String sql = """
+            INSERT INTO parking_history (
+                subscriber_code,
+                parking_space_id,
+                entry_time,
+                exit_time,
+                extended,
+                was_late
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, history.getSubscriberCode());
+            stmt.setInt(2, history.getParkingSpaceId());
+            stmt.setTimestamp(3, java.sql.Timestamp.valueOf(history.getEntryTime()));
+            stmt.setTimestamp(4, java.sql.Timestamp.valueOf(history.getExitTime()));
+            stmt.setBoolean(5, history.isExtended());
+            stmt.setBoolean(6, history.isWasLate());
+
+            stmt.executeUpdate();
+            System.out.println("✅ Parking deposit saved for " + history.getSubscriberCode());
+
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to insert parking deposit");
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Checks whether the subscriber currently has an active parking reservation.
+     *
+     * A reservation is considered active if:
+     * - entry_time <= NOW()
+     * - AND exit_time > NOW()
+     *
+     * @param subscriberCode The subscriber's code (e.g., "SUB0005")
+     * @return true if such a reservation exists, false otherwise
+     */
+    public boolean hasActiveReservation(String subscriberCode) {
+        String sql = """
+            SELECT 1 FROM parking_history
+            WHERE subscriber_code = ?
+              AND entry_time <= NOW()
+              AND exit_time > NOW()
+            LIMIT 1
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, subscriberCode);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // ✅ true = active reservation exists
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error checking active reservation:");
+            e.printStackTrace();
+            return false; // fail safe: assume no reservation
+        }
+    }
+
+
+
 }
