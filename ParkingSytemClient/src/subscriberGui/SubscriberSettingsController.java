@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import utils.SceneNavigator;
 import javafx.event.ActionEvent;
 
 /**
@@ -67,20 +68,13 @@ public class SubscriberSettingsController {
 
     /**
      * Handles the Back button click.
-     * Loads the SubscriberDashboard.fxml scene.
+     * Loads the SubscriberDashboard.fxml scene and refreshes data.
      *
      * @param event The action event triggered by the button click.
      */
     @FXML
     private void handleBackButton(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("SubscriberDashboard.fxml"));
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Subscriber Dashboard");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    	SceneNavigator.navigateTo(event, "/subscriberGui/SubscriberDashboard.fxml", "BPARK - Subscriber Dashboard");
     }
 
     /**
@@ -88,14 +82,8 @@ public class SubscriberSettingsController {
      * Loads the EditSubscriberDetails.fxml screen.
      */
     @FXML
-    private void handleEditButton() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("EditSubscriberDetails.fxml"));
-            Stage stage = (Stage) btnEdit.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Edit Subscriber Details");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void handleEditButton(ActionEvent event) {
+        SceneNavigator.navigateTo(event, "/subscriberGui/EditSubscriberDetails.fxml", "BPARK - Edit Subscriber Details");
     }
+
 }

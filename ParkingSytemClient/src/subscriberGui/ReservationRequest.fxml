@@ -33,7 +33,7 @@
 
         <Button text="🔙 Back"
                 fx:id="btnBack"
-                onAction="#goBack"
+                onAction="#handleBackButton"
                 style="-fx-background-color: #e0e0e0;" />
     </VBox>
 </AnchorPane>

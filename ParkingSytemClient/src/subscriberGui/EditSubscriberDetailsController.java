@@ -1,19 +1,16 @@
 package subscriberGui;
 
-import java.io.IOException;
-
 import client.ClientController;
 import entities.Subscriber;
 import entities.UpdateResponse;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import utils.SceneNavigator;
+import java.io.IOException;
 
 /**
  * Controller for EditSubscriberDetails.fxml.
@@ -70,8 +67,8 @@ public class EditSubscriberDetailsController {
      * Returns to the SubscriberSettings screen.
      */
     @FXML
-    private void handleBack() {
-        switchToSettingsScreen();
+    private void handleBack(ActionEvent event) {
+        SceneNavigator.navigateTo(event, "/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
     }
 
     /**
@@ -79,8 +76,8 @@ public class EditSubscriberDetailsController {
      * Discards changes and returns to the settings screen.
      */
     @FXML
-    private void handleCancel() {
-        switchToSettingsScreen();
+    private void handleCancel(ActionEvent event) {
+        SceneNavigator.navigateTo(event, "/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
     }
 
     /**
@@ -146,34 +143,9 @@ public class EditSubscriberDetailsController {
                 alert.showAndWait();
 
                 // Switch to settings screen after popup closes
-                switchToSettingsScreen();
+                // Use SceneNavigator here as well
+                SceneNavigator.navigateTo(new javafx.event.ActionEvent(), "/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
             }
         });
-    }
-
-    /**
-     * Loads and displays the Subscriber Settings screen.
-     * Uses the navigation utility method to switch scenes and set the window title.
-     */
-    private void switchToSettingsScreen() {
-        navigateTo("/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
-    }
-
-    /**
-     * Utility method to navigate to a specified FXML scene.
-     * Loads the given FXML file, sets it as the current scene, and updates the window title.
-     *
-     * @param fxmlPath The relative path to the FXML file.
-     * @param title    The title to display on the stage after navigation.
-     */
-    private void navigateTo(String fxmlPath, String title) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

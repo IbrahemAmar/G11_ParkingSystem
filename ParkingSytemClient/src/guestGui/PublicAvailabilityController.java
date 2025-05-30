@@ -5,16 +5,13 @@ import entities.ParkingSpace;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import subscriberGui.SubscriberDashboardController;
+import utils.SceneNavigator;
 
 import java.io.IOException;
 import java.util.List;
@@ -79,7 +76,6 @@ public class PublicAvailabilityController {
         refreshTimeline.play();
     }
 
-
     /**
      * Updates the table with the list of available parking spaces.
      * Called by ClientController.
@@ -102,34 +98,32 @@ public class PublicAvailabilityController {
      */
     @FXML
     private void handleBackToMenu(ActionEvent event) {
-        try {
-            String role = client.ClientController.getClient().getUserRole();
-            FXMLLoader loader;
-            Parent root;
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        String role = client.ClientController.getClient().getUserRole();
+        String fxmlPath;
+        String title;
 
-            if (role == null || role.isEmpty()) {
-                // Not logged in — go to Main Menu
-                loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
-                root = loader.load();
-                stage.setTitle("BPARK - Main Menu");
-            } else if ("subscriber".equalsIgnoreCase(role)) {
-                // Logged in as subscriber — go to Subscriber Dashboard
-                loader = new FXMLLoader(getClass().getResource("/subscriberGui/SubscriberDashboard.fxml"));
-                root = loader.load();
-                stage.setTitle("BPARK - Subscriber Dashboard");
-            } else {
-                // Default fallback to Main Menu
-                loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
-                root = loader.load();
-                stage.setTitle("BPARK - Main Menu");
+        if (role == null || role.isEmpty()) {
+            fxmlPath = "/client/MainMenu.fxml";
+            title = "BPARK - Main Menu";
+        } else if ("subscriber".equalsIgnoreCase(role)) {
+            fxmlPath = "/subscriberGui/SubscriberDashboard.fxml";
+            title = "BPARK - Subscriber Dashboard";
+        } else {
+            fxmlPath = "/client/MainMenu.fxml";
+            title = "BPARK - Main Menu";
+        }
+
+        if ("subscriber".equalsIgnoreCase(role)) {
+            // Load and get the controller to inject the client
+            SubscriberDashboardController controller = SceneNavigator.navigateToAndGetController(
+                event, fxmlPath, title
+            );
+            if (controller != null) {
+                controller.setClient(ClientController.getClient());
             }
-
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            // Use the simple dynamic method for MainMenu
+            SceneNavigator.navigateToAndGetController(event, fxmlPath, title);
         }
     }
 }

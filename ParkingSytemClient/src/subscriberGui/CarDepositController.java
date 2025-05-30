@@ -9,13 +9,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-
+import utils.SceneNavigator;
 import java.io.IOException;
 
 /**
  * Controller for the Car Deposit confirmation screen.
  * Displays the assigned parking spot and handles confirmation.
- * 
+ *
  * This screen is shown when a subscriber chooses to deposit their car.
  */
 public class CarDepositController {
@@ -45,7 +45,7 @@ public class CarDepositController {
 
     /**
      * Called when the user clicks "Finish" to confirm the deposit.
-     * Redirects the user back to the Subscriber Dashboard screen.
+     * Redirects the user back to the Subscriber Dashboard screen with client injected.
      *
      * @param event the ActionEvent from the button click
      */
@@ -55,8 +55,9 @@ public class CarDepositController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/subscriberGui/SubscriberDashboard.fxml"));
             Parent root = loader.load();
 
+            // Pass client back to dashboard to ensure it has proper context
             SubscriberDashboardController controller = loader.getController();
-            controller.setClient(client); // 👈 Pass client back to dashboard
+            controller.setClient(client);
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setTitle("BPARK - Subscriber Dashboard");
@@ -68,7 +69,7 @@ public class CarDepositController {
     }
 
     /**
-     * Optional "Back" action. Not used if Finish already returns to dashboard.
+     * Optional "Back" action. Uses the same logic as confirmDeposit to ensure context.
      *
      * @param event the ActionEvent from the back button
      */
