@@ -1,4 +1,4 @@
-package common;
+package bpark_common;
 
 import java.io.Serializable;
 

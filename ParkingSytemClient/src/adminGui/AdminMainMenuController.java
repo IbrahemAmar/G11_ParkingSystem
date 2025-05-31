@@ -2,8 +2,8 @@ package adminGui;
 
 import java.io.IOException;
 
+import bpark_common.ClientRequest;
 import client.ClientController;
-import common.ClientRequest;
 import entities.DisconnectRequest;
 import entities.GetActiveParkingRequest;
 import javafx.fxml.FXML;
