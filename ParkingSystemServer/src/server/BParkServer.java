@@ -6,6 +6,7 @@ import ocsf.server.ConnectionToClient;
 import serverGui.ServerMainController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -53,7 +54,10 @@ public class BParkServer extends AbstractServer {
             else if (msg instanceof ParkingHistoryRequest request) {
                 handleParkingHistoryRequest(request, client);
 
-            } else if (msg instanceof String str) {
+            } else if (msg instanceof ExtendParkingRequest request) {
+            	handleExtendParkingRequest(request, client);
+            }
+            else if (msg instanceof String str) {
                 if (str.toLowerCase().startsWith("check_active:")) {
                     String subCode = str.substring("check_active:".length());
                     boolean hasActive = dbController.hasActiveReservation(subCode);
@@ -203,6 +207,60 @@ public class BParkServer extends AbstractServer {
         dbController.insertParkingHistory(history);
         dbController.setSpotAvailability(history.getParkingSpaceId(), false);
         dbController.insertSystemLog("Deposit", "Spot " + history.getParkingSpaceId(), history.getSubscriberCode());
+    }
+    
+    
+    /**
+     * Handles the ExtendParkingRequest logic for extending parking time.
+     *
+     * @param request the ExtendParkingRequest object received from the client
+     * @param client  the client connection to send responses to
+     */
+    private void handleExtendParkingRequest(ExtendParkingRequest request, ConnectionToClient client) {
+        String subscriberCode = request.getSubscriberCode();
+
+        // Step 1: Check if the subscriber has an active parking spot.
+        ParkingHistory activeParking = dbController.getActiveParkingBySubscriber(subscriberCode);
+        if (activeParking == null) {
+            sendStringToClient(client, "❌ No active parking found. Please start a new parking session.");
+            return;
+        }
+
+        // Step 2: Calculate new exit time (add 4 hours).
+        LocalDateTime newExitTime = activeParking.getExitTime().plusHours(4);
+
+        // Step 3: Check for reservations that conflict with the new exit time.
+        boolean hasConflict = dbController.isReservationConflict(
+            activeParking.getParkingSpaceId(),
+            activeParking.getExitTime(),
+            newExitTime
+        );
+        if (hasConflict) {
+            sendStringToClient(client, "❌ Cannot extend. Another reservation exists in the selected time window.");
+            return;
+        }
+
+        // Step 4: Update the exit time in the DB.
+        int rowsUpdated = dbController.updateExitTime(subscriberCode, newExitTime);
+        if (rowsUpdated > 0) {
+            sendStringToClient(client, "✅ Parking time extended successfully!");
+        } else {
+            sendStringToClient(client, "❌ Error occurred while extending parking time.");
+        }
+    }
+    
+    /**
+     * Sends a String message to the client.
+     *
+     * @param client  the client connection
+     * @param message the message to send
+     */
+    private void sendStringToClient(ConnectionToClient client, String message) {
+        try {
+            client.sendToClient(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -24,7 +24,8 @@
 
         <Button fx:id="btnExtend"
                 style="-fx-background-color: #4CAF50; -fx-text-fill: white;"
-                text="✔ Confirm Extension" />
+                text="✔ Confirm Extension"
+                onAction="#handleFinishExtendTime" />
 
         <Label fx:id="lblStatus" style="-fx-text-fill: green;" text="" />
 
