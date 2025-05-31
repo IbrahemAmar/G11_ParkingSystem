@@ -443,9 +443,10 @@ public class DBController {
      * @return number of rows updated (should be 1 if successful)
      */
     public int updateExitTime(String subscriberCode, LocalDateTime newExitTime) {
-        String query = "UPDATE parking_history SET exit_time = ? " +
-                       "WHERE subscriber_code = ? AND exit_time > NOW() " +
-                       "ORDER BY exit_time DESC LIMIT 1";
+    	String query = "UPDATE parking_history SET exit_time = ?, extended = 1 " +
+                "WHERE subscriber_code = ? AND exit_time > NOW() " +
+                "ORDER BY exit_time DESC LIMIT 1";
+
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
