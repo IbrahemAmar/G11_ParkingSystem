@@ -33,6 +33,7 @@ public class ClientController extends AbstractClient {
     private Subscriber currentSubscriber;
     private static Stage primaryStage;
     private CarDepositController carDepositController;
+    private subscriberGui.ExtendParkingController extendParkingController;
 
 
     /**
@@ -180,6 +181,7 @@ public class ClientController extends AbstractClient {
      */
     @Override
     protected void handleMessageFromServer(Object msg) {
+
         if (msg instanceof UpdateResponse response) {
             handleUpdateResponse(response);
 
@@ -199,9 +201,12 @@ public class ClientController extends AbstractClient {
             switch (str.toLowerCase()) {
             case "active deposit exists" -> handleActiveDepositExists();
             case "no deposit" -> handleNoActiveDeposit();
+            case "✅ parking time extended successfully!" -> handleExtendParkingSuccess(str);
+            case "❌ unable to extend parking time." -> handleExtendParkingFailure(str);
             // ... (other cases like "check available", etc.)
+            }
         }
-    }
+        
         else {
             System.out.println("⚠️ Unknown message from server: " + msg);
         }
@@ -374,6 +379,34 @@ public class ClientController extends AbstractClient {
             }
         });
     }
+    
+    /**
+     * Handles the string indicating the extend parking was successful.
+     *
+     * @param message the success message
+     */
+    private void handleExtendParkingSuccess(String message) {
+    	 System.out.println("TESTTTTTTTTTTTTTTT");
+        if (extendParkingController != null) {
+            extendParkingController.onUpdateResponse(message);
+        } SceneNavigator.navigateTo(null, "/subscriberGui/ExtendConfirmation.fxml", "Extension Confirmed");
+
+    }
+
+
+    /**
+     * Handles the string indicating the extend parking failed.
+     *
+     * @param message the failure message
+     */
+    private void handleExtendParkingFailure(String message) {
+        if (extendParkingController != null) {
+            extendParkingController.onUpdateResponse(message);
+        } else {
+            System.out.println("⚠️ No ExtendParkingController registered for failure message.");
+        }
+    }
+
 
 
 }

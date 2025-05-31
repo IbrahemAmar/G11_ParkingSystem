@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+             xmlns:fx="http://javafx.com/fxml"
+             fx:controller="subscriberGui.ExtendParkingController"
+             prefWidth="300" prefHeight="200">
+
+    <Label text="❌ Parking extension failed!"
+           layoutX="50" layoutY="60"
+           style="-fx-font-size: 16px; -fx-text-fill: red;" />
+
+    <Button text="Finish" layoutX="110" layoutY="120"
+            onAction="#handleClose"/>
+</AnchorPane>

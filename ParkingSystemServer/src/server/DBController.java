@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -364,6 +365,98 @@ public class DBController {
             e.printStackTrace();
             return false; // fail safe: assume no reservation
         }
+    }
+
+    /**
+     * Retrieves the active parking history for the given subscriber.
+     * Active means exit_time > NOW().
+     *
+     * @param subscriberCode the subscriber's unique code
+     * @return the active ParkingHistory if exists, otherwise null
+     */
+    public ParkingHistory getActiveParkingBySubscriber(String subscriberCode) {
+        String query = "SELECT * FROM parking_history " +
+                       "WHERE subscriber_code = ? AND exit_time > NOW() " +
+                       "ORDER BY exit_time DESC LIMIT 1";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, subscriberCode);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int historyId = rs.getInt("history_id");
+                String subCode = rs.getString("subscriber_code");
+                int parkingSpaceId = rs.getInt("parking_space_id");
+                LocalDateTime entryTime = rs.getTimestamp("entry_time").toLocalDateTime();
+                LocalDateTime exitTime = rs.getTimestamp("exit_time").toLocalDateTime();
+                boolean extended = rs.getBoolean("extended");
+                boolean wasLate = rs.getBoolean("was_late");
+
+                return new ParkingHistory(historyId, subCode, parkingSpaceId, entryTime, exitTime, extended, wasLate);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Checks for conflicting reservations in the reservation table during the proposed extension period.
+     * Assumes each reservation lasts 4 hours from reservation_date.
+     *
+     * @return true if a conflict exists, false otherwise
+     */
+    public boolean isReservationConflict(int parkingSpaceId, LocalDateTime currentExit, LocalDateTime newExit) {
+        String query = "SELECT COUNT(*) FROM reservation " +
+                       "WHERE parking_space_id = ? " +
+                       "AND status = 'active' " + // Only active reservations matter!
+                       "AND (reservation_date BETWEEN ? AND ? " +
+                       "OR DATE_ADD(reservation_date, INTERVAL 4 HOUR) BETWEEN ? AND ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, parkingSpaceId);
+            stmt.setTimestamp(2, Timestamp.valueOf(currentExit));
+            stmt.setTimestamp(3, Timestamp.valueOf(newExit));
+            stmt.setTimestamp(4, Timestamp.valueOf(currentExit));
+            stmt.setTimestamp(5, Timestamp.valueOf(newExit));
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true; // Conflict exists
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    
+    /**
+     * Updates the exit time of the active parking for the subscriber.
+     *
+     * @param subscriberCode the subscriber's unique code
+     * @param newExitTime    the new exit time to set
+     * @return number of rows updated (should be 1 if successful)
+     */
+    public int updateExitTime(String subscriberCode, LocalDateTime newExitTime) {
+        String query = "UPDATE parking_history SET exit_time = ? " +
+                       "WHERE subscriber_code = ? AND exit_time > NOW() " +
+                       "ORDER BY exit_time DESC LIMIT 1";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setTimestamp(1, Timestamp.valueOf(newExitTime));
+            stmt.setString(2, subscriberCode);
+            return stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 
