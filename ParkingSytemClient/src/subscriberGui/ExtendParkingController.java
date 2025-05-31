@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import utils.SceneNavigator;
 
-import java.io.IOException;
 
 /**
  * Controller for the Extend Parking screen.

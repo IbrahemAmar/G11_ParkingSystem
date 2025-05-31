@@ -87,7 +87,7 @@ public class SubscriberDashboardController {
     @FXML
     private void openCarDeposit(ActionEvent event) {
         // Save the event if needed for later navigation (optional)
-        this.lastEvent = event;
+        this.setLastEvent(event);
 
         // Send the check request to the server
         String code = client.getCurrentSubscriber().getSubscriberCode();
@@ -216,4 +216,12 @@ public class SubscriberDashboardController {
             }
         });
     }
+
+	public ActionEvent getLastEvent() {
+		return lastEvent;
+	}
+
+	public void setLastEvent(ActionEvent lastEvent) {
+		this.lastEvent = lastEvent;
+	}
 }
