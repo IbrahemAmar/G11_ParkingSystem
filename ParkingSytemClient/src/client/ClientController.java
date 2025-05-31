@@ -34,6 +34,8 @@ public class ClientController extends AbstractClient {
     private static Stage primaryStage;
     private CarDepositController carDepositController;
     private subscriberGui.ExtendParkingController extendParkingController;
+    private static ClientController instance;
+
 
 
     /**
@@ -160,6 +162,16 @@ public class ClientController extends AbstractClient {
     public static Stage getPrimaryStage() {
         return primaryStage;
     }
+    
+    /**
+     * Sets the ExtendParkingController instance for handling extend parking logic.
+     *
+     * @param controller The ExtendParkingController instance.
+     */
+    public void setExtendParkingController(subscriberGui.ExtendParkingController controller) {
+        this.extendParkingController = controller;
+    }
+
 
     /**
      * Sends an object to the server via the OCSF framework.
@@ -386,10 +398,12 @@ public class ClientController extends AbstractClient {
      * @param message the success message
      */
     private void handleExtendParkingSuccess(String message) {
-    	 System.out.println("TESTTTTTTTTTTTTTTT");
         if (extendParkingController != null) {
             extendParkingController.onUpdateResponse(message);
-        } SceneNavigator.navigateTo(null, "/subscriberGui/ExtendConfirmation.fxml", "Extension Confirmed");
+        } else {
+            System.out.println("⚠️ No ExtendParkingController registered for success message.");
+        }
+
 
     }
 

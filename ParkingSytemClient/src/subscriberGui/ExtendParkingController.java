@@ -48,6 +48,15 @@ public class ExtendParkingController {
         ExtendParkingRequest request = new ExtendParkingRequest(currentSubscriber.getSubscriberCode());
         ClientController.getClient().sendObjectToServer(request);
     }
+    
+    /**
+     * Initializes the controller.
+     * Registers this controller with the ClientController to receive update responses.
+     */
+    @FXML
+    public void initialize() {
+        ClientController.getClient().setExtendParkingController(this);
+    }
 
 
     /**
