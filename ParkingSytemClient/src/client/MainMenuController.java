@@ -110,19 +110,21 @@ public class MainMenuController implements ChatIF {
     /**
      * Called by the ClientController after receiving a login response.
      *
-     * @param response The login response from the server.
+     * @param success  Indicates if the login was successful.
+     * @param message  The login message from the server.
      */
-    public void handleLoginResponse(UpdateResponse response) {
+    public void handleLoginResponse(boolean success, String message) {
         Platform.runLater(() -> {
-            if (response.isSuccess()) {
-                String[] parts = response.getMessage().split(":");
+            if (success) {
+                String[] parts = message.split(":");
                 String role = parts.length > 1 ? parts[1].trim() : "unknown";
                 redirectBasedOnRole(role);
             } else {
-                showAlert("❌ " + response.getMessage());
+                showAlert("❌ " + message);
             }
         });
     }
+
 
     /**
      * Redirects the user to their respective dashboard screen based on their role.

@@ -114,16 +114,17 @@ public class EditSubscriberDetailsController {
     }
 
     /**
-     * Called by ClientController when an UpdateResponse is received from server.
+     * Called by ClientController when an update response is received from the server.
      *
-     * @param response The update response containing success status and message.
+     * @param success Whether the update was successful.
+     * @param message Response message from the server.
      */
-    public void onUpdateResponse(UpdateResponse response) {
+    public void onUpdateResponse(boolean success, String message) {
         Platform.runLater(() -> {
-            lblStatus.setText(response.getMessage());
+            lblStatus.setText(message);
             btnSave.setDisable(false);
 
-            if (response.isSuccess()) {
+            if (success) {
                 // Update local subscriber data
                 currentSubscriber = new Subscriber(
                         currentSubscriber.getId(),
@@ -143,9 +144,9 @@ public class EditSubscriberDetailsController {
                 alert.showAndWait();
 
                 // Switch to settings screen after popup closes
-                // Use SceneNavigator here as well
                 SceneNavigator.navigateTo(new javafx.event.ActionEvent(), "/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
             }
         });
     }
+
 }

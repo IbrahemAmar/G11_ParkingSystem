@@ -59,30 +59,23 @@ public class ExtendParkingController {
 
 
     /**
-     * Called by ClientController when a String response is received.
+     * Called by ClientController when an extend parking response is received.
      *
+     * @param success true if the extension was successful, false otherwise.
      * @param message the server's response message
      */
-    public void onUpdateResponse(String message) {
+    public void onUpdateResponse(boolean success, String message) {
         System.out.println("🔔 onUpdateResponse called: " + message);
 
         javafx.application.Platform.runLater(() -> {
-            Alert alert;
-            if (message.contains("successfully")) {
-                alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Extension Successful!");
-                alert.setHeaderText(null);
-                alert.setContentText(message);
-            } else {
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Extension Failed");
-                alert.setHeaderText(null);
-                alert.setContentText(message);
-            }
-
+            Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            alert.setTitle(success ? "Extension Successful!" : "Extension Failed");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
             alert.showAndWait();
         });
     }
+
 
 
     

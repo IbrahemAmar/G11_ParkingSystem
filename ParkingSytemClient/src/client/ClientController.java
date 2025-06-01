@@ -1,5 +1,6 @@
 package client;
 
+import bpark_common.ServerResponse;
 import entities.*;
 import guestGui.PublicAvailabilityController;
 import javafx.application.Platform;
@@ -34,10 +35,7 @@ public class ClientController extends AbstractClient {
     private static Stage primaryStage;
     private CarDepositController carDepositController;
     private subscriberGui.ExtendParkingController extendParkingController;
-    private static ClientController instance;
     private subscriberGui.CarPickupController carPickupController;
-
-
 
     /**
      * Sets the active singleton instance of the client.
@@ -47,17 +45,6 @@ public class ClientController extends AbstractClient {
     public static void setClient(ClientController client) {
         clientInstance = client;
     }
-    
-    /**
-     * Sets the reference to the active CarPickupController.
-     * This controller will be used to display pickup results when a response is received from the server.
-     *
-     * @param controller the CarPickupController instance to set
-     */
-    public void setCarPickupController(subscriberGui.CarPickupController controller) {
-        this.carPickupController = controller;
-    }
-
 
     /**
      * Gets the current singleton client instance.
@@ -108,8 +95,11 @@ public class ClientController extends AbstractClient {
     public void setSubscriberDashboardController(subscriberGui.SubscriberDashboardController controller) {
         this.subscriberDashboardController = controller;
     }
+
     /**
      * Stores reference to the CarDepositController.
+     *
+     * @param controller The CarDepositController instance.
      */
     public void setCarDepositController(CarDepositController controller) {
         this.carDepositController = controller;
@@ -117,10 +107,32 @@ public class ClientController extends AbstractClient {
 
     /**
      * Gets the current CarDepositController instance.
+     *
+     * @return The CarDepositController instance.
      */
     public CarDepositController getCarDepositController() {
         return carDepositController;
     }
+
+    /**
+     * Sets the reference to the active CarPickupController.
+     * This controller will be used to display pickup results when a response is received from the server.
+     *
+     * @param controller the CarPickupController instance to set
+     */
+    public void setCarPickupController(subscriberGui.CarPickupController controller) {
+        this.carPickupController = controller;
+    }
+
+    /**
+     * Sets the ExtendParkingController instance for handling extend parking logic.
+     *
+     * @param controller The ExtendParkingController instance.
+     */
+    public void setExtendParkingController(subscriberGui.ExtendParkingController controller) {
+        this.extendParkingController = controller;
+    }
+
     /**
      * Gets the current user role.
      *
@@ -174,16 +186,6 @@ public class ClientController extends AbstractClient {
     public static Stage getPrimaryStage() {
         return primaryStage;
     }
-    
-    /**
-     * Sets the ExtendParkingController instance for handling extend parking logic.
-     *
-     * @param controller The ExtendParkingController instance.
-     */
-    public void setExtendParkingController(subscriberGui.ExtendParkingController controller) {
-        this.extendParkingController = controller;
-    }
-
 
     /**
      * Sends an object to the server via the OCSF framework.
@@ -200,144 +202,103 @@ public class ClientController extends AbstractClient {
 
     /**
      * Handles incoming messages from the server and delegates to appropriate handlers.
+     * All responses from the server are expected to be {@link ServerResponse}.
      *
      * @param msg the received message
      */
     @Override
     protected void handleMessageFromServer(Object msg) {
-
-        if (msg instanceof UpdateResponse response) {
-            handleUpdateResponse(response);
-
-        } else if (msg instanceof ErrorResponse error) {
-            handleErrorResponse(error);
-
-        } else if (msg instanceof List<?> list && !list.isEmpty()) {
-            handleListResponse(list);
-
-        } else if (msg instanceof Subscriber subscriber) {
-            handleSubscriberResponse(subscriber);
-
-        } else if (msg instanceof ParkingSpace spot) {
-            handleParkingSpaceResponse(spot);
-
-        } else if (msg instanceof String str) {
-            switch (str.toLowerCase()) {
-            case "active deposit exists" -> handleActiveDepositExists();
-            case "no deposit" -> handleNoActiveDeposit();
-            case "✅ parking time extended successfully!" -> handleExtendParkingSuccess(str);
-            case "❌ unable to extend parking time." -> handleExtendParkingFailure(str);
-            // ... (other cases like "check available", etc.)
-            }
-        }
-        
-        else {
-            System.out.println("⚠️ Unknown message from server: " + msg);
+        if (msg instanceof ServerResponse response) {
+            handleServerResponse(response);
+        } else {
+            System.out.println("⚠️ Unknown message type from server: " + msg.getClass().getSimpleName());
         }
     }
 
-
     /**
-     * Parses the user role from a login success message and stores it.
+     * Unified handler for {@link ServerResponse} messages from the server.
+     * Decodes the command and routes to the appropriate GUI logic.
      *
-     * @param response the login {@link UpdateResponse}
+     * @param response the {@link ServerResponse} object
      */
-    private void parseAndSetUserRole(UpdateResponse response) {
-        if (response.isSuccess() && response.getMessage() != null) {
-            String prefix = "Login successful: ";
-            String message = response.getMessage();
-            if (message.startsWith(prefix)) {
-                String role = message.substring(prefix.length());
-                setUserRole(role);
-                System.out.println("User role set to: " + role);
-                return;
-            }
+    private void handleServerResponse(ServerResponse response) {
+        String command = response.getCommand();
+        boolean success = response.isSuccess();
+        String message = response.getMessage();
+        Object data = response.getData();
+
+        switch (command) {
+            case "LOGIN" -> handleLoginResponse(success, message);
+            case "SUBSCRIBER_DATA" -> handleSubscriberData(data);
+            case "SUBSCRIBER_UPDATE" -> handleSubscriberUpdate(success, message);
+            case "HISTORY_LIST" -> handleHistoryList(data);
+            case "AVAILABLE_SPOTS" -> handleAvailableSpots(data);
+            case "RANDOM_SPOT" -> handleRandomSpot(success, data, message);
+            case "CHECK_ACTIVE" -> handleCheckActive(success, message);
+            case "PARKING_DEPOSIT" -> handleParkingDeposit(success, message);
+            case "EXTEND_PARKING" -> handleExtendParkingResult(success, message);
+            case "CAR_PICKUP" -> handleCarPickupResult(success, message);
+            default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
-        setUserRole("unknown");
-        System.out.println("User role set to unknown");
     }
 
     /**
-     * Handles {@link UpdateResponse} messages from the server.
-     * Routes car pickup responses to CarPickupController if active,
-     * otherwise delegates to the relevant controller for login or subscriber updates.
-     *
-     * @param response the update response from the server
+     * Handles the login response.
+     * 
+     * @param success if login succeeded
+     * @param message response message
      */
-    private void handleUpdateResponse(UpdateResponse response) {
-        String msgText = response.getMessage().toLowerCase();
-
-        // Handle car pickup responses
-        if (carPickupController != null &&
-            (msgText.contains("pickup successful") || msgText.contains("your car is on the way"))) {
-            carPickupController.handlePickupResponse(response.isSuccess(), response.getMessage());
-            return;
-        }
-
-        // Handle login success
-        if (msgText.contains("login successful")) {
-            parseAndSetUserRole(response);
+    private void handleLoginResponse(boolean success, String message) {
+        Platform.runLater(() -> {
             if (guiController != null) {
-                guiController.handleLoginResponse(response);
+                guiController.handleLoginResponse(success, message);
             }
-        } else if (editSubscriberDetailsController != null) {
-            editSubscriberDetailsController.onUpdateResponse(response);
+            if (success) {
+                String prefix = "Login successful: ";
+                if (message.startsWith(prefix)) {
+                    setUserRole(message.substring(prefix.length()));
+                }
+            }
+        });
+    }
+
+    /**
+     * Handles receiving the full Subscriber data after login.
+     * 
+     * @param data the Subscriber entity from the server
+     */
+    private void handleSubscriberData(Object data) {
+        if (data instanceof Subscriber subscriber) {
+            this.currentSubscriber = subscriber;
+            System.out.println("👤 Subscriber received: " + subscriber.getFullName());
+        }
+    }
+
+    /**
+     * Handles the result of a subscriber data update.
+     * 
+     * @param success update result
+     * @param message message from the server
+     */
+    private void handleSubscriberUpdate(boolean success, String message) {
+        if (editSubscriberDetailsController != null) {
+            editSubscriberDetailsController.onUpdateResponse(success, message);
         } else {
             System.out.println("UpdateResponse received but no controller instance set");
         }
     }
 
-
     /**
-     * Handles {@link ErrorResponse} messages from the server.
-     * Routes car pickup errors to CarPickupController if active,
-     * otherwise displays an error alert to the user.
+     * Handles a list of parking history records.
      *
-     * @param error The ErrorResponse object from the server.
-     */
-    private void handleErrorResponse(ErrorResponse error) {
-        // Handle car pickup errors if the controller is active
-        if (carPickupController != null) {
-            carPickupController.handlePickupResponse(false, error.getErrorMessage());
-            return;
-        }
-
-        Platform.runLater(() -> {
-            // Special handling for deposit errors
-            if ("You already have an active parking reservation.".equals(error.getErrorMessage())) {
-                CarDepositController controller = getCarDepositController();
-                if (controller != null) {
-                    controller.setDepositRejected(true);
-                }
-            }
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Action Failed");
-            alert.setHeaderText(null);
-            alert.setContentText("❌ " + error.getErrorMessage());
-            alert.showAndWait();
-        });
-    }
-
-
-    /**
-     * Handles {@link List} type messages from the server.
-     *
-     * @param list the list object received
+     * @param data a List of ParkingHistory objects
      */
     @SuppressWarnings("unchecked")
-    private void handleListResponse(List<?> list) {
-        Object first = list.get(0);
-
-        if (first instanceof ParkingSpace) {
-            Platform.runLater(() -> {
-                PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
-            });
-        } else if (first instanceof ParkingHistory) {
+    private void handleHistoryList(Object data) {
+        if (data instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingHistory) {
             List<ParkingHistory> historyList = (List<ParkingHistory>) list;
             Platform.runLater(() -> {
                 System.out.println("📋 Received parking history: " + historyList.size() + " records");
-
                 if (subscriberDashboardController != null) {
                     subscriberDashboardController.setParkingHistoryData(
                         FXCollections.observableArrayList(historyList)
@@ -346,29 +307,34 @@ public class ClientController extends AbstractClient {
                     System.out.println("⚠️ subscriberDashboardController is null.");
                 }
             });
-        } else {
-            System.out.println("⚠️ Received unknown List<?> type.");
         }
     }
 
     /**
-     * Handles {@link Subscriber} objects sent from the server.
+     * Handles available parking spots list.
      *
-     * @param subscriber the received subscriber
+     * @param data a List of ParkingSpace objects
      */
-    private void handleSubscriberResponse(Subscriber subscriber) {
-        this.currentSubscriber = subscriber;
-        System.out.println("👤 Subscriber received: " + subscriber.getFullName());
+    @SuppressWarnings("unchecked")
+    private void handleAvailableSpots(Object data) {
+        if (data instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingSpace) {
+            Platform.runLater(() -> {
+                PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
+            });
+        }
     }
+
     /**
-     * Handles a ParkingSpace object sent from the server.
-     * If the spot ID is -1, it means no available spot; show a message and go back to dashboard.
+     * Handles the server response for getting a random parking spot.
+     * If the spot is unavailable (ID == -1), notifies user and goes back to dashboard.
      *
-     * @param spot the received ParkingSpace
+     * @param success   whether a spot was found
+     * @param data      the ParkingSpace object or null
+     * @param message   the response message
      */
-    private void handleParkingSpaceResponse(ParkingSpace spot) {
+    private void handleRandomSpot(boolean success, Object data, String message) {
         Platform.runLater(() -> {
-            if (spot.getParkingSpaceId() == -1) {
+            if (!success || !(data instanceof ParkingSpace spot) || spot.getParkingSpaceId() == -1) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("No Available Parking");
                 alert.setHeaderText(null);
@@ -381,76 +347,96 @@ public class ClientController extends AbstractClient {
             } else {
                 CarDepositController controller = this.getCarDepositController();
                 if (controller != null) {
-                    controller.setSpot(String.valueOf(spot.getParkingSpaceId()));
+                    controller.setSpot(String.valueOf(((ParkingSpace) data).getParkingSpaceId()));
                 } else {
                     System.out.println("⚠️ CarDepositController is not registered.");
                 }
             }
         });
     }
-    /**
-     * Handles the case where the server indicates the subscriber
-     * already has an active parking reservation.
-     * Displays an alert and stays on the dashboard.
-     */
-    private void handleActiveDepositExists() {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Deposit Blocked");
-            alert.setHeaderText(null);
-            alert.setContentText("🚫 You already have an active parking.");
-            alert.showAndWait();
-        });
-    }
 
     /**
-     * Handles the case where the subscriber does not have an active deposit.
-     * Loads the Car Deposit screen and initializes it.
+     * Handles the check for active deposit status.
+     * If the user has an active deposit, shows an alert.
+     * If not, navigates to the CarDeposit.fxml GUI.
+     *
+     * @param hasActive whether an active deposit exists
+     * @param message   the message to display
      */
-    private void handleNoActiveDeposit() {
+    private void handleCheckActive(boolean hasActive, String message) {
         Platform.runLater(() -> {
-            CarDepositController controller = SceneNavigator.navigateToAndGetController(
-                null, "/subscriberGui/CarDeposit.fxml", "BPARK - Vehicle Deposit");
-
-            if (controller != null) {
-                controller.setClient(this);                // Inject client controller
-                controller.onLoaded();                     // Request spot
-                this.setCarDepositController(controller);  // Register controller for callbacks
+            if (hasActive) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Deposit Blocked");
+                alert.setHeaderText(null);
+                alert.setContentText("🚫 You already have an active parking.");
+                alert.showAndWait();
             } else {
-                System.out.println("⚠️ Failed to load CarDepositController.");
+                // Directly navigate to the CarDeposit screen
+                CarDepositController controller = SceneNavigator.navigateToAndGetController(
+                        null, "/subscriberGui/CarDeposit.fxml", "BPARK - Vehicle Deposit");
+
+                if (controller != null) {
+                    controller.setClient(this);                // Inject client controller
+                    controller.onLoaded();                     // Request spot
+                    this.setCarDepositController(controller);  // Register controller for callbacks
+                } else {
+                    System.out.println("⚠️ Failed to load CarDepositController.");
+                }
             }
         });
     }
-    
-    /**
-     * Handles the string indicating the extend parking was successful.
-     *
-     * @param message the success message
-     */
-    private void handleExtendParkingSuccess(String message) {
-        if (extendParkingController != null) {
-            extendParkingController.onUpdateResponse(message);
-        } else {
-            System.out.println("⚠️ No ExtendParkingController registered for success message.");
-        }
-
-
-    }
 
 
     /**
-     * Handles the string indicating the extend parking failed.
+     * Handles the result of a parking deposit attempt.
      *
-     * @param message the failure message
+     * @param success success flag
+     * @param message message text
      */
-    private void handleExtendParkingFailure(String message) {
+    private void handleParkingDeposit(boolean success, String message) {
+        Platform.runLater(() -> {
+            if (!success && "You already have an active parking reservation.".equals(message)) {
+                CarDepositController controller = getCarDepositController();
+                if (controller != null) {
+                    controller.setDepositRejected(true);
+                }
+            }
+            
+        });
+    }
+
+    /**
+     * Handles the result of an extend parking request.
+     *
+     * @param success success flag
+     * @param message message text
+     */
+    private void handleExtendParkingResult(boolean success, String message) {
         if (extendParkingController != null) {
-            extendParkingController.onUpdateResponse(message);
+            extendParkingController.onUpdateResponse(success, message);
         } else {
-            System.out.println("⚠️ No ExtendParkingController registered for failure message.");
+            System.out.println("⚠️ No ExtendParkingController registered for extend result.");
         }
     }
 
-
-
+    /**
+     * Handles the result of a car pickup request.
+     *
+     * @param success success flag
+     * @param message message text
+     */
+    private void handleCarPickupResult(boolean success, String message) {
+        if (carPickupController != null) {
+            carPickupController.handlePickupResponse(success, message);
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Car Pickup" : "Pickup Failed");
+                alert.setHeaderText(null);
+                alert.setContentText((success ? "✅ " : "❌ ") + message);
+                alert.showAndWait();
+            });
+        }
+    }
 }
