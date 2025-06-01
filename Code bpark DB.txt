@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `bpark` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `bpark`;
 -- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
 -- Host: localhost    Database: bpark
@@ -15,8 +17,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE DATABASE bpark;
-USE bpark;
 --
 -- Table structure for table `parking_history`
 --
@@ -32,12 +32,13 @@ CREATE TABLE `parking_history` (
   `exit_time` datetime DEFAULT NULL,
   `extended` tinyint(1) DEFAULT '0',
   `was_late` tinyint(1) DEFAULT '0',
+  `picked_up` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`history_id`),
   KEY `subscriber_code` (`subscriber_code`),
   KEY `parking_space_id` (`parking_space_id`),
   CONSTRAINT `parking_history_ibfk_1` FOREIGN KEY (`subscriber_code`) REFERENCES `subscriber` (`subscriber_code`),
   CONSTRAINT `parking_history_ibfk_2` FOREIGN KEY (`parking_space_id`) REFERENCES `parking_space` (`parking_space_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,7 +47,7 @@ CREATE TABLE `parking_history` (
 
 LOCK TABLES `parking_history` WRITE;
 /*!40000 ALTER TABLE `parking_history` DISABLE KEYS */;
-INSERT INTO `parking_history` VALUES (1,'SUB0005',2,'2024-05-20 12:12:36','2024-05-21 03:16:00',1,0),(2,'SUB0004',7,'2024-05-14 15:38:55','2024-05-14 16:19:58',1,0),(3,'SUB0007',6,'2024-05-15 16:41:15','2024-05-20 00:10:21',1,0);
+INSERT INTO `parking_history` VALUES (13,'SUB0005',6,'2025-05-30 22:27:38','2025-05-31 02:27:38',0,0,0),(14,'SUB0005',5,'2025-05-30 18:27:38','2025-05-30 21:27:38',0,0,0),(15,'SUB0005',7,'2025-05-30 15:27:38','2025-05-30 19:27:38',0,0,0),(16,'SUB0005',9,'2025-05-31 01:27:38','2025-05-31 05:27:38',0,0,0),(17,'SUB0006',7,'2025-05-30 23:50:20','2025-05-31 03:50:20',0,0,0),(18,'SUB0003',5,'2025-05-30 23:50:48','2025-05-31 03:50:48',0,0,0),(19,'SUB0007',1,'2025-05-31 00:06:50','2025-06-01 15:24:44',1,1,1),(20,'SUB0003',2,'2025-06-01 00:36:34','2025-06-01 12:36:34',1,0,0),(21,'SUB0005',3,'2025-06-01 12:32:33','2025-06-01 15:20:19',1,1,1),(22,'SUB0003',10,'2025-06-01 14:06:15','2025-06-01 15:22:56',0,0,1),(23,'SUB0007',1,'2025-06-01 14:32:16','2025-06-01 15:23:20',1,1,1),(24,'SUB0007',4,'2025-06-01 15:24:29','2025-06-01 15:24:35',0,1,1),(25,'SUB0005',8,'2025-06-01 15:28:02','2025-06-01 15:28:05',0,0,1),(26,'SUB0005',1,'2025-06-01 15:28:23','2025-06-01 15:28:37',0,0,1),(27,'SUB0007',1,'2025-06-01 11:16:29','2025-06-01 16:17:30',1,0,1),(29,'SUB0003',1,'2025-06-01 16:32:37','2025-06-01 16:33:08',0,0,1);
 /*!40000 ALTER TABLE `parking_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -70,7 +71,7 @@ CREATE TABLE `parking_space` (
 
 LOCK TABLES `parking_space` WRITE;
 /*!40000 ALTER TABLE `parking_space` DISABLE KEYS */;
-INSERT INTO `parking_space` VALUES (1,1),(2,0),(3,1),(4,0),(5,0),(6,1),(7,1),(8,1),(9,0),(10,1);
+INSERT INTO `parking_space` VALUES (1,1),(2,0),(3,0),(4,1),(5,0),(6,0),(7,0),(8,1),(9,1),(10,0);
 /*!40000 ALTER TABLE `parking_space` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -130,7 +131,7 @@ CREATE TABLE `subscriber` (
 
 LOCK TABLES `subscriber` WRITE;
 /*!40000 ALTER TABLE `subscriber` DISABLE KEYS */;
-INSERT INTO `subscriber` VALUES ('SUB0003',3,'treynolds@example.net','092-775-9193'),('SUB0004',4,'knelson@example.com','041.867.9384'),('SUB0005',5,'brandonsheppard@example.org','053.350.5156'),('SUB0006',6,'ashley85@example.org','075.205.1387'),('SUB0007',7,'colelisa@example.com','093.783.2760');
+INSERT INTO `subscriber` VALUES ('SUB0003',3,'treynolds@example.net','092-775-9193'),('SUB0004',4,'knelson@example.com','041-867-9384'),('SUB0005',5,'brandonsheppard@example.org','053-350-5156'),('SUB0006',6,'ashley85@example.org','075-205-1387'),('SUB0007',7,'colelisa@example.com','093-783-2760');
 /*!40000 ALTER TABLE `subscriber` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -151,7 +152,7 @@ CREATE TABLE `system_log` (
   PRIMARY KEY (`log_id`),
   KEY `by_user` (`by_user`),
   CONSTRAINT `system_log_ibfk_1` FOREIGN KEY (`by_user`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,7 +161,7 @@ CREATE TABLE `system_log` (
 
 LOCK TABLES `system_log` WRITE;
 /*!40000 ALTER TABLE `system_log` DISABLE KEYS */;
-INSERT INTO `system_log` VALUES (1,'Add User','Target-1',1,'2025-05-27 12:12:03','Head color international artist situation.'),(2,'Add User','Target-2',2,'2025-05-27 12:12:03','And off travel move quite.');
+INSERT INTO `system_log` VALUES (1,'Add User','Target-1',1,'2025-05-27 12:12:03','Head color international artist situation.'),(2,'Add User','Target-2',2,'2025-05-27 12:12:03','And off travel move quite.'),(3,'Deposit','Spot 6',5,'2025-05-30 20:15:09','Car Deposit'),(4,'Deposit','Spot 10',5,'2025-05-30 20:16:15','Car Deposit'),(5,'Deposit','Spot 8',5,'2025-05-30 20:23:37','Car Deposit'),(6,'Deposit','Spot 7',5,'2025-05-30 20:23:49','Car Deposit'),(7,'Deposit','Spot 3',5,'2025-05-30 20:23:52','Car Deposit'),(8,'Deposit','Spot 7',6,'2025-05-30 20:50:19','Car Deposit'),(9,'Deposit','Spot 5',3,'2025-05-30 20:50:48','Car Deposit'),(10,'Deposit','Spot 1',7,'2025-05-30 21:06:49','Car Deposit'),(11,'Deposit','Spot 2',3,'2025-05-31 21:36:34','Car Deposit'),(12,'Deposit','Spot 3',5,'2025-06-01 09:32:32','Car Deposit'),(13,'Deposit','Spot 10',3,'2025-06-01 11:06:15','Car Deposit'),(14,'Pickup','Spot 3',5,'2025-06-01 11:17:05','Car Deposit'),(15,'Pickup (Late)','Spot 3',5,'2025-06-01 12:20:18','Car Deposit'),(16,'Deposit','Spot 3',5,'2025-06-01 12:20:35','Car Deposit'),(17,'Pickup','Spot 10',3,'2025-06-01 12:22:56','Car Deposit'),(18,'Pickup (Late)','Spot 1',7,'2025-06-01 12:23:20','Car Deposit'),(19,'Deposit','Spot 10',7,'2025-06-01 12:23:31','Car Deposit'),(20,'Deposit','Spot 4',7,'2025-06-01 12:24:28','Car Deposit'),(21,'Pickup','Spot 4',7,'2025-06-01 12:24:35','Car Deposit'),(22,'Pickup (Late)','Spot 1',7,'2025-06-01 12:24:43','Car Deposit'),(23,'Deposit','Spot 8',5,'2025-06-01 12:28:01','Car Deposit'),(24,'Pickup','Spot 8',5,'2025-06-01 12:28:05','Car Deposit'),(25,'Deposit','Spot 1',5,'2025-06-01 12:28:23','Car Deposit'),(26,'Pickup','Spot 1',5,'2025-06-01 12:28:37','Car Deposit'),(27,'Pickup','Spot 1',7,'2025-06-01 12:32:09','Car Deposit'),(28,'Pickup','Spot 1',7,'2025-06-01 13:17:29','Car Deposit'),(29,'Deposit','Spot 1',3,'2025-06-01 13:32:36','Car Deposit'),(30,'Pickup','Spot 1',3,'2025-06-01 13:33:08','Car Deposit');
 /*!40000 ALTER TABLE `system_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -202,4 +203,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-27 15:25:52
+-- Dump completed on 2025-06-01 17:04:52
