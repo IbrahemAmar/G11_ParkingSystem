@@ -7,7 +7,11 @@ import java.time.LocalDateTime;
  * Represents a record in a subscriber's parking history.
  */
 public class ParkingHistory implements Serializable {
-    private int historyId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private int historyId;
     private String subscriberCode;
     private int parkingSpaceId;
     private LocalDateTime entryTime;

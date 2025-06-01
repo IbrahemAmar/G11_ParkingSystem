@@ -40,11 +40,12 @@ public class SceneNavigator {
 
             Stage stage;
 
-            if (event != null) {
+            if (event != null && event.getSource() instanceof Node) {
                 stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             } else {
                 stage = ClientController.getPrimaryStage();
             }
+
 
             if (stage != null) {
                 stage.setScene(new Scene(root));

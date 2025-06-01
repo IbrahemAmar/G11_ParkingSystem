@@ -3,7 +3,6 @@ package client;
 import adminGui.AdminMainMenuController;
 import common.ChatIF;
 import entities.LoginRequest;
-import entities.UpdateResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
