@@ -95,6 +95,7 @@ public class CarDepositController {
                 LocalDateTime.now(),
                 LocalDateTime.now().plusHours(4),
                 false,
+                false,
                 false
             );
 

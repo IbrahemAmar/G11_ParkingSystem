@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import bpark_common.ClientRequest;
+
 /**
  * BParkServer handles client messages and interacts with the database.
  */
@@ -56,8 +58,15 @@ public class BParkServer extends AbstractServer {
 
             } else if (msg instanceof ExtendParkingRequest request) {
             	handleExtendParkingRequest(request, client);
+            }else if (msg instanceof ClientRequest request) {
+                switch (request.getCommand()) {
+                case "car_pickup" -> handleCarPickup(request, client);
+
+                // ... other custom commands
+                default -> client.sendToClient(new ErrorResponse("Unknown client command: " + request.getCommand()));
             }
-            else if (msg instanceof String str) {
+
+            } else if (msg instanceof String str) {
                 if (str.toLowerCase().startsWith("check_active:")) {
                     String subCode = str.substring("check_active:".length());
                     boolean hasActive = dbController.hasActiveReservation(subCode);
@@ -262,6 +271,73 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * Handles the car pickup request for a specific subscriber and parking spot.
+     * 
+     * This method:
+     * <ul>
+     *   <li>Finds the pending parking session (picked_up = 0) for the given subscriber and spot.</li>
+     *   <li>Checks if the user is late (actual pickup after exit_time).</li>
+     *   <li>Updates exit_time to the actual pickup time, marks picked_up = 1, 
+     *       and sets extended/was_late flags if late.</li>
+     *   <li>Marks the parking spot as available.</li>
+     *   <li>Logs the action in the system log (as "Pickup" or "Pickup (Late)").</li>
+     *   <li>Sends a success or failure response to the client.</li>
+     * </ul>
+     *
+     * @param request The client request containing subscriber code and parking spot ID.
+     * @param client  The client connection to respond to.
+     */
+    private void handleCarPickup(ClientRequest request, ConnectionToClient client) {
+        try {
+            String subscriberCode = (String) request.getParams()[0];
+            int parkingSpaceId = Integer.parseInt(request.getParams()[1].toString());
+
+            // 1. Find the pending (not yet picked up) parking session for this user and spot.
+            ParkingHistory pending = dbController.getPendingParkingBySubscriberAndSpot(subscriberCode, parkingSpaceId);
+
+            if (pending == null) {
+                client.sendToClient(new ErrorResponse("No pending parking session found for your code and this spot."));
+                return;
+            }
+
+            // 2. Check if the user is late.
+            LocalDateTime now = LocalDateTime.now();
+            boolean wasLate = now.isAfter(pending.getExitTime());
+
+            // 3. Update DB: mark as picked up, update exit time, set late/extend if needed.
+            int rowsUpdated = dbController.completePickup(subscriberCode, parkingSpaceId, wasLate, now);
+
+            if (rowsUpdated > 0) {
+                // 4. Mark the parking spot as available again.
+                dbController.setSpotAvailability(parkingSpaceId, true);
+
+                // 5. Log the action.
+                dbController.insertSystemLog(
+                    wasLate ? "Pickup (Late)" : "Pickup",
+                    "Spot " + parkingSpaceId,
+                    subscriberCode
+                );
+
+                // 6. Inform the client of success, with late message if appropriate.
+                client.sendToClient(new UpdateResponse(true,
+                    wasLate
+                        ? "Pickup successful, but you were late. Parking was automatically extended."
+                        : "Pickup successful. Your car is on the way!"
+                ));
+            } else {
+                client.sendToClient(new ErrorResponse("Failed to update parking record."));
+            }
+        } catch (Exception e) {
+            try {
+                client.sendToClient(new ErrorResponse("Server error during pickup."));
+            } catch (IOException ignored) {}
+            e.printStackTrace();
+        }
+    }
+
 
 
 

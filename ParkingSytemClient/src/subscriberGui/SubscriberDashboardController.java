@@ -71,8 +71,15 @@ public class SubscriberDashboardController {
 
     @FXML
     private void openCarPickup(ActionEvent event) {
-        SceneNavigator.navigateTo(event, "/subscriberGui/CarPickup.fxml", "BPARK - Car Pickup");
+        subscriberGui.CarPickupController controller = SceneNavigator.navigateToAndGetController(
+            event, "/subscriberGui/CarPickup.fxml", "BPARK - Car Pickup"
+        );
+        if (controller != null) {
+            controller.setClient(ClientController.getClient()); // set the client controller!
+            ClientController.getClient().setCarPickupController(controller); // for response routing
+        }
     }
+
 
     @FXML
     private void handleOpenPublicAvailability(ActionEvent event) {
@@ -87,7 +94,7 @@ public class SubscriberDashboardController {
     @FXML
     private void openCarDeposit(ActionEvent event) {
         // Save the event if needed for later navigation (optional)
-        this.setLastEvent(event);
+        this.lastEvent = event;
 
         // Send the check request to the server
         String code = client.getCurrentSubscriber().getSubscriberCode();
@@ -216,12 +223,4 @@ public class SubscriberDashboardController {
             }
         });
     }
-
-	public ActionEvent getLastEvent() {
-		return lastEvent;
-	}
-
-	public void setLastEvent(ActionEvent lastEvent) {
-		this.lastEvent = lastEvent;
-	}
 }

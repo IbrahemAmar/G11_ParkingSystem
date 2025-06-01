@@ -35,6 +35,7 @@ public class ClientController extends AbstractClient {
     private CarDepositController carDepositController;
     private subscriberGui.ExtendParkingController extendParkingController;
     private static ClientController instance;
+    private subscriberGui.CarPickupController carPickupController;
 
 
 
@@ -46,6 +47,17 @@ public class ClientController extends AbstractClient {
     public static void setClient(ClientController client) {
         clientInstance = client;
     }
+    
+    /**
+     * Sets the reference to the active CarPickupController.
+     * This controller will be used to display pickup results when a response is received from the server.
+     *
+     * @param controller the CarPickupController instance to set
+     */
+    public void setCarPickupController(subscriberGui.CarPickupController controller) {
+        this.carPickupController = controller;
+    }
+
 
     /**
      * Gets the current singleton client instance.
@@ -246,13 +258,23 @@ public class ClientController extends AbstractClient {
     }
 
     /**
-     * Handles {@link UpdateResponse} messages.
+     * Handles {@link UpdateResponse} messages from the server.
+     * Routes car pickup responses to CarPickupController if active,
+     * otherwise delegates to the relevant controller for login or subscriber updates.
      *
-     * @param response the update response
+     * @param response the update response from the server
      */
     private void handleUpdateResponse(UpdateResponse response) {
         String msgText = response.getMessage().toLowerCase();
 
+        // Handle car pickup responses
+        if (carPickupController != null &&
+            (msgText.contains("pickup successful") || msgText.contains("your car is on the way"))) {
+            carPickupController.handlePickupResponse(response.isSuccess(), response.getMessage());
+            return;
+        }
+
+        // Handle login success
         if (msgText.contains("login successful")) {
             parseAndSetUserRole(response);
             if (guiController != null) {
@@ -265,15 +287,23 @@ public class ClientController extends AbstractClient {
         }
     }
 
+
     /**
-     * Handles an error message sent from the server.
-     * If the message relates to a deposit failure, the depositRejected flag is set on the CarDepositController.
+     * Handles {@link ErrorResponse} messages from the server.
+     * Routes car pickup errors to CarPickupController if active,
+     * otherwise displays an error alert to the user.
      *
      * @param error The ErrorResponse object from the server.
      */
     private void handleErrorResponse(ErrorResponse error) {
+        // Handle car pickup errors if the controller is active
+        if (carPickupController != null) {
+            carPickupController.handlePickupResponse(false, error.getErrorMessage());
+            return;
+        }
+
         Platform.runLater(() -> {
-            // If deposit error, suppress success alert
+            // Special handling for deposit errors
             if ("You already have an active parking reservation.".equals(error.getErrorMessage())) {
                 CarDepositController controller = getCarDepositController();
                 if (controller != null) {
@@ -368,7 +398,7 @@ public class ClientController extends AbstractClient {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Deposit Blocked");
             alert.setHeaderText(null);
-            alert.setContentText("🚫 You already have an active parking reservation.");
+            alert.setContentText("🚫 You already have an active parking.");
             alert.showAndWait();
         });
     }

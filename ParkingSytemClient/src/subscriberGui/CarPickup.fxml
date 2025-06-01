@@ -1,36 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="subscriberGui.CarPickupController">
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 
-    <VBox spacing="20" alignment="CENTER"
-          AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
-          style="-fx-padding: 40; -fx-background-color: #ffffff;">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.CarPickupController">
 
-        <Label text="🚙 Retrieve Your Vehicle"
-               style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+    <VBox alignment="CENTER" spacing="20" style="-fx-padding: 40; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
-        <TextField fx:id="txtParkingCode" promptText="Enter your parking code" prefWidth="250"/>
+        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="🚙 Retrieve Your Vehicle" />
 
-        <Button text="🔓 Retrieve Car" fx:id="btnRetrieve"
-                style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+        <TextField fx:id="txtParkingCode" prefWidth="250" promptText="Enter your parking code" />
 
-        <Label fx:id="lblConfirmation" text="✔ Your car is on the way"
-               visible="false" style="-fx-text-fill: green; -fx-font-size: 14px;" />
+        <Button fx:id="btnRetrieve" onAction="#onRetrieveClicked" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="🔓 Retrieve Car" />
 
-        <Hyperlink text="❓ I lost my parking code" fx:id="linkLostCode" />
+        <Label fx:id="lblConfirmation" style="-fx-text-fill: green; -fx-font-size: 14px;" text="✔ Your car is on the way" visible="false" />
 
-        <!-- Optional: extension if car parked over 4 hours -->
-        <VBox fx:id="extendSection" visible="false" spacing="10" alignment="CENTER">
-            <Label text="⏱ Parking time exceeded 4 hours" style="-fx-text-fill: #E65100;" />
-            <Button text="Extend Parking Time (4 more hours)" fx:id="btnExtend" />
-        </VBox>
+        <Hyperlink fx:id="linkLostCode" text="❓ I lost my parking code" />
 
-        <Button text="🔙 Back to Menu" fx:id="btnBack" onAction="#goBack"
-                style="-fx-background-color: #e0e0e0;" />
+
+        <Button fx:id="btnBack" onAction="#goBack" style="-fx-background-color: #e0e0e0;" text="🔙 Back to Menu" />
     </VBox>
 </AnchorPane>
