@@ -1,7 +1,6 @@
 package subscriberGui;
 
-import java.time.LocalDateTime;
-
+import bpark_common.ClientRequest;
 import client.ClientController;
 import entities.ParkingHistory;
 import javafx.application.Platform;
@@ -10,6 +9,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import utils.SceneNavigator;
+
+import java.time.LocalDateTime;
 
 /**
  * Controller for the Car Deposit confirmation screen.
@@ -31,11 +32,13 @@ public class CarDepositController {
 
     /**
      * Called manually after the client is injected.
-     * Sends a request to the server for a random available parking spot.
+     * Sends a ClientRequest to the server for a random available parking spot.
      */
     public void onLoaded() {
         if (client != null) {
-            client.sendObjectToServer("get random spot");
+            client.sendObjectToServer(
+                new ClientRequest("get_random_spot", new Object[0])
+            );
         } else {
             System.out.println("❌ Client not set — cannot request parking spot.");
         }
@@ -76,7 +79,7 @@ public class CarDepositController {
 
     /**
      * Called when the user clicks "Finish" to confirm the deposit.
-     * Sends the ParkingHistory object to the server. Waits briefly for any
+     * Sends a deposit ClientRequest to the server. Waits briefly for any
      * rejection response before showing a success alert and returning to dashboard.
      *
      * @param event The button click event
@@ -88,6 +91,7 @@ public class CarDepositController {
 
             String subscriberCode = client.getCurrentSubscriber().getSubscriberCode();
 
+            // Build the ParkingHistory for deposit (does not need history_id)
             ParkingHistory deposit = new ParkingHistory(
                 0,
                 subscriberCode,
@@ -99,7 +103,10 @@ public class CarDepositController {
                 false
             );
 
-            client.sendObjectToServer(deposit);
+            // Send deposit as a ClientRequest
+            client.sendObjectToServer(
+                new ClientRequest("car_deposit", new Object[]{deposit})
+            );
 
             // Wait briefly to allow server to respond with error if needed
             new Thread(() -> {

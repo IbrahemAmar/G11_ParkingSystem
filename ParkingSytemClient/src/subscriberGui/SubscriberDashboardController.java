@@ -1,9 +1,9 @@
 package subscriberGui;
 
+import bpark_common.ClientRequest;
 import client.ClientController;
 import client.MainMenuController;
 import entities.ParkingHistory;
-import entities.ParkingHistoryRequest;
 import entities.Subscriber;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -38,8 +38,8 @@ public class SubscriberDashboardController {
     @FXML private Label labelSpot;
     @FXML private Label labelEntryTime;
     @FXML private Label labelTimeRemaining;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
- // Save the last ActionEvent so we can reuse it for scene navigation
     private ActionEvent lastEvent;
 
     /**
@@ -80,28 +80,27 @@ public class SubscriberDashboardController {
         }
     }
 
-
     @FXML
     private void handleOpenPublicAvailability(ActionEvent event) {
         SceneNavigator.navigateTo(event, "/guestGui/PublicAvailability.fxml", "Public Availability");
     }
+
     /**
      * Requests the server to verify whether the user has an active deposit.
-     * If the check passes, navigates to the Car Deposit screen.
+     * Uses ClientRequest instead of a raw string.
      *
      * @param event The action event triggering the request.
      */
     @FXML
     private void openCarDeposit(ActionEvent event) {
-        // Save the event if needed for later navigation (optional)
-        this.lastEvent = event;
+        this.setLastEvent(event);
 
-        // Send the check request to the server
         String code = client.getCurrentSubscriber().getSubscriberCode();
-        client.sendObjectToServer("check_active:" + code);
+        // Send check_active as a ClientRequest
+        client.sendObjectToServer(
+            new ClientRequest("check_active", new Object[]{code})
+        );
     }
-
-
 
     /**
      * Handles logout: clears session data and loads main menu screen.
@@ -184,7 +183,6 @@ public class SubscriberDashboardController {
             });
     }
 
-
     /**
      * Initializes the dashboard controller by loading the subscriber's parking history.
      * Also refreshes when the window regains focus.
@@ -209,18 +207,28 @@ public class SubscriberDashboardController {
     }
 
     /**
-     * Requests the latest parking history from the server for the current subscriber.
+     * Requests the latest parking history from the server for the current subscriber using ClientRequest.
      */
     public void refreshParkingHistory() {
         Platform.runLater(() -> {
             Subscriber subscriber = ClientController.getClient().getCurrentSubscriber();
             if (subscriber != null) {
                 String code = subscriber.getSubscriberCode();
-                ParkingHistoryRequest request = new ParkingHistoryRequest(code);
-                ClientController.getClient().sendObjectToServer(request);
+                // Now using ClientRequest instead of ParkingHistoryRequest for protocol consistency
+                ClientController.getClient().sendObjectToServer(
+                    new ClientRequest("get_parking_history", new Object[]{code})
+                );
             } else {
                 System.out.println("❌ No subscriber logged in.");
             }
         });
     }
+
+	public ActionEvent getLastEvent() {
+		return lastEvent;
+	}
+
+	public void setLastEvent(ActionEvent lastEvent) {
+		this.lastEvent = lastEvent;
+	}
 }

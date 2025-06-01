@@ -1,5 +1,6 @@
 package guestGui;
 
+import bpark_common.ClientRequest;
 import client.ClientController;
 import entities.ParkingSpace;
 import javafx.beans.property.SimpleStringProperty;
@@ -12,8 +13,6 @@ import javafx.animation.Timeline;
 import javafx.util.Duration;
 import subscriberGui.SubscriberDashboardController;
 import utils.SceneNavigator;
-
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -21,6 +20,8 @@ import java.util.List;
  * Displays available parking spots to guest users.
  */
 public class PublicAvailabilityController {
+
+    private static PublicAvailabilityController currentInstance;
 
     @FXML
     private TableView<ParkingSpace> tableAvailability;
@@ -38,42 +39,42 @@ public class PublicAvailabilityController {
     private Button btnBack;
 
     /**
-     * Static instance used for external updates from ClientController.
+     * Returns the current instance of this controller.
+     * Used for updates from the ClientController.
      */
-    public static PublicAvailabilityController instance;
+    public static PublicAvailabilityController getCurrentInstance() {
+        return currentInstance;
+    }
 
     /**
-     * Initializes the view when loaded.
-     * Sends request to the server to retrieve available parking spots.
+     * Called after the FXML is loaded to initialize the controller.
+     * Registers this controller as the current instance.
      */
     @FXML
     public void initialize() {
-        instance = this;
+        currentInstance = this;
 
-        // Setup column mappings for ParkingSpace fields
         colSpotNumber.setCellValueFactory(new PropertyValueFactory<>("parkingSpaceId"));
         colStatus.setCellValueFactory(cell ->
             new SimpleStringProperty(cell.getValue().isAvailable() ? "Available" : "Occupied"));
 
-        // Send initial request to server
-        try {
-            ClientController.getClient().sendToServer("check available");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        requestAvailableSpots();
 
-        // Auto-refresh every 10 seconds
         Timeline refreshTimeline = new Timeline(
-            new KeyFrame(Duration.seconds(10), e -> {
-                try {
-                    ClientController.getClient().sendToServer("check available");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            })
+            new KeyFrame(Duration.seconds(10), e -> requestAvailableSpots())
         );
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
         refreshTimeline.play();
+    }
+
+    /**
+     * Requests the list of available parking spots from the server using ClientRequest.
+     */
+    private void requestAvailableSpots() {
+        ClientController client = ClientController.getClient();
+        if (client != null) {
+            client.sendObjectToServer(new ClientRequest("get_available_spots", new Object[0]));
+        }
     }
 
     /**
@@ -82,11 +83,11 @@ public class PublicAvailabilityController {
      *
      * @param spots List of available parking spaces.
      */
-    public static void updateTable(List<ParkingSpace> spots) {
-        if (instance != null) {
-            instance.tableAvailability.getItems().setAll(spots);
-            instance.lblAvailable.setText("✔ " + spots.size() + " spots available");
-        }
+    public void updateTable(List<ParkingSpace> spots) {
+        javafx.application.Platform.runLater(() -> {
+            tableAvailability.getItems().setAll(spots);
+            lblAvailable.setText("✔ " + spots.size() + " spots available");
+        });
     }
 
     /**
@@ -98,7 +99,7 @@ public class PublicAvailabilityController {
      */
     @FXML
     private void handleBackToMenu(ActionEvent event) {
-        String role = client.ClientController.getClient().getUserRole();
+        String role = ClientController.getClient().getUserRole();
         String fxmlPath;
         String title;
 
@@ -114,7 +115,6 @@ public class PublicAvailabilityController {
         }
 
         if ("subscriber".equalsIgnoreCase(role)) {
-            // Load and get the controller to inject the client
             SubscriberDashboardController controller = SceneNavigator.navigateToAndGetController(
                 event, fxmlPath, title
             );
@@ -122,7 +122,6 @@ public class PublicAvailabilityController {
                 controller.setClient(ClientController.getClient());
             }
         } else {
-            // Use the simple dynamic method for MainMenu
             SceneNavigator.navigateToAndGetController(event, fxmlPath, title);
         }
     }

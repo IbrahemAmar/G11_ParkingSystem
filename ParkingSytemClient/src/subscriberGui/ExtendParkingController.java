@@ -1,22 +1,20 @@
 package subscriberGui;
 
+import bpark_common.ClientRequest;
 import client.ClientController;
-import entities.ExtendParkingRequest;
 import entities.Subscriber;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import utils.SceneNavigator;
 
-
 /**
  * Controller for the Extend Parking screen.
  * Handles logic for extending parking time by 4 hours.
  */
 public class ExtendParkingController {
-	
-	
-	/**
+
+    /**
      * Handles the "Back" button action to return to the Subscriber Dashboard.
      * Uses the SceneNavigator to ensure consistent navigation.
      *
@@ -29,13 +27,12 @@ public class ExtendParkingController {
 
     /**
      * Handles the "Finish" button click to extend parking time.
-     * Sends an ExtendParkingRequest object to the server.
+     * Sends a ClientRequest with the "extend_parking" command to the server.
      *
      * @param event the action event triggered by the button click
      */
     @FXML
     private void handleFinishExtendTime(ActionEvent event) {
-
         Subscriber currentSubscriber = ClientController.getClient().getCurrentSubscriber();
 
         if (currentSubscriber == null) {
@@ -43,11 +40,11 @@ public class ExtendParkingController {
             return;
         }
 
-        // No try-catch needed here!
-        ExtendParkingRequest request = new ExtendParkingRequest(currentSubscriber.getSubscriberCode());
+        // Send as a ClientRequest for protocol consistency
+        ClientRequest request = new ClientRequest("extend_parking", new Object[]{currentSubscriber.getSubscriberCode()});
         ClientController.getClient().sendObjectToServer(request);
     }
-    
+
     /**
      * Initializes the controller.
      * Registers this controller with the ClientController to receive update responses.
@@ -56,7 +53,6 @@ public class ExtendParkingController {
     public void initialize() {
         ClientController.getClient().setExtendParkingController(this);
     }
-
 
     /**
      * Called by ClientController when an extend parking response is received.
@@ -76,19 +72,15 @@ public class ExtendParkingController {
         });
     }
 
-
-
-    
     /**
      * Closes the confirmation window when the Finish button is pressed.
      *
      * @param event the action event from the button
      */
     @FXML
-    private void handleClose(javafx.event.ActionEvent event) {
+    private void handleClose(ActionEvent event) {
         // Close the window containing this button
         javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
         stage.close();
     }
-
 }

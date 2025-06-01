@@ -1,8 +1,8 @@
 package subscriberGui;
 
+import bpark_common.ClientRequest;
 import client.ClientController;
 import entities.Subscriber;
-import entities.UpdateResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,7 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import utils.SceneNavigator;
-import java.io.IOException;
 
 /**
  * Controller for EditSubscriberDetails.fxml.
@@ -37,7 +36,7 @@ public class EditSubscriberDetailsController {
     private Button btnBack;
 
     @FXML
-    private Label lblStatus;  // Add this Label in your FXML for feedback
+    private Label lblStatus;
 
     /** Holds the current subscriber loaded from ClientController */
     private Subscriber currentSubscriber;
@@ -58,7 +57,7 @@ public class EditSubscriberDetailsController {
             System.out.println("⚠️ currentSubscriber is null - cannot populate fields");
         }
 
-        // Register this controller instance with ClientController so it can callback on UpdateResponse
+        // Register this controller instance with ClientController so it can callback on update
         ClientController.getClient().setEditSubscriberDetailsController(this);
     }
 
@@ -82,13 +81,11 @@ public class EditSubscriberDetailsController {
 
     /**
      * Handles the Save button click event.
-     * Validates input and sends updated subscriber info to the server.
+     * Validates input and sends updated subscriber info to the server as a ClientRequest.
      * Disables Save button until response is received.
-     *
-     * @throws IOException if sending the updated subscriber fails
      */
     @FXML
-    private void handleSave() throws IOException {
+    private void handleSave() {
         String email = txtNewEmail.getText().trim();
         String confirmEmail = txtConfirmEmail.getText().trim();
         String phone = txtNewPhone.getText().trim();
@@ -110,7 +107,10 @@ public class EditSubscriberDetailsController {
                 currentSubscriber.getSubscriberCode()
         );
 
-        ClientController.getClient().sendToServer(updatedSubscriber);
+        // Send update as a ClientRequest to the server
+        ClientController.getClient().sendObjectToServer(
+                new ClientRequest("update_subscriber", new Object[]{updatedSubscriber})
+        );
     }
 
     /**
@@ -148,5 +148,4 @@ public class EditSubscriberDetailsController {
             }
         });
     }
-
 }

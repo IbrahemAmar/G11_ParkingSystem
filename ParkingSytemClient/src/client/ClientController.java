@@ -318,11 +318,16 @@ public class ClientController extends AbstractClient {
     @SuppressWarnings("unchecked")
     private void handleAvailableSpots(Object data) {
         if (data instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingSpace) {
-            Platform.runLater(() -> {
-                PublicAvailabilityController.updateTable((List<ParkingSpace>) list);
-            });
+            PublicAvailabilityController controller = PublicAvailabilityController.getCurrentInstance();
+            if (controller != null) {
+                Platform.runLater(() -> controller.updateTable((List<ParkingSpace>) list));
+            } else {
+                System.out.println("⚠️ PublicAvailabilityController instance is null.");
+            }
         }
     }
+
+
 
     /**
      * Handles the server response for getting a random parking spot.
