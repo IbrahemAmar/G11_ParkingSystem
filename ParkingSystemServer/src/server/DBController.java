@@ -5,9 +5,16 @@ import entities.ParkingSpace;
 import entities.Subscriber;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * DBController handles database connectivity and operations
@@ -435,6 +442,89 @@ public class DBController {
             return false; // In case of error, assume not possible
         }
     }
+
+    /**
+     * Returns a list of available time slots for the given date,
+     * based on 40% availability and avoiding fully reserved slots.
+     * If a reservation is fully booked at a time, blocks the next 4 hours.
+     *
+     * @param selectedDate the selected date
+     * @return a list of available LocalTime slots
+     */
+    public List<LocalTime> getAvailableTimesForDate(LocalDate selectedDate) {
+        List<LocalTime> availableTimes = new ArrayList<>();
+
+        try (Connection conn = getConnection()) {
+            // Get total parking spots
+            String totalQuery = "SELECT COUNT(*) FROM parking_space";
+            int totalSpots = 0;
+            try (PreparedStatement stmt = conn.prepareStatement(totalQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    totalSpots = rs.getInt(1);
+                }
+            }
+
+            if (totalSpots == 0) {
+                return availableTimes; // No spots at all
+            }
+
+            // Load ALL reservations for the selected date
+            String reservationQuery = "SELECT reservation_date, COUNT(*) AS reserved_count FROM reservation " +
+                                      "WHERE DATE(reservation_date) = ? " +
+                                      "GROUP BY reservation_date";
+            Map<LocalDateTime, Integer> reservationMap = new HashMap<>();
+
+            try (PreparedStatement stmt = conn.prepareStatement(reservationQuery)) {
+                stmt.setDate(1, Date.valueOf(selectedDate));
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        LocalDateTime dateTime = rs.getTimestamp("reservation_date").toLocalDateTime();
+                        int count = rs.getInt("reserved_count");
+                        reservationMap.put(dateTime, count);
+                    }
+                }
+            }
+
+            // Create a set to track fully reserved slots (including 4-hour window blocks)
+            Set<LocalDateTime> fullyReservedSlots = new HashSet<>();
+
+            for (Map.Entry<LocalDateTime, Integer> entry : reservationMap.entrySet()) {
+                LocalDateTime start = entry.getKey();
+                int count = entry.getValue();
+
+                if (count >= totalSpots) {
+                    // Mark this slot and the next 4 hours (in 30-min slots) as unavailable
+                    LocalDateTime blockTime = start;
+                    for (int i = 0; i < (4 * 60) / 30; i++) { // 4 hours / 30 min = 8 slots
+                        fullyReservedSlots.add(blockTime);
+                        blockTime = blockTime.plusMinutes(30);
+                    }
+                }
+            }
+
+            // Loop through each 30-min slot for the selected date
+            LocalTime slotTime = LocalTime.of(0, 0);
+            while (!slotTime.isAfter(LocalTime.of(23, 30))) {
+                LocalDateTime slotDateTime = LocalDateTime.of(selectedDate, slotTime);
+
+                if (!fullyReservedSlots.contains(slotDateTime)) {
+                    availableTimes.add(slotTime);
+                    System.out.println("✅ Available slot: " + slotTime);
+                } else {
+                    System.out.println("❌ Blocked slot (due to 4-hour window rule): " + slotTime);
+                }
+
+                slotTime = slotTime.plusMinutes(30);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return availableTimes;
+    }
+
 
 
 }

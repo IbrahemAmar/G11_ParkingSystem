@@ -6,7 +6,9 @@ import ocsf.server.ConnectionToClient;
 import serverGui.ServerMainController;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import bpark_common.ClientRequest;
@@ -74,6 +76,7 @@ public class BParkServer extends AbstractServer {
                 case "get_parking_history" -> handleParkingHistoryRequest(request, client);
                 case "update_subscriber" -> handleEditData(request, client);
                 case "check_reservation_availability" -> handleCheckReservationAvailability(client);
+                case "get_valid_start_times" -> handleGetValidStartTimes(request, client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -289,5 +292,35 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Handles the request to get valid start times for a given date.
+     * Uses DBController to check availability and sends back a list of valid times.
+     *
+     * @param request The client request containing the date.
+     * @param client  The client connection.
+     */
+    private void handleGetValidStartTimes(ClientRequest request, ConnectionToClient client) {
+    	
+    	System.out.println("✅ Server received request for valid start times!BParkServer.java");
+    	
+        LocalDate selectedDate = (LocalDate) request.getParams()[0];
+        List<LocalTime> validStartTimes = dbController.getAvailableTimesForDate(selectedDate);
+
+        // Create the ServerResponse using your existing ServerResponse class
+        ServerResponse response = new ServerResponse(
+            "get_valid_start_times",
+            true,
+            "Available start times fetched",
+            validStartTimes
+        );
+
+        try {
+            client.sendToClient(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

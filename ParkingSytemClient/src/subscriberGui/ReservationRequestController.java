@@ -7,6 +7,10 @@ import javafx.scene.control.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+
+import bpark_common.ClientRequest;
+import client.ClientController;
 
 
 /**
@@ -41,6 +45,11 @@ public class ReservationRequestController {
      */
     @FXML
     public void initialize() {
+    	System.out.println("✅ ReservationRequestController initialized!");
+    	
+    	// Register this controller in the ClientController
+        ClientController.getClient().reservationRequestController = this;
+        
         // Restrict date picker to 24h from now up to 7 days
         datePicker.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -55,64 +64,73 @@ public class ReservationRequestController {
         });
 
         // Populate time combo box when date is selected
-        datePicker.setOnAction(event -> updateAvailableTimes());
+        datePicker.setOnAction(event -> onDatePicked());
     }
 
     /**
      * Populates the time combo box with valid start times for the selected date.
-     * - For the 7th day (today + 7), shows times from 00:00 until the closest past 30-min slot of the current time.
-     * - For all other days, only shows slots at least 24 hours in the future.
-     * - No recursion, no crashes.
+     * - Previously added times locally, but now just sends request to server and disables the combo box until data arrives.
      */
     private void updateAvailableTimes() {
-        timeCombo.getItems().clear();
+        timeCombo.getItems().clear(); // Clear old data
+        timeCombo.setDisable(true);   // Disable until server data arrives
 
         LocalDate selectedDate = datePicker.getValue();
         if (selectedDate == null) return;
 
-        LocalDate today = LocalDate.now();
-        LocalDate maxAllowedDate = today.plusDays(7);
+        // Show loading state
+        lblResult.setText("⏳ Loading available times...");
+        lblResult.setStyle("-fx-text-fill: blue;");
 
-        LocalDateTime minAllowedDateTime = LocalDateTime.now().plusHours(24);
-
-        for (int hour = 0; hour < 24; hour++) {
-            for (int min = 0; min < 60; min += 30) {
-                LocalTime slotTime = LocalTime.of(hour, min);
-                LocalDateTime slotDateTime = selectedDate.atTime(slotTime);
-
-                // 🔥 If it's the 7th day, only show times before or equal to current time (rounded down to 30-min)
-                if (selectedDate.equals(maxAllowedDate)) {
-                    LocalTime now = LocalTime.now();
-                    int roundedMin = (now.getMinute() >= 30) ? 30 : 0;
-                    LocalTime roundedCurrentTime = LocalTime.of(now.getHour(), roundedMin);
-
-                    // Skip any slot after the closest 30-min phase
-                    if (slotTime.isAfter(roundedCurrentTime)) {
-                        continue;
-                    }
-                } else {
-                    // 24-hour from now rule for other days
-                    if (slotDateTime.isBefore(minAllowedDateTime)) {
-                        continue;
-                    }
-                }
-
-                timeCombo.getItems().add(slotTime);
-            }
-        }
-
-        if (timeCombo.getItems().isEmpty()) {
-            lblResult.setText("❌ No valid start times for this date. Please choose another date.");
-            lblResult.setStyle("-fx-text-fill: red;");
-        } else {
-            lblResult.setText("");
-        }
+        // Let server handle real validation
+        ClientRequest request = new ClientRequest("get_valid_start_times", new Object[]{selectedDate});
+        ClientController.getClient().sendObjectToServer(request);
     }
 
 
 
+    /**
+     * Called when the user picks a date.
+     * Sends a request to the server to get valid start times for the selected date.
+     */
+    @FXML
+    private void onDatePicked() {
+        System.out.println("✅ onDatePicked called!");
 
- 
+    	
+        LocalDate selectedDate = datePicker.getValue();
+        if (selectedDate == null) return;
+        
+        // Immediately update available times locally
+        updateAvailableTimes();
+        
+        // Use the existing ClientRequest class
+        ClientRequest request = new ClientRequest("get_valid_start_times", new Object[]{selectedDate});
+
+        // Send the request to the server
+        ClientController.getClient().sendObjectToServer(request);
+    }
+
+
+    /**
+     * Called by ClientController when the server sends available times.
+     */
+    public void updateTimeComboBox(List<LocalTime> availableTimes) {
+        timeCombo.setDisable(false); // Enable the combo box
+
+        timeCombo.getItems().clear();
+        timeCombo.getItems().addAll(availableTimes);
+
+        if (availableTimes.isEmpty()) {
+            lblResult.setText("❌ No available time slots. Please choose another date.");
+            lblResult.setStyle("-fx-text-fill: red;");
+        } else {
+            lblResult.setText("✅ Available slots loaded!");
+            lblResult.setStyle("-fx-text-fill: green;");
+        }
+    }
+
+
 
 
 }

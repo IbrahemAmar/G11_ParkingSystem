@@ -10,9 +10,11 @@ import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
 import subscriberGui.CarDepositController;
 import subscriberGui.EditSubscriberDetailsController;
+import subscriberGui.ReservationRequestController;
 import utils.SceneNavigator;
 
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -37,7 +39,9 @@ public class ClientController extends AbstractClient {
     private subscriberGui.ExtendParkingController extendParkingController;
     private subscriberGui.CarPickupController carPickupController;
     public String accessMode;
+    public ReservationRequestController reservationRequestController;
 
+    
 
     /**
      * Sets the active singleton instance of the client.
@@ -242,6 +246,7 @@ public class ClientController extends AbstractClient {
             case "CAR_PICKUP" -> handleCarPickupResult(success, message);
             case "ACCESS_MODE" -> handleAccessMode(data);
             case "check_reservation_availability" -> handleReservationAvailabilityResponse(success, data);
+            case "get_valid_start_times" -> handleValidStartTimes(data);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
     }
@@ -484,6 +489,24 @@ public class ClientController extends AbstractClient {
                 alert.showAndWait();
             });
         }
+    }
+
+
+    /**
+     * Handles the list of valid start times received from the server.
+     * Updates the UI to show only the valid time slots.
+     *
+     * @param data The list of LocalTime objects (valid start times).
+     */
+    @SuppressWarnings("unchecked")
+    private void handleValidStartTimes(Object data) {
+        List<LocalTime> availableTimes = (List<LocalTime>) data;
+
+        Platform.runLater(() -> {
+            if (reservationRequestController != null) {
+                reservationRequestController.updateTimeComboBox(availableTimes);
+            }
+        });
     }
 
 

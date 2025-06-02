@@ -18,7 +18,7 @@
 
         <HBox spacing="10">
             <Label text="Date:" />
-            <DatePicker fx:id="datePicker" promptText="Select date" />
+            <DatePicker fx:id="datePicker" onAction="#onDatePicked" promptText="Select date" />
         </HBox>
 
         <HBox spacing="10">
