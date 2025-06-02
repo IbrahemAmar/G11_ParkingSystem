@@ -1,4 +1,5 @@
-package common;
+package entities;
+
 
 import java.io.Serializable;
 

@@ -36,6 +36,8 @@ public class ClientController extends AbstractClient {
     private CarDepositController carDepositController;
     private subscriberGui.ExtendParkingController extendParkingController;
     private subscriberGui.CarPickupController carPickupController;
+    public String accessMode;
+
 
     /**
      * Sets the active singleton instance of the client.
@@ -238,6 +240,7 @@ public class ClientController extends AbstractClient {
             case "PARKING_DEPOSIT" -> handleParkingDeposit(success, message);
             case "EXTEND_PARKING" -> handleExtendParkingResult(success, message);
             case "CAR_PICKUP" -> handleCarPickupResult(success, message);
+            case "ACCESS_MODE" -> handleAccessMode(data);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
     }
@@ -444,4 +447,16 @@ public class ClientController extends AbstractClient {
             });
         }
     }
+    
+    /**
+     * Handles the received access mode data from the server.
+     *
+     * @param data the access mode ("home" or "shop")
+     */
+    private void handleAccessMode(Object data) {
+    	this.accessMode = (String) data;
+    	System.out.println("✅ Access mode received: " + accessMode);
+
+    }
+
 }

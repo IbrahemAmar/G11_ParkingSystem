@@ -223,6 +223,9 @@ public class BParkServer extends AbstractServer {
             Subscriber subscriber = dbController.getSubscriberByUsername(request.getUsername());
             if (subscriber != null) {
                 sendServerResponse(client, "SUBSCRIBER_DATA", true, "Subscriber data", subscriber);
+                
+                // this line for the access mode
+                sendServerResponse(client, "ACCESS_MODE", true, "Access mode data", request.getAccessMode());
             }
         }
     }

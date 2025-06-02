@@ -38,6 +38,11 @@ public class SubscriberDashboardController {
     @FXML private Label labelSpot;
     @FXML private Label labelEntryTime;
     @FXML private Label labelTimeRemaining;
+    @FXML private javafx.scene.control.Button btnExtend;
+    @FXML private javafx.scene.control.Button btnReserve;
+    @FXML private javafx.scene.control.Button btnPickup;
+    @FXML private javafx.scene.control.Button btnDeposit;
+
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private ActionEvent lastEvent;
@@ -204,6 +209,17 @@ public class SubscriberDashboardController {
                 });
             }
         });
+        
+     // ✅ Access mode login using your exact button names
+        String accessMode = ClientController.getClient().accessMode;
+        if ("home".equals(accessMode)) {
+            // Hide deposit and pickup buttons
+            if (btnDeposit != null) btnDeposit.setVisible(false);
+            if (btnPickup != null) btnPickup.setVisible(false);
+        } else if ("shop".equals(accessMode)) {
+            // Hide reserve button
+            if (btnReserve != null) btnReserve.setVisible(false);
+        }
     }
 
     /**
