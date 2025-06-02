@@ -5,15 +5,19 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.MainMenuController">
 
-    <VBox alignment="CENTER" spacing="30" style="-fx-padding: 50; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <VBox alignment="CENTER" prefHeight="568.0" prefWidth="586.0" spacing="30" style="-fx-padding: 50; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
         <!-- Welcome Header -->
         <Label style="-fx-font-size: 26px; -fx-font-weight: bold;" text="🚗 Welcome to BPARK" />
+
 
         <!-- Login Section with ID & Password -->
         <VBox alignment="CENTER" spacing="15">
@@ -21,24 +25,35 @@
 
             <TextField fx:id="txtUsername" prefWidth="260" promptText="Username or ID" />
             <PasswordField fx:id="txtPassword" prefWidth="260" promptText="Password" />
+    <VBox alignment="CENTER_LEFT" spacing="5">
+        <Label style="-fx-font-size: 14px; -fx-text-fill: #444;" text=" Enter as Subscriber:" />
+        <Label prefWidth="271.0" style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Where are you accessing your account from today?" />
+    </VBox>
+    
+   <!-- Access Mode Selection -->
+   <HBox alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="486.0" spacing="10">
+       <HBox alignment="TOP_RIGHT" spacing="5">
+           <ToggleButton fx:id="toggleHome" style="-fx-pref-width: 100;" text="🏠 Home">
+                  <toggleGroup>
+                     <ToggleGroup fx:id="accessToggleGroup" />
+                  </toggleGroup>
+               </ToggleButton>
+           <ToggleButton fx:id="toggleShop" style="-fx-pref-width: 100;" text="🏪 Shop" toggleGroup="$accessToggleGroup" />
+       </HBox>
+   </HBox>
 
-            <Button fx:id="btnLogin"
-                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-pref-width: 200;"
-                    text="➡ Login" />
+            <Button fx:id="btnLogin" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-pref-width: 200;" text="➡ Login" />
         </VBox>
 
         <Separator />
 
         <!-- Status Label -->
-        <Label fx:id="statusLabel" text="Status will appear here" style="-fx-text-fill: red;" />
+        <Label fx:id="statusLabel" style="-fx-text-fill: red;" text="Status will appear here" />
 
         <!-- Visitor Access -->
         <VBox alignment="CENTER" spacing="10">
             <Label style="-fx-font-weight: bold;" text="🧭 Just Visiting?" />
-            <Button fx:id="btnCheckAvailability"
-                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 250;"
-                    text="🅿️ Check Available Parking Spots"
-                    onAction="#checkAvailability" />
+            <Button fx:id="btnCheckAvailability" onAction="#checkAvailability" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 250;" text="🅿️ Check Available Parking Spots" />
             <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="No login required." />
         </VBox>
     </VBox>

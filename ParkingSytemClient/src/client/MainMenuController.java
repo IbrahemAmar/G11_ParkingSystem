@@ -40,6 +40,15 @@ public class MainMenuController implements ChatIF {
 
     @FXML
     private Label statusLabel;
+    
+    /** Toggle button for choosing access from home */
+    @FXML
+    private ToggleButton toggleHome;
+
+    /** Toggle button for choosing access from shop */
+    @FXML
+    private ToggleButton toggleShop;
+
 
     /**
      * Allows external controllers (like logout) to pass the current stage.
@@ -76,7 +85,21 @@ public class MainMenuController implements ChatIF {
     /**
      * Sends a login request to the server with the entered credentials.
      */
+    /**
+     * Sends a login request to the server with the entered credentials.
+     * Also checks the selected access mode and stores it.
+     */
+    /**
+     * Sends a login request to the server with the entered credentials
+     * and selected access mode.
+     */
     private void handleLogin() {
+        String mode = getAccessMode();
+        if ("none".equals(mode)) {
+            showAlert("❌ Please select an access mode before logging in.");
+            return;
+        }
+
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText().trim();
 
@@ -85,13 +108,18 @@ public class MainMenuController implements ChatIF {
             return;
         }
 
+        // Create a login request with access mode included
+        LoginRequest loginRequest = new LoginRequest(username, password, mode);
+
         try {
-            ClientController.getClient().sendToServer(new LoginRequest(username, password));
+            ClientController.getClient().sendToServer(loginRequest);
         } catch (IOException e) {
             showAlert("❌ Failed to send login request.");
             e.printStackTrace();
         }
     }
+
+
 
     /**
      * Displays an error alert with the given message.
@@ -124,6 +152,19 @@ public class MainMenuController implements ChatIF {
         });
     }
 
+    /**
+     * Gets the selected access mode.
+     * @return "home" if Home is selected, "shop" if Shop is selected, "none" if neither is selected.
+     */
+    private String getAccessMode() {
+        if (toggleHome.isSelected()) {
+            return "home";
+        } else if (toggleShop.isSelected()) {
+            return "shop";
+        } else {
+            return "none";
+        }
+    }
 
     /**
      * Redirects the user to their respective dashboard screen based on their role.
