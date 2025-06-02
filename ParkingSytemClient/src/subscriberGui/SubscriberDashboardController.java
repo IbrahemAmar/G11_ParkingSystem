@@ -69,10 +69,34 @@ public class SubscriberDashboardController {
         SceneNavigator.navigateTo(event, "/subscriberGui/ExtendParking.fxml", "BPARK - Extend Parking");
     }
 
+    /**
+     * Initiates the process to reserve a parking spot.
+     * Before opening the reservation window, this method sends a request to the server
+     * to verify if at least 40% of the parking spots are available.
+     * If the server confirms, the window will be opened in response handling.
+     *
+     * @param event The ActionEvent triggered by the Reserve Parking button.
+     */
     @FXML
     private void openReservationRequest(ActionEvent event) {
+        this.setLastEvent(event); // Save the event for later use
+
+        // Send check availability command to the server
+        ClientRequest request = new ClientRequest("check_reservation_availability", null);
+        ClientController.getClient().sendObjectToServer(request);
+    }
+    
+    /**
+     * Opens the reservation window after the server confirms availability.
+     * Called by ClientController when the server response is positive.
+     *
+     * @param event The ActionEvent that originally triggered the reservation attempt.
+     */
+    public void openReservationWindow(ActionEvent event) {
         SceneNavigator.navigateTo(event, "/subscriberGui/ReservationRequest.fxml", "BPARK - Reserve Parking");
     }
+
+
 
     @FXML
     private void openCarPickup(ActionEvent event) {

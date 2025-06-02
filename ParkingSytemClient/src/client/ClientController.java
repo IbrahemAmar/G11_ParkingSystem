@@ -241,6 +241,7 @@ public class ClientController extends AbstractClient {
             case "EXTEND_PARKING" -> handleExtendParkingResult(success, message);
             case "CAR_PICKUP" -> handleCarPickupResult(success, message);
             case "ACCESS_MODE" -> handleAccessMode(data);
+            case "check_reservation_availability" -> handleReservationAvailabilityResponse(success, data);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
     }
@@ -458,5 +459,33 @@ public class ClientController extends AbstractClient {
     	System.out.println("✅ Access mode received: " + accessMode);
 
     }
+    
+    /**
+     * Handles the response from the server for the check reservation availability request.
+     * If at least 40% of the parking spots are available, opens the reservation window.
+     * Otherwise, shows an alert to the user.
+     *
+     * @param success Indicates if the request to the server succeeded.
+     * @param data    The server's response data (should be a Boolean for availability).
+     */
+    private void handleReservationAvailabilityResponse(boolean success, Object data) {
+        if (success && data instanceof Boolean canReserve && canReserve) {
+            Platform.runLater(() -> {
+                if (subscriberDashboardController != null) {
+                    subscriberDashboardController.openReservationWindow(subscriberDashboardController.getLastEvent());
+                }
+            });
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Reservation Unavailable");
+                alert.setHeaderText(null);
+                alert.setContentText("Reservation is not possible: less than 40% of parking spots are available.");
+                alert.showAndWait();
+            });
+        }
+    }
+
+
 
 }

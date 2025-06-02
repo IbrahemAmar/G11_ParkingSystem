@@ -394,5 +394,47 @@ public class DBController {
         }
         return 0;
     }
+    
+    /**
+     * Checks if at least 40% of parking spots are available.
+     *
+     * @return true if reservation is possible (≥ 40%), false otherwise.
+     */
+    public boolean isReservationPossible() {
+        String totalQuery = "SELECT COUNT(*) FROM parking_space";
+        String availableQuery = "SELECT COUNT(*) FROM parking_space WHERE is_available = TRUE";
+        try (Connection conn = getConnection()) {
+            int totalSpots = 0;
+            int availableSpots = 0;
+
+            // Total spots
+            try (PreparedStatement stmt = conn.prepareStatement(totalQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    totalSpots = rs.getInt(1);
+                }
+            }
+
+            // Available spots
+            try (PreparedStatement stmt = conn.prepareStatement(availableQuery);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    availableSpots = rs.getInt(1);
+                }
+            }
+
+            if (totalSpots == 0) {
+                return false; // Avoid division by zero
+            }
+
+            double percentage = (availableSpots / (double) totalSpots) * 100;
+            return percentage >= 40.0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // In case of error, assume not possible
+        }
+    }
+
 
 }

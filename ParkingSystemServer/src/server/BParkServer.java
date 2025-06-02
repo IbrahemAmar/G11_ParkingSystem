@@ -73,6 +73,7 @@ public class BParkServer extends AbstractServer {
                 case "check_active" -> handleCheckActive(request, client);
                 case "get_parking_history" -> handleParkingHistoryRequest(request, client);
                 case "update_subscriber" -> handleEditData(request, client);
+                case "check_reservation_availability" -> handleCheckReservationAvailability(client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -266,4 +267,27 @@ public class BParkServer extends AbstractServer {
     private void sendError(ConnectionToClient client, String message, String context) {
         sendServerResponse(client, context, false, message, null);
     }
+    
+    /**
+     * Handles the check for reservation availability.
+     *
+     * @param client The client to send the response to.
+     */
+    private void handleCheckReservationAvailability(ConnectionToClient client) {
+        try {
+            boolean isPossible = dbController.isReservationPossible();
+            String message = isPossible ? "Reservation is possible." : "Reservation is not possible (less than 40% spots available).";
+            ServerResponse response = new ServerResponse(
+                "check_reservation_availability",
+                true,
+                message,
+                isPossible
+            );
+            client.sendToClient(response);
+        } catch (Exception e) {
+            sendError(client, "Error checking reservation availability: " + e.getMessage(), "check_reservation_availability");
+            e.printStackTrace();
+        }
+    }
+
 }
