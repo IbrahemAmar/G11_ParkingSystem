@@ -60,10 +60,9 @@ public class ReservationRequestController {
 
     /**
      * Populates the time combo box with valid start times for the selected date.
-     * - If the selected date is tomorrow but no valid start times exist (due to 24-hour rule),
-     *   automatically switches to the next day and shows all slots.
-     * - For other days, shows all 30-minute slots.
-     * - Prevents infinite loops and ensures user can always see valid times.
+     * - For the 7th day (today + 7), shows times from 00:00 until the closest past 30-min slot of the current time.
+     * - For all other days, only shows slots at least 24 hours in the future.
+     * - No recursion, no crashes.
      */
     private void updateAvailableTimes() {
         timeCombo.getItems().clear();
@@ -71,38 +70,49 @@ public class ReservationRequestController {
         LocalDate selectedDate = datePicker.getValue();
         if (selectedDate == null) return;
 
-        LocalDateTime nowPlus24h = LocalDateTime.now().plusHours(24);
-        LocalTime endOfDay = LocalTime.of(23, 30);
+        LocalDate today = LocalDate.now();
+        LocalDate maxAllowedDate = today.plusDays(7);
 
-        if (selectedDate.equals(LocalDate.now().plusDays(1))) {
-            // For tomorrow, only allow times after 24 hours from now
-            LocalTime start = nowPlus24h.toLocalTime();
+        LocalDateTime minAllowedDateTime = LocalDateTime.now().plusHours(24);
 
-            if (start.isAfter(endOfDay)) {
-                // ✅ No valid times left for tomorrow, move to the next day
-                selectedDate = selectedDate.plusDays(1);
-                datePicker.setValue(selectedDate); // update the date picker
-                start = LocalTime.of(0, 0); // start fresh at midnight
+        for (int hour = 0; hour < 24; hour++) {
+            for (int min = 0; min < 60; min += 30) {
+                LocalTime slotTime = LocalTime.of(hour, min);
+                LocalDateTime slotDateTime = selectedDate.atTime(slotTime);
+
+                // 🔥 If it's the 7th day, only show times before or equal to current time (rounded down to 30-min)
+                if (selectedDate.equals(maxAllowedDate)) {
+                    LocalTime now = LocalTime.now();
+                    int roundedMin = (now.getMinute() >= 30) ? 30 : 0;
+                    LocalTime roundedCurrentTime = LocalTime.of(now.getHour(), roundedMin);
+
+                    // Skip any slot after the closest 30-min phase
+                    if (slotTime.isAfter(roundedCurrentTime)) {
+                        continue;
+                    }
+                } else {
+                    // 24-hour from now rule for other days
+                    if (slotDateTime.isBefore(minAllowedDateTime)) {
+                        continue;
+                    }
+                }
+
+                timeCombo.getItems().add(slotTime);
             }
+        }
 
-            while (!start.isAfter(endOfDay)) {
-                timeCombo.getItems().add(start);
-                start = start.plusMinutes(30);
-            }
+        if (timeCombo.getItems().isEmpty()) {
+            lblResult.setText("❌ No valid start times for this date. Please choose another date.");
+            lblResult.setStyle("-fx-text-fill: red;");
         } else {
-            // For other days, show all 30-minute slots
-            LocalTime start = LocalTime.of(0, 0);
-
-            while (!start.isAfter(endOfDay)) {
-                timeCombo.getItems().add(start);
-                start = start.plusMinutes(30);
-            }
+            lblResult.setText("");
         }
     }
 
 
 
 
+ 
 
 
 }
