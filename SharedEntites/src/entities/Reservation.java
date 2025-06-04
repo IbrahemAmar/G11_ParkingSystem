@@ -27,6 +27,27 @@ public class Reservation implements Serializable {
     /** Reservation status: active, cancelled, expired */
     private String status;
 
+    /**
+     * Constructs a new Reservation object with all fields specified.
+     *
+     * @param reservationId      The unique reservation ID (set to 0 if not yet assigned).
+     * @param subscriberCode     The subscriber's code making the reservation.
+     * @param parkingSpaceId     The parking spot ID being reserved.
+     * @param reservationDate    The date and time of the reservation.
+     * @param confirmationCode   The optional confirmation code (may be null).
+     * @param status             The reservation status ("active", "cancelled", "expired").
+     */
+    public Reservation(int reservationId, String subscriberCode, int parkingSpaceId,
+                       LocalDateTime reservationDate, Integer confirmationCode, String status) {
+        this.reservationId = reservationId;
+        this.subscriberCode = subscriberCode;
+        this.parkingSpaceId = parkingSpaceId;
+        this.reservationDate = reservationDate;
+        this.confirmationCode = confirmationCode;
+        this.status = status;
+    }
+
+
 	public int getReservationId() {
 		return reservationId;
 	}

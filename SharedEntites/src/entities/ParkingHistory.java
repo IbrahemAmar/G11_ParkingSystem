@@ -46,4 +46,6 @@ public class ParkingHistory implements Serializable {
     public boolean isWasLate() { return wasLate; }
     public boolean isPickedUp() { return pickedUp; }
     public void setPickedUp(boolean pickedUp) { this.pickedUp = pickedUp; }
+    public void setEntryTime(LocalDateTime entryTime) { this.entryTime = entryTime; }
+    public void setExitTime(LocalDateTime exitTime) { this.exitTime = exitTime; }
 }

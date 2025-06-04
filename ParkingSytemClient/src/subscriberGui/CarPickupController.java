@@ -3,7 +3,6 @@ package subscriberGui;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import utils.SceneNavigator;
@@ -27,7 +26,7 @@ public class CarPickupController {
     private Label lblConfirmation;
 
     @FXML
-    private Hyperlink linkLostCode;
+    private Button btnLostCode;
 
     /** The client controller used for server communication. */
     private ClientController client;
@@ -107,6 +106,21 @@ public class CarPickupController {
                 );
             }
         });
+    }
+
+    /**
+     *
+     * @param event The action event triggered by clicking the hyperlink.
+     */
+    @FXML
+    private void onLostCodeClicked(ActionEvent event) 
+    {
+    	SceneNavigator.navigateTo(
+    		    null,
+    		    "/subscriberGui/ForgotCode.fxml",
+    		    "BPARK - Forgot Code"
+    		);
+
     }
 
 

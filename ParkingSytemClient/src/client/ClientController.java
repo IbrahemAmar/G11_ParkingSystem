@@ -10,9 +10,11 @@ import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
 import subscriberGui.CarDepositController;
 import subscriberGui.EditSubscriberDetailsController;
+import subscriberGui.ReservationRequestController;
 import utils.SceneNavigator;
 
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -37,6 +39,9 @@ public class ClientController extends AbstractClient {
     private subscriberGui.ExtendParkingController extendParkingController;
     private subscriberGui.CarPickupController carPickupController;
     public String accessMode;
+    public ReservationRequestController reservationRequestController;
+    private subscriberGui.ForgotCodeController forgotCodeController;
+
 
 
     /**
@@ -56,7 +61,9 @@ public class ClientController extends AbstractClient {
     public static ClientController getClient() {
         return clientInstance;
     }
-
+    public void setForgotCodeController(subscriberGui.ForgotCodeController controller) {
+        this.forgotCodeController = controller;
+    }
     /**
      * Constructs a new client controller and opens the connection to the server.
      *
@@ -241,6 +248,10 @@ public class ClientController extends AbstractClient {
             case "EXTEND_PARKING" -> handleExtendParkingResult(success, message);
             case "CAR_PICKUP" -> handleCarPickupResult(success, message);
             case "ACCESS_MODE" -> handleAccessMode(data);
+            case "check_reservation_availability" -> handleReservationAvailabilityResponse(success, data);
+            case "get_valid_start_times" -> handleValidStartTimes(data);
+            case "add_reservation" -> handleReservationResponse(success, message);
+            case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
     }
@@ -458,5 +469,102 @@ public class ClientController extends AbstractClient {
     	System.out.println("✅ Access mode received: " + accessMode);
 
     }
+    
+    /**
+     * Handles the response from the server for the check reservation availability request.
+     * If at least 40% of the parking spots are available, opens the reservation window.
+     * Otherwise, shows an alert to the user.
+     *
+     * @param success Indicates if the request to the server succeeded.
+     * @param data    The server's response data (should be a Boolean for availability).
+     */
+    private void handleReservationAvailabilityResponse(boolean success, Object data) {
+        if (success && data instanceof Boolean canReserve && canReserve) {
+            Platform.runLater(() -> {
+                if (subscriberDashboardController != null) {
+                 //   subscriberDashboardController.openReservationWindow(subscriberDashboardController.getLastEvent());
+                }
+            });
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Reservation Unavailable");
+                alert.setHeaderText(null);
+                alert.setContentText("Reservation is not possible: less than 40% of parking spots are available.");
+                alert.showAndWait();
+            });
+        }
+    }
+
+
+    /**
+     * Handles the list of valid start times received from the server.
+     * Updates the UI to show only the valid time slots.
+     *
+     * @param data The list of LocalTime objects (valid start times).
+     */
+    @SuppressWarnings("unchecked")
+    private void handleValidStartTimes(Object data) {
+        List<LocalTime> availableTimes = (List<LocalTime>) data;
+
+        Platform.runLater(() -> {
+            if (reservationRequestController != null) {
+                reservationRequestController.updateTimeComboBox(availableTimes);
+            }
+        });
+    }
+
+    /**
+     * Handles the server response for a reservation attempt.
+     * Shows a confirmation or error message to the user.
+     *
+     * @param success True if reservation succeeded, false otherwise.
+     * @param message The server message to show.
+     */
+    private void handleReservationResponse(boolean success, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            alert.setTitle(success ? "Reservation Success" : "Reservation Failed");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+
+            // Optionally, after a successful reservation, you can navigate the user somewhere
+            if (success && subscriberDashboardController != null) {
+                SceneNavigator.navigateTo(null,
+                    "/subscriberGui/SubscriberDashboard.fxml",
+                    "BPARK - Subscriber Dashboard");
+            }
+        });
+    }
+    /**
+     * Handles the server response for sending the parking code to the subscriber's email.
+     * Delegates the response handling to the ForgotCodeController's handleEmailResponse method.
+     *
+     * @param success Whether the operation was successful.
+     * @param message The message from the server.
+     */
+    private void handleForgotCodeEmailResponse(boolean success, String message) {
+        if (forgotCodeController != null) {
+            // Construct a ServerResponse to pass to the controller (for UI handling)
+            ServerResponse response = new ServerResponse(
+                "send_code_email",
+                success,
+                message,
+                null
+            );
+            forgotCodeController.handleEmailResponse(response);
+        } else {
+            // Optional: fallback in case controller is not set
+            Platform.runLater(() -> {
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Code Sent" : "Error");
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+                alert.showAndWait();
+            });
+        }
+    }
+
 
 }

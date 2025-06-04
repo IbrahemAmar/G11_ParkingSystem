@@ -69,10 +69,17 @@ public class SubscriberDashboardController {
         SceneNavigator.navigateTo(event, "/subscriberGui/ExtendParking.fxml", "BPARK - Extend Parking");
     }
 
-    @FXML
-    private void openReservationRequest(ActionEvent event) {
+    /**
+     * Opens the reservation window after the server confirms availability.
+     * Called by ClientController when the server response is positive.
+     *
+     * @param event The ActionEvent that originally triggered the reservation attempt.
+     */
+    public void openReservationWindow(ActionEvent event) {
         SceneNavigator.navigateTo(event, "/subscriberGui/ReservationRequest.fxml", "BPARK - Reserve Parking");
     }
+
+
 
     @FXML
     private void openCarPickup(ActionEvent event) {
@@ -216,10 +223,7 @@ public class SubscriberDashboardController {
             // Hide deposit and pickup buttons
             if (btnDeposit != null) btnDeposit.setVisible(false);
             if (btnPickup != null) btnPickup.setVisible(false);
-        } else if ("shop".equals(accessMode)) {
-            // Hide reserve button
-            if (btnReserve != null) btnReserve.setVisible(false);
-        }
+        } 
     }
 
     /**

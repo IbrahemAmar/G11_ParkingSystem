@@ -6,7 +6,9 @@ import ocsf.server.ConnectionToClient;
 import serverGui.ServerMainController;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import bpark_common.ClientRequest;
@@ -73,6 +75,10 @@ public class BParkServer extends AbstractServer {
                 case "check_active" -> handleCheckActive(request, client);
                 case "get_parking_history" -> handleParkingHistoryRequest(request, client);
                 case "update_subscriber" -> handleEditData(request, client);
+                case "check_reservation_availability" -> handleCheckReservationAvailability(client);
+                case "get_valid_start_times" -> handleGetValidStartTimes(request, client);
+                case "add_reservation" -> handleReservation(request, client);
+                case "send_code_email" -> handleSendCodeEmail(request, client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -101,9 +107,16 @@ public class BParkServer extends AbstractServer {
 
     /**
      * Handles deposit request as a ClientRequest.
+     * Rounds entry and exit time to nearest quarter hour before saving.
      */
     private void handleCarDeposit(ClientRequest request, ConnectionToClient client) {
         ParkingHistory history = (ParkingHistory) request.getParams()[0];
+
+        // עיגול הזמנים לפני שמירתם
+        LocalDateTime roundedEntry = roundToQuarterHour(history.getEntryTime());
+        LocalDateTime roundedExit = roundToQuarterHour(history.getExitTime());
+        history.setEntryTime(roundedEntry);
+        history.setExitTime(roundedExit);
 
         if (dbController.hasActiveReservation(history.getSubscriberCode())) {
             sendError(client, "You already have an active parking reservation.", "PARKING_DEPOSIT");
@@ -114,6 +127,24 @@ public class BParkServer extends AbstractServer {
         dbController.insertSystemLog("Deposit", "Spot " + history.getParkingSpaceId(), history.getSubscriberCode());
         sendServerResponse(client, "PARKING_DEPOSIT", true, "Parking deposited successfully.", null);
     }
+
+    /**
+     * Rounds the given LocalDateTime to the nearest quarter hour:
+     * 0-14 → 0, 15-29 → 15, 30-44 → 30, 45-59 - > 45
+     */
+    private LocalDateTime roundToQuarterHour(LocalDateTime dt) {
+        int minute = dt.getMinute();
+        if (minute >= 0 && minute <= 14) {
+            return dt.withMinute(0).withSecond(0).withNano(0);
+        } else if (minute >= 15 && minute <= 29) {
+            return dt.withMinute(15).withSecond(0).withNano(0);
+        } else if (minute >= 30 && minute <= 44) {
+            return dt.withMinute(30).withSecond(0).withNano(0);
+        } else { // 46-59
+            return dt.withMinute(45).withSecond(0).withNano(0);
+        }
+    }
+
 
     /**
      * Handles extend parking time request as a ClientRequest.
@@ -147,6 +178,10 @@ public class BParkServer extends AbstractServer {
 
     /**
      * Handles car pickup request as a ClientRequest.
+     * Rounds the pickup (exit) time to the nearest quarter hour before updating the record.
+     *
+     * @param request The client request containing subscriber code and parking space ID.
+     * @param client The client connection.
      */
     private void handleCarPickup(ClientRequest request, ConnectionToClient client) {
         String subscriberCode = (String) request.getParams()[0];
@@ -158,10 +193,14 @@ public class BParkServer extends AbstractServer {
             sendServerResponse(client, "CAR_PICKUP", false, "No pending parking session found for your code and this spot.", null);
             return;
         }
-        LocalDateTime now = LocalDateTime.now();
-        boolean wasLate = now.isAfter(pending.getExitTime());
 
-        int rowsUpdated = dbController.completePickup(subscriberCode, parkingSpaceId, wasLate, now);
+        // Round the current time to the nearest quarter hour
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime roundedNow = roundToQuarterHour(now);
+
+        boolean wasLate = roundedNow.isAfter(pending.getExitTime());
+
+        int rowsUpdated = dbController.completePickup(subscriberCode, parkingSpaceId, wasLate, roundedNow);
 
         if (rowsUpdated > 0) {
             dbController.setSpotAvailability(parkingSpaceId, true);
@@ -266,4 +305,166 @@ public class BParkServer extends AbstractServer {
     private void sendError(ConnectionToClient client, String message, String context) {
         sendServerResponse(client, context, false, message, null);
     }
+    
+    /**
+     * Handles the check for reservation availability.
+     *
+     * @param client The client to send the response to.
+     */
+    private void handleCheckReservationAvailability(ConnectionToClient client) {
+        try {
+            boolean isPossible = dbController.isReservationPossible();
+            String message = isPossible ? "Reservation is possible." : "Reservation is not possible (less than 40% spots available).";
+            ServerResponse response = new ServerResponse(
+                "check_reservation_availability",
+                true,
+                message,
+                isPossible
+            );
+            client.sendToClient(response);
+        } catch (Exception e) {
+            sendError(client, "Error checking reservation availability: " + e.getMessage(), "check_reservation_availability");
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Handles the request to get valid start times for a given date and subscriber.
+     */
+    private void handleGetValidStartTimes(ClientRequest request, ConnectionToClient client) {
+        System.out.println("✅ Server received request for valid start times! BParkServer.java");
+
+        LocalDate selectedDate = (LocalDate) request.getParams()[0];
+        String subscriberCode = (String) request.getParams()[1]; // נוסף!
+
+        List<LocalTime> validStartTimes = dbController.getAvailableTimesForDate(selectedDate, subscriberCode);
+
+        ServerResponse response = new ServerResponse(
+            "get_valid_start_times",
+            true,
+            "Available start times fetched",
+            validStartTimes
+        );
+        try {
+            client.sendToClient(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Handles a reservation request from the client.
+     * Attempts to add a reservation with a random free spot, generates a confirmation code,
+     * sends an email, and adds a system log entry if successful.
+     * Sends a ServerResponse to the client with the result.
+     *
+     * @param request The client request containing a Reservation object.
+     * @param client  The client connection.
+     */
+    private void handleReservation(ClientRequest request, ConnectionToClient client) {
+        ServerResponse response;
+        try {
+            // Get Reservation object from request
+            Reservation reservation = (Reservation) request.getParams()[0];
+
+            // Try to add reservation using existing dbController
+            boolean success = dbController.addReservationRandomSpotWithConfirmation(reservation);
+
+            if (success) {
+                // Add to system log
+                dbController.insertSystemLog(
+                    "Add Reservation",
+                    "Reservation attempt",
+                    reservation.getSubscriberCode()
+                );
+            }
+
+            // Prepare response
+            response = new ServerResponse(
+                "add_reservation",
+                success,
+                success
+                    ? "✅ Reservation successful! Confirmation code sent to your email."
+                    : "❌ Reservation failed. No available spots or another error occurred.",
+                null
+            );
+            client.sendToClient(response);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            response = new ServerResponse(
+                "add_reservation",
+                false,
+                "❌ Server error during reservation. Please try again later.",
+                null
+            );
+            try {
+                client.sendToClient(response);
+            } catch (Exception ignored) {}
+        }
+    }
+    /**
+     * Handles a request to resend the current active parking code to the subscriber's email.
+     * The request param must be the subscriber code (String).
+     * Responds with ServerResponse (success or error message).
+     *
+     * @param request The client request (expects subscriberCode as param[0]).
+     * @param client  The client connection.
+     */
+    private void handleSendCodeEmail(ClientRequest request, ConnectionToClient client) {
+        ServerResponse response;
+        try {
+            String subscriberCode = (String) request.getParams()[0];
+
+            // 1. Get the active parking session for the subscriber
+            ParkingHistory activeParking = dbController.getActiveParkingBySubscriber(subscriberCode);
+            if (activeParking == null) {
+                response = new ServerResponse(
+                    "send_code_email", false, "No active parking session found for your code.", null
+                );
+                client.sendToClient(response);
+                return;
+            }
+
+            // 2. Get the subscriber's email
+            String email = dbController.getSubscriberEmail(subscriberCode);
+            if (email == null) {
+                response = new ServerResponse(
+                    "send_code_email", false, "Email not found for subscriber.", null
+                );
+                client.sendToClient(response);
+                return;
+            }
+
+            // 3. Prepare the email message with the active parking code (here: parking_space_id)
+            String subject = "BPARK: Your Active Parking Code";
+            String body = "Your active parking spot code is: " + activeParking.getParkingSpaceId()
+                        + "\nEntry Time: " + activeParking.getEntryTime()
+                        + "\nExit Time: " + activeParking.getExitTime();
+
+            // 4. Send the email
+            try {
+                utils.EmailUtil.sendEmail(email, subject, body);
+                response = new ServerResponse(
+                    "send_code_email", true, "Parking code sent to your email.", null
+                );
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                response = new ServerResponse(
+                    "send_code_email", false, "Failed to send email. Try again later.", null
+                );
+            }
+
+            // 5. Respond to client
+            client.sendToClient(response);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            response = new ServerResponse(
+                "send_code_email", false, "Server error while sending parking code.", null
+            );
+            try { client.sendToClient(response); } catch (Exception ignore) {}
+        }
+    }
+
+
 }
