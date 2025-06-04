@@ -1,6 +1,7 @@
 package client;
 
 import adminGui.AdminMainMenuController;
+import bpark_common.ClientRequest;
 import common.ChatIF;
 import entities.LoginRequest;
 import javafx.application.Platform;
@@ -48,6 +49,13 @@ public class MainMenuController implements ChatIF {
     /** Toggle button for choosing access from shop */
     @FXML
     private ToggleButton toggleShop;
+    
+    /** TextField for entering an alternative ID used in scan tag functionality. */
+    @FXML
+    private TextField txtAltId;
+
+    private boolean isScanTagLogin = false;
+
 
 
     /**
@@ -143,14 +151,28 @@ public class MainMenuController implements ChatIF {
     public void handleLoginResponse(boolean success, String message) {
         Platform.runLater(() -> {
             if (success) {
-                String[] parts = message.split(":");
-                String role = parts.length > 1 ? parts[1].trim() : "unknown";
-                redirectBasedOnRole(role);
+                String prefix = "Login successful: ";
+                if (message.startsWith(prefix)) {
+                    String role = message.substring(prefix.length()).trim();
+
+                    // ✅ Only show this alert if the login was from scan tag
+                    if (isScanTagLogin && ("admin".equalsIgnoreCase(role) || "supervisor".equalsIgnoreCase(role))) {
+                        showAlert("🔒 Scan tag login is not supported for admin or supervisor roles.\nPlease log in manually.");
+                        isScanTagLogin = false; // Reset the flag
+                        return;
+                    }
+
+                    redirectBasedOnRole(role);
+                }
             } else {
                 showAlert("❌ " + message);
             }
+
+            // Always reset the flag after handling login
+            isScanTagLogin = false;
         });
     }
+
 
     /**
      * Gets the selected access mode.
@@ -254,4 +276,70 @@ public class MainMenuController implements ChatIF {
             showAlert("❌ Failed to load Public Availability screen.");
         }
     }
+    
+    /**
+     * Handles the "Scan Tag" button click. Simulates scanning and gets the user data from the server.
+     *
+     * @param event The action event triggered by the button click.
+     */
+    @FXML
+    private void handleScanTag(ActionEvent event) {
+        String id = txtAltId.getText();
+
+        if (id == null || id.trim().isEmpty()) {
+            statusLabel.setText("Please enter a valid ID to scan.");
+            return;
+        }
+
+        statusLabel.setText("Scanning tag... please wait!");
+
+        // ✅ Mark that the next login is from a scan tag
+        isScanTagLogin = true;
+
+        
+        // Create a new thread to simulate scanning
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000); // simulate 2 seconds scanning
+
+                // Prepare the request to send to the server
+                ClientRequest request = new ClientRequest("scan_tag_login", new Object[]{id});
+
+                try {
+                    ClientController.getClient().sendToServer(request);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Update the status label on the JavaFX Application Thread
+                    Platform.runLater(() -> statusLabel.setText("Failed to send request to the server."));
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> statusLabel.setText("Scanning failed."));
+            }
+        }).start();
+    }
+
+    
+    /**
+     * Automatically logs in the user with the provided credentials.
+     *
+     * @param username The username of the user.
+     * @param password The password of the user.
+     */
+    public void autoLogin(String username, String password) {
+        // Set the username and password fields
+        txtUsername.setText(username);
+        txtPassword.setText(password);
+        
+        // Ensure "Shop" access mode is selected by default
+        toggleShop.setSelected(true);
+        
+        // Trigger the login process
+        handleLogin();
+    }
+
+
+
+
 }

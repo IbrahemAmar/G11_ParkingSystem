@@ -252,8 +252,10 @@ public class ClientController extends AbstractClient {
             case "get_valid_start_times" -> handleValidStartTimes(data);
             case "add_reservation" -> handleReservationResponse(success, message);
             case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
+            case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
+
     }
 
     /**
@@ -565,6 +567,34 @@ public class ClientController extends AbstractClient {
             });
         }
     }
+    
+    /**
+     * Handles the server response for a scan tag login attempt.
+     *
+     * @param success Indicates if the login was successful.
+     * @param data    The data returned from the server, typically user credentials.
+     * @param message A message accompanying the response.
+     */
+    private void handleScanTagLoginResponse(boolean success, Object data, String message) {
+        Platform.runLater(() -> {
+            if (success && data instanceof String[] credentials && credentials.length == 2) {
+                String username = credentials[0];
+                String password = credentials[1];
+                if (guiController != null) {
+                    guiController.autoLogin(username, password);
+                }
+            } else {
+                // Display an error message to the user
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Login Failed");
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+                alert.showAndWait();
+            }
+        });
+    }
+
+
 
 
 }

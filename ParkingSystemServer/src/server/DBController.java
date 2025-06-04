@@ -45,7 +45,7 @@ public class DBController {
     /**
      * Maps a ResultSet row to a ParkingHistory object.
      */
-    public ParkingHistory mapParkingHistory(ResultSet rs) throws SQLException {
+    public ParkingHistory mapParkingHistory(ResultSet rs) throws SQLException { 
         return new ParkingHistory(
             rs.getInt("history_id"),
             rs.getString("subscriber_code"),
@@ -784,5 +784,30 @@ public class DBController {
             return null;
         }
     }
+    
+    /**
+     * Retrieves username and password by user ID.
+     *
+     * @param userId The user ID (from the scanned tag).
+     * @return {username, password} if found; null otherwise.
+     */
+    public String[] getUserCredentialsByUserId(String userId) {
+        String sql = "SELECT username, password FROM users WHERE id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String username = rs.getString("username");
+                    String password = rs.getString("password");
+                    return new String[]{username, password};
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }

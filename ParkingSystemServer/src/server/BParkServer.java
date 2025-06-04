@@ -79,6 +79,7 @@ public class BParkServer extends AbstractServer {
                 case "get_valid_start_times" -> handleGetValidStartTimes(request, client);
                 case "add_reservation" -> handleReservation(request, client);
                 case "send_code_email" -> handleSendCodeEmail(request, client);
+                case "scan_tag_login" -> handleScanTagLogin(request, client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -402,6 +403,7 @@ public class BParkServer extends AbstractServer {
             } catch (Exception ignored) {}
         }
     }
+    
     /**
      * Handles a request to resend the current active parking code to the subscriber's email.
      * The request param must be the subscriber code (String).
@@ -465,6 +467,45 @@ public class BParkServer extends AbstractServer {
             try { client.sendToClient(response); } catch (Exception ignore) {}
         }
     }
+
+    private void handleScanTagLogin(ClientRequest request, ConnectionToClient client) {
+        try {
+            String scannedId = (String) request.getParams()[0];
+            String[] userData = dbController.getUserCredentialsByUserId(scannedId);
+
+            if (userData != null) {
+                ServerResponse response = new ServerResponse(
+                    "scan_tag_login",
+                    true,
+                    "User data found for scanned ID.",
+                    userData
+                );
+                client.sendToClient(response);
+            } else {
+                ServerResponse response = new ServerResponse(
+                    "scan_tag_login",
+                    false,
+                    "ID not found.",
+                    null
+                );
+                client.sendToClient(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                client.sendToClient(new ServerResponse(
+                    "scan_tag_login",
+                    false,
+                    "Server error while processing scan tag login.",
+                    null
+                ));
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
+
+    
 
 
 }
