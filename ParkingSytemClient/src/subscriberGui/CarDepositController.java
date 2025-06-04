@@ -82,6 +82,8 @@ public class CarDepositController {
      * Sends a deposit ClientRequest to the server. Waits briefly for any
      * rejection response before showing a success alert and returning to dashboard.
      *
+     * The entry and exit times are rounded to the nearest quarter hour.
+     *
      * @param event The button click event
      */
     @FXML
@@ -91,17 +93,21 @@ public class CarDepositController {
 
             String subscriberCode = client.getCurrentSubscriber().getSubscriberCode();
 
-            // Build the ParkingHistory for deposit (does not need history_id)
-            ParkingHistory deposit = new ParkingHistory(
-                0,
-                subscriberCode,
-                selectedSpotId,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(4),
-                false,
-                false,
-                false
-            );
+            // Get current time and round to nearest quarter hour
+            LocalDateTime now = LocalDateTime.now();
+
+         // Build the ParkingHistory for deposit (does not need history_id)
+         ParkingHistory deposit = new ParkingHistory(
+             0,
+             subscriberCode,
+             selectedSpotId,
+             now,
+             now.plusHours(4),
+             false,
+             false,
+             false
+         );
+
 
             // Send deposit as a ClientRequest
             client.sendObjectToServer(

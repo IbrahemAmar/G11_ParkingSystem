@@ -40,8 +40,9 @@ public class ClientController extends AbstractClient {
     private subscriberGui.CarPickupController carPickupController;
     public String accessMode;
     public ReservationRequestController reservationRequestController;
+    private subscriberGui.ForgotCodeController forgotCodeController;
 
-    
+
 
     /**
      * Sets the active singleton instance of the client.
@@ -60,7 +61,9 @@ public class ClientController extends AbstractClient {
     public static ClientController getClient() {
         return clientInstance;
     }
-
+    public void setForgotCodeController(subscriberGui.ForgotCodeController controller) {
+        this.forgotCodeController = controller;
+    }
     /**
      * Constructs a new client controller and opens the connection to the server.
      *
@@ -247,6 +250,8 @@ public class ClientController extends AbstractClient {
             case "ACCESS_MODE" -> handleAccessMode(data);
             case "check_reservation_availability" -> handleReservationAvailabilityResponse(success, data);
             case "get_valid_start_times" -> handleValidStartTimes(data);
+            case "add_reservation" -> handleReservationResponse(success, message);
+            case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
     }
@@ -477,7 +482,7 @@ public class ClientController extends AbstractClient {
         if (success && data instanceof Boolean canReserve && canReserve) {
             Platform.runLater(() -> {
                 if (subscriberDashboardController != null) {
-                    subscriberDashboardController.openReservationWindow(subscriberDashboardController.getLastEvent());
+                 //   subscriberDashboardController.openReservationWindow(subscriberDashboardController.getLastEvent());
                 }
             });
         } else {
@@ -509,6 +514,57 @@ public class ClientController extends AbstractClient {
         });
     }
 
+    /**
+     * Handles the server response for a reservation attempt.
+     * Shows a confirmation or error message to the user.
+     *
+     * @param success True if reservation succeeded, false otherwise.
+     * @param message The server message to show.
+     */
+    private void handleReservationResponse(boolean success, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            alert.setTitle(success ? "Reservation Success" : "Reservation Failed");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+
+            // Optionally, after a successful reservation, you can navigate the user somewhere
+            if (success && subscriberDashboardController != null) {
+                SceneNavigator.navigateTo(null,
+                    "/subscriberGui/SubscriberDashboard.fxml",
+                    "BPARK - Subscriber Dashboard");
+            }
+        });
+    }
+    /**
+     * Handles the server response for sending the parking code to the subscriber's email.
+     * Delegates the response handling to the ForgotCodeController's handleEmailResponse method.
+     *
+     * @param success Whether the operation was successful.
+     * @param message The message from the server.
+     */
+    private void handleForgotCodeEmailResponse(boolean success, String message) {
+        if (forgotCodeController != null) {
+            // Construct a ServerResponse to pass to the controller (for UI handling)
+            ServerResponse response = new ServerResponse(
+                "send_code_email",
+                success,
+                message,
+                null
+            );
+            forgotCodeController.handleEmailResponse(response);
+        } else {
+            // Optional: fallback in case controller is not set
+            Platform.runLater(() -> {
+                Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+                alert.setTitle(success ? "Code Sent" : "Error");
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+                alert.showAndWait();
+            });
+        }
+    }
 
 
 }

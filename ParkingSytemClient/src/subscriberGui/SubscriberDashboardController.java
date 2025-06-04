@@ -70,23 +70,6 @@ public class SubscriberDashboardController {
     }
 
     /**
-     * Initiates the process to reserve a parking spot.
-     * Before opening the reservation window, this method sends a request to the server
-     * to verify if at least 40% of the parking spots are available.
-     * If the server confirms, the window will be opened in response handling.
-     *
-     * @param event The ActionEvent triggered by the Reserve Parking button.
-     */
-    @FXML
-    private void openReservationRequest(ActionEvent event) {
-        this.setLastEvent(event); // Save the event for later use
-
-        // Send check availability command to the server
-        ClientRequest request = new ClientRequest("check_reservation_availability", null);
-        ClientController.getClient().sendObjectToServer(request);
-    }
-    
-    /**
      * Opens the reservation window after the server confirms availability.
      * Called by ClientController when the server response is positive.
      *
@@ -240,10 +223,7 @@ public class SubscriberDashboardController {
             // Hide deposit and pickup buttons
             if (btnDeposit != null) btnDeposit.setVisible(false);
             if (btnPickup != null) btnPickup.setVisible(false);
-        } else if ("shop".equals(accessMode)) {
-            // Hide reserve button
-            if (btnReserve != null) btnReserve.setVisible(false);
-        }
+        } 
     }
 
     /**

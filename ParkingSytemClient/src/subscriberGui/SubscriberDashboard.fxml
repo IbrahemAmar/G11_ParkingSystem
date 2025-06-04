@@ -35,12 +35,12 @@
 
             <GridPane hgap="15" vgap="10">
                 <Label text="Parking Spot:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-				<Label fx:id="labelSpot"   text="---" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+				<Label fx:id="labelSpot" text="---" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-				<Label text="Entry Time:"   GridPane.columnIndex="0" GridPane.rowIndex="1" />
+				<Label text="Entry Time:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
 				<Label fx:id="labelEntryTime" text="---" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-				<Label text="Time Remaining:"   GridPane.columnIndex="0" GridPane.rowIndex="2" />
+				<Label text="Time Remaining:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
 				<Label fx:id="labelTimeRemaining" text="---" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <columnConstraints>
                <ColumnConstraints />
@@ -60,7 +60,7 @@
             <HBox alignment="CENTER" spacing="20">
                 <Button fx:id="btnExtend" onAction="#openExtendParking" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="⏱ Extend Parking Time" />
 
-                <Button fx:id="btnReserve" onAction="#openReservationRequest" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="🗓 Reserve Future Parking" />
+                <Button fx:id="btnReserve" onAction="#openReservationWindow" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="🗓 Reserve Future Parking" />
 
                 <Button fx:id="btnPickup" onAction="#openCarPickup" style="-fx-background-color: #FF9800; -fx-text-fill: white;" text="🚙 Retrieve My Vehicle" />
 

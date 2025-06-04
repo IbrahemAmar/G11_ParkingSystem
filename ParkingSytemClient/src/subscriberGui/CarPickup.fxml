@@ -19,7 +19,11 @@
 
         <Label fx:id="lblConfirmation" style="-fx-text-fill: green; -fx-font-size: 14px;" text="✔ Your car is on the way" visible="false" />
 
-        <Hyperlink fx:id="linkLostCode" text="❓ I lost my parking code" />
+        <Button fx:id="btnLostCode"
+        onAction="#onLostCodeClicked"
+        text="❓ I lost my parking code"
+        style="-fx-background-color: transparent; -fx-underline: true; -fx-text-fill: #1976d2; -fx-font-size: 14px; -fx-cursor: hand;" />
+
 
 
         <Button fx:id="btnBack" onAction="#goBack" style="-fx-background-color: #e0e0e0;" text="🔙 Back to Menu" />
