@@ -26,7 +26,7 @@
             <VBox alignment="CENTER" spacing="20">
                 <Button fx:id="btnOrders" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="📋 Active Parking Details" />
                 <Button fx:id="btnSubscribers" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="👤 Manage Subscribers" />
-                <Button fx:id="btnViewLogs" text="🪵 View System Logs" onAction="#handleViewLogs" />
+                <Button fx:id="btnLogs" text="🪵 View System Logs" onAction="#handleViewLogs" />
             </VBox>
         </VBox>
     </center>

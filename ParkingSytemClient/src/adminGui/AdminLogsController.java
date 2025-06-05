@@ -1,4 +1,4 @@
-package subscriberGui;
+package adminGui;
 
 import client.ClientController;
 import entities.Subscriber;
@@ -16,7 +16,7 @@ import javafx.event.ActionEvent;
  * Controller for SubscriberSettings.fxml.
  * Displays the currently logged-in subscriber's details using labels.
  */
-public class SubscriberSettingsController {
+public class AdminLogsController /*SubscriberSettingsController*/ {
 
     @FXML
     private Label lblFullName;

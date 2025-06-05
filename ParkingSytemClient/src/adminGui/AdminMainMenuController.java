@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import bpark_common.ClientRequest;
 import client.ClientController;
-import entities.DisconnectRequest;
-import entities.GetActiveParkingRequest;
+//import entities.DisconnectRequest;
+//import entities.GetActiveParkingRequest;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -46,32 +46,36 @@ public class AdminMainMenuController {
     /**
      * Handles the exit button by sending a disconnect request to the server and closing the app.
      */
+    @FXML
     private void handleExit() {
-        try {
-            client.handleMessageFromClientUI(new DisconnectRequest());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.exit(0);
+    	 try {
+    	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/MainMenu.fxml"));
+    	        Parent root = loader.load();
+
+    	        Stage stage = (Stage) btnExit.getScene().getWindow();
+    	        stage.setScene(new Scene(root));
+    	        stage.setTitle("Main Menu");
+    	        stage.show();
+    	    } catch (IOException ex) {
+    	        ex.printStackTrace();
+    	    }
     }
 
     /**
      * Handles the "View System Logs" button click.
      * Loads AdminLogs.fxml and transfers the ClientController via setClient().
      */
+    @FXML
     private void handleViewLogs() {
-        try {
+    	try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminLogs.fxml"));
             Parent root = loader.load();
-
-            AdminLogsController controller = loader.getController();
-            controller.setClient(client);
 
             Stage stage = (Stage) btnLogs.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("System Logs");
             stage.show();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -80,41 +84,36 @@ public class AdminMainMenuController {
      * Handles the "View Active Parking Orders" button click.
      * Sends a typed object request to the server, and loads the AdminOrders screen.
      */
+    @FXML
     private void handleViewActiveParking() {
-        try {
-            client.handleMessageFromClientUI(new GetActiveParkingRequest());
+    	 try {
+    	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
+    	        Parent root = loader.load();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
-            Parent root = loader.load();
-
-            AdminOrdersController controller = loader.getController();
-            controller.setClient(client);
-
-            Stage stage = (Stage) btnOrders.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Active Parking Details");
-            stage.show();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    	        Stage stage = (Stage) btnOrders.getScene().getWindow();
+    	        stage.setScene(new Scene(root));
+    	        stage.setTitle("Active Parking Details");
+    	        stage.show();
+    	    } catch (IOException ex) {
+    	        ex.printStackTrace();
+    	    }
     }
 
     /**
      * Handles the "Manage Subscribers" button click.
      * Loads AdminSubscriberManagement.fxml and passes the client to the next controller.
      */
+    @FXML
     private void handleManageSubscribers() {
-        try {
+    	try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminSubscriberManagement.fxml"));
             Parent root = loader.load();
-            AdminSubscribersController controller = loader.getController();
-            controller.setClient(client);
 
             Stage stage = (Stage) btnSubscribers.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Manage Subscribers");
             stage.show();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
