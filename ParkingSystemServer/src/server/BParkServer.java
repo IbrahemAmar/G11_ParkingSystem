@@ -80,6 +80,7 @@ public class BParkServer extends AbstractServer {
                 case "add_reservation" -> handleReservation(request, client);
                 case "send_code_email" -> handleSendCodeEmail(request, client);
                 case "scan_tag_login" -> handleScanTagLogin(request, client);
+                case "get_parking_history_all_active" -> handleGetAllActiveParkings(client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -505,7 +506,11 @@ public class BParkServer extends AbstractServer {
         }
     }
 
-    
-
-
+    /**
+     * Sends all currently active parking sessions to the admin GUI.
+     */
+    private void handleGetAllActiveParkings(ConnectionToClient client) {
+        List<ParkingHistory> activeList = dbController.getAllActiveParkings();
+        sendServerResponse(client, "ADMIN_ACTIVE_SESSIONS", true, "All active parkings fetched.", activeList);
+    }
 }

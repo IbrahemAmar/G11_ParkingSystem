@@ -70,6 +70,9 @@ public class AdminMainMenuController {
     	try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminLogs.fxml"));
             Parent root = loader.load();
+            
+            AdminLogsController controller = loader.getController();
+	        controller.setClient(client);
 
             Stage stage = (Stage) btnLogs.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -89,6 +92,9 @@ public class AdminMainMenuController {
     	 try {
     	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
     	        Parent root = loader.load();
+    	        
+    	        AdminOrdersController controller = loader.getController();
+    	        controller.setClient(client);
 
     	        Stage stage = (Stage) btnOrders.getScene().getWindow();
     	        stage.setScene(new Scene(root));
@@ -108,6 +114,9 @@ public class AdminMainMenuController {
     	try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminSubscriberManagement.fxml"));
             Parent root = loader.load();
+            
+            AdminSubscribersController controller = loader.getController();
+	        controller.setClient(client);
 
             Stage stage = (Stage) btnSubscribers.getScene().getWindow();
             stage.setScene(new Scene(root));

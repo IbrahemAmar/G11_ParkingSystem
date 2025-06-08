@@ -17,6 +17,8 @@ import javafx.event.ActionEvent;
  * Displays the currently logged-in subscriber's details using labels.
  */
 public class AdminLogsController /*SubscriberSettingsController*/ {
+	
+	private ClientController client;
 
     @FXML
     private Label lblFullName;
@@ -35,6 +37,10 @@ public class AdminLogsController /*SubscriberSettingsController*/ {
 
     @FXML
     private Button btnBack;
+    
+    public void setClient(ClientController client) {
+        this.client = client;
+    }
 
     /**
      * Called automatically after the FXML is loaded.

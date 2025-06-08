@@ -808,6 +808,29 @@ public class DBController {
         }
         return null;
     }
+    
+    //////////////
+    public List<ParkingHistory> getAllActiveParkings() {
+        String sql = "SELECT * FROM parking_history\r\n"
+        		+ "        WHERE picked_up = 0 AND entry_time <= NOW() AND exit_time >= NOW()\r\n"
+        		+ "        ORDER BY entry_time DESC";
 
+        List<ParkingHistory> list = new ArrayList<>();
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
+            while (rs.next()) {
+                list.add(mapParkingHistory(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    
+    /*WHERE picked_up = 0 AND entry_time <= NOW() AND exit_time >= NOW()
+            ORDER BY entry_time DESC*/
 }

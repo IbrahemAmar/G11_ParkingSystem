@@ -5,6 +5,9 @@ import entities.*;
 import guestGui.PublicAvailabilityController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
@@ -16,6 +19,8 @@ import utils.SceneNavigator;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.List;
+
+import adminGui.AdminOrdersController;
 
 /**
  * The main client-side controller that manages the connection to the server,
@@ -41,6 +46,7 @@ public class ClientController extends AbstractClient {
     public String accessMode;
     public ReservationRequestController reservationRequestController;
     private subscriberGui.ForgotCodeController forgotCodeController;
+    private adminGui.AdminOrdersController adminOrdersController;
 
 
 
@@ -177,6 +183,14 @@ public class ClientController extends AbstractClient {
     public void setCurrentSubscriber(Subscriber subscriber) {
         this.currentSubscriber = subscriber;
     }
+    
+    public void setAdminOrdersController(adminGui.AdminOrdersController adminOrdersController) {
+		this.adminOrdersController = adminOrdersController;
+	}
+    
+    public adminGui.AdminOrdersController getAdminOrdersController() {
+		return adminOrdersController;
+	}
 
     /**
      * Sets the primary application stage for GUI transitions.
@@ -253,6 +267,7 @@ public class ClientController extends AbstractClient {
             case "add_reservation" -> handleReservationResponse(success, message);
             case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
+            case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessions(data);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
 
@@ -593,8 +608,41 @@ public class ClientController extends AbstractClient {
             }
         });
     }
+    
+    //////
+    private void handleAdminActiveSessions(Object data) {
+    	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof ParkingHistory))) {
+            System.err.println("❌ Invalid or failed session data.");
+            return;
+        }
 
+        List<ParkingHistory> sessions = (List<ParkingHistory>) data;
 
+        AdminOrdersController controller = getAdminOrdersController();
+        if (controller != null) {
+            controller.setActiveSessions(sessions);
+        } else {
+            System.err.println("⚠️ AdminOrdersController not registered.");
+        }
+        /*if (data instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingHistory) {
+            List<ParkingHistory> sessions = (List<ParkingHistory>) list;
 
+            javafx.application.Platform.runLater(() -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
+                    Parent root = loader.load();
 
+                    AdminOrdersController controller = loader.getController();
+                    controller.setActiveSessions(sessions);
+
+                    Stage stage = getPrimaryStage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Active Parking Details");
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }*/
+    }
 }
