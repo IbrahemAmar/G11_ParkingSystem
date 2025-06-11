@@ -829,8 +829,92 @@ public class DBController {
         return list;
     }
     
+    public List<Subscriber> getAllSubscribers(){
+    	String sql = "SELECT \r\n"
+    			+ "    s.subscriber_id AS id,\r\n"
+    			+ "    s.subscriber_code,\r\n"
+    			+ "    s.email,\r\n"
+    			+ "    s.phone_number,\r\n"
+    			+ "    u.first_name,\r\n"
+    			+ "    u.last_name,\r\n"
+    			+ "    u.username\r\n"
+    			+ "FROM \r\n"
+    			+ "    subscriber s\r\n"
+    			+ "JOIN \r\n"
+    			+ "    users u ON s.subscriber_id = u.id;";
+
+        List<Subscriber> list = new ArrayList<>();
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapSubscriber(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    public boolean addSubscriber(Subscriber subscriber, String password, String firstName, String lastName) {
+        String insertUser = "INSERT INTO users (id, username, password, role, first_name, last_name) VALUES (?, ?, ?, 'subscriber', ?, ?)";
+        String insertSub = "INSERT INTO subscriber (subscriber_id, email, phone_number, subscriber_code) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement userStmt = conn.prepareStatement(insertUser);
+                 PreparedStatement subStmt = conn.prepareStatement(insertSub)) {
+
+                userStmt.setInt(1, subscriber.getId());
+                userStmt.setString(2, subscriber.getUsername());
+                userStmt.setString(3, password);
+                userStmt.setString(4, firstName);
+                userStmt.setString(5, lastName);
+                userStmt.executeUpdate();
+
+                String subscriberCode = "SUB" + subscriber.getId(); // Or generate differently
+                subStmt.setInt(1, subscriber.getId());
+                subStmt.setString(2, subscriber.getEmail());
+                subStmt.setString(3, subscriber.getPhone());
+                subStmt.setString(4, subscriberCode);
+                subStmt.executeUpdate();
+
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+                return false;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     
     
-    /*WHERE picked_up = 0 AND entry_time <= NOW() AND exit_time >= NOW()
-            ORDER BY entry_time DESC*/
+    //Must Edit
+    private void insertSubscriberSystemLog(String action, String target, String subscriberCode) {
+    	String sql = """
+                INSERT INTO system_log (action, target, by_user, log_time, note)
+                SELECT ?, ?, u.id, NOW(), 'Subscriber Addition'
+                FROM users u
+                JOIN subscriber s ON s.subscriber_id = u.id
+                WHERE s.subscriber_code = ?
+                """;
+            try (Connection conn = getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, action);
+                stmt.setString(2, target);
+                stmt.setString(3, subscriberCode);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("❌ Failed to insert system log.");
+                e.printStackTrace();
+            }
+    }
 }

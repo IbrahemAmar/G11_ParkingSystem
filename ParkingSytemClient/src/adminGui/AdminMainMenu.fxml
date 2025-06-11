@@ -20,13 +20,14 @@
 
     <!-- Center Menu -->
     <center>
-        <VBox alignment="CENTER" spacing="40" style="-fx-padding: 40;">
+        <VBox alignment="CENTER" prefHeight="355.0" prefWidth="394.0" spacing="40" style="-fx-padding: 40;">
             <Label style="-fx-font-size: 20px; -fx-text-fill: #333;" text="Select Section to Manage" />
 
             <VBox alignment="CENTER" spacing="20">
                 <Button fx:id="btnOrders" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="📋 Active Parking Details" />
-                <Button fx:id="btnSubscribers" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="👤 Manage Subscribers" />
-                <Button fx:id="btnLogs" text="🪵 View System Logs" onAction="#handleViewLogs" />
+                <Button fx:id="btnSubscribers" prefHeight="40.0" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="👤 Manage Subscribers" />
+                <Button fx:id="btnLogs" onAction="#handleViewLogs" prefHeight="40.0" prefWidth="262.0" style="-fx-pref-width: 260; -fx-font-size: 16;" text="🪵 View System Logs" />
+                <Button fx:id="btnReports" onAction="#handleViewReports" prefHeight="40.0" prefWidth="262.0" style="-fx-pref-width: 260; -fx-font-size: 16;" text="📊 View System Reports" />
             </VBox>
         </VBox>
     </center>

@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="25" style="-fx-padding: 30; -fx-background-color: #fafafa;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml">
+<VBox spacing="25" style="-fx-padding: 30; -fx-background-color: #fafafa;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml" fx:controller="adminGui.AdminReportsController">
     
     <Label text="📈 Monthly Reports" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
 
@@ -48,7 +48,8 @@
 
     <!-- Back Button -->
     <HBox alignment="CENTER_RIGHT" spacing="10">
-        <Button text="🔙 Back to Menu"
+        <Button text="🔙 Back to Menu" fx:id="btnBack"
+        		onAction="#handleBack"
                 style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 6;" />
     </HBox>
 </VBox>

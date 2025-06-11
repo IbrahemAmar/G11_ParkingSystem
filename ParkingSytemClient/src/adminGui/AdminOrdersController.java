@@ -133,11 +133,4 @@ public class AdminOrdersController implements ChatIF {
             e.printStackTrace();
         }
     }
-
-    /*public void loadActiveParking(List<ParkingHistory> sessions) {
-        Platform.runLater(() -> {
-            ObservableList<ParkingHistory> data = FXCollections.observableArrayList(sessions);
-            tableActiveParking.setItems(data);
-        });
-    }*/
 }

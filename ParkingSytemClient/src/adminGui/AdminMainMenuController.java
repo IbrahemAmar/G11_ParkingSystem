@@ -27,12 +27,16 @@ public class AdminMainMenuController {
             if (btnLogs != null) {
                 btnLogs.setVisible(false);
             }
+            if (btnReports != null) {
+                btnReports.setVisible(false);
+            }
         }
     }
 
     @FXML private Button btnOrders; 
     @FXML private Button btnSubscribers;
     @FXML private Button btnLogs;
+    @FXML private Button btnReports;
     @FXML private Button btnExit;
 
     @FXML
@@ -40,6 +44,7 @@ public class AdminMainMenuController {
         btnOrders.setOnAction(e -> handleViewActiveParking());
         btnSubscribers.setOnAction(e -> handleManageSubscribers());
         btnLogs.setOnAction(e -> handleViewLogs());
+        btnReports.setOnAction(e -> handleViewReports());
         btnExit.setOnAction(e -> handleExit());
     }
 
@@ -121,6 +126,24 @@ public class AdminMainMenuController {
             Stage stage = (Stage) btnSubscribers.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Manage Subscribers");
+            stage.show();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void handleViewReports() {
+    	try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminReports.fxml"));
+            Parent root = loader.load();
+            
+            AdminReportsController controller = loader.getController();
+	        controller.setClient(client);
+
+            Stage stage = (Stage) btnReports.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("View Reports");
             stage.show();
         } catch (IOException ex) {
             ex.printStackTrace();

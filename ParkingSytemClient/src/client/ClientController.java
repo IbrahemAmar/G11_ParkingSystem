@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import adminGui.AdminOrdersController;
+import adminGui.AdminSubscribersController;
 
 /**
  * The main client-side controller that manages the connection to the server,
@@ -47,6 +48,7 @@ public class ClientController extends AbstractClient {
     public ReservationRequestController reservationRequestController;
     private subscriberGui.ForgotCodeController forgotCodeController;
     private adminGui.AdminOrdersController adminOrdersController;
+    private adminGui.AdminSubscribersController adminSubscribersController;
 
 
 
@@ -184,6 +186,14 @@ public class ClientController extends AbstractClient {
         this.currentSubscriber = subscriber;
     }
     
+    public void setAdminSubscribersController(adminGui.AdminSubscribersController adminSubscribersController) {
+		this.adminSubscribersController = adminSubscribersController;
+	}
+    
+    public adminGui.AdminSubscribersController getAdminSubscribersController() {
+		return adminSubscribersController;
+	}
+    
     public void setAdminOrdersController(adminGui.AdminOrdersController adminOrdersController) {
 		this.adminOrdersController = adminOrdersController;
 	}
@@ -267,7 +277,8 @@ public class ClientController extends AbstractClient {
             case "add_reservation" -> handleReservationResponse(success, message);
             case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
-            case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessions(data);
+            case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessionsResponse(data);
+            case "ADMIN_SUBSCRIBERS" -> handleAdminSubscribersResponse(data);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
 
@@ -610,7 +621,7 @@ public class ClientController extends AbstractClient {
     }
     
     //////
-    private void handleAdminActiveSessions(Object data) {
+    private void handleAdminActiveSessionsResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof ParkingHistory))) {
             System.err.println("❌ Invalid or failed session data.");
             return;
@@ -624,25 +635,31 @@ public class ClientController extends AbstractClient {
         } else {
             System.err.println("⚠️ AdminOrdersController not registered.");
         }
-        /*if (data instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingHistory) {
-            List<ParkingHistory> sessions = (List<ParkingHistory>) list;
-
-            javafx.application.Platform.runLater(() -> {
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminOrders.fxml"));
-                    Parent root = loader.load();
-
-                    AdminOrdersController controller = loader.getController();
-                    controller.setActiveSessions(sessions);
-
-                    Stage stage = getPrimaryStage();
-                    stage.setScene(new Scene(root));
-                    stage.setTitle("Active Parking Details");
-                    stage.show();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }*/
     }
+    
+    private void handleAdminSubscribersResponse(Object data) {
+    	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber))) {
+            System.err.println("❌ Invalid or failed session data.");
+            return;
+        }
+
+        List<Subscriber> sessions = (List<Subscriber>) data;
+
+        AdminSubscribersController controller = getAdminSubscribersController();
+        if (controller != null) {
+            controller.setAllSubscribers(sessions);
+        } else {
+            System.err.println("⚠️ AdminOrdersController not registered.");
+        }
+    }
+    
+    /*private void handleAdminSubscribersResponse(Object data) {
+        if (data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber)) {
+            List<Subscriber> sessions = (List<Subscriber>) data;
+            AdminSubscribersController controller = getAdminSubscribersController();
+            if (controller != null) {
+                controller.setAllSubscribers(sessions);
+            }
+        }
+    }*/
 }

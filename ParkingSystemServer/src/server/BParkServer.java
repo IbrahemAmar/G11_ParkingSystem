@@ -81,6 +81,8 @@ public class BParkServer extends AbstractServer {
                 case "send_code_email" -> handleSendCodeEmail(request, client);
                 case "scan_tag_login" -> handleScanTagLogin(request, client);
                 case "get_parking_history_all_active" -> handleGetAllActiveParkings(client);
+                case "get_subscribers_all_active" -> handleGetAllSubscribers(client);
+                case "add_subscriber" -> handleAddSubscriber(request, client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -512,5 +514,27 @@ public class BParkServer extends AbstractServer {
     private void handleGetAllActiveParkings(ConnectionToClient client) {
         List<ParkingHistory> activeList = dbController.getAllActiveParkings();
         sendServerResponse(client, "ADMIN_ACTIVE_SESSIONS", true, "All active parkings fetched.", activeList);
+    }
+    
+    private void handleGetAllSubscribers(ConnectionToClient client) {
+        List<Subscriber> activeList = dbController.getAllSubscribers();
+        sendServerResponse(client, "ADMIN_SUBSCRIBERS", true, "All Subscribers fetched.", activeList);
+    }
+    
+    private void handleAddSubscriber(ClientRequest request, ConnectionToClient client) {
+        try {
+            Subscriber subscriber = (Subscriber) request.getParams()[0];
+            String password = (String) request.getParams()[1];
+            String firstName = (String) request.getParams()[2];
+            String lastName = (String) request.getParams()[3];
+
+            boolean success = dbController.addSubscriber(subscriber, password, firstName, lastName);
+            dbController.insertSystemLog("Add User", "Target-" + subscriber.getId(), "SUB" + subscriber.getId()); //must edit
+            String message = success ? "Subscriber added successfully." : "Failed to add subscriber.";
+            sendServerResponse(client, "ADMIN_SUBSCRIBERS", success, message, dbController.getAllSubscribers());
+        } catch (Exception e) {
+            sendError(client, "Server error: " + e.getMessage(), "ADMIN_SUBSCRIBERS");
+            e.printStackTrace();
+        }
     }
 }
