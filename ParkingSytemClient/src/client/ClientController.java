@@ -18,8 +18,10 @@ import utils.SceneNavigator;
 
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import adminGui.AdminLogsController;
 import adminGui.AdminOrdersController;
 import adminGui.AdminSubscribersController;
 
@@ -297,6 +299,7 @@ public class ClientController extends AbstractClient {
             case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
             case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessionsResponse(data);
             case "ADMIN_SUBSCRIBERS" -> handleAdminSubscribersResponse(data);
+            case "ADMIN_LOGS" -> handleAdminLogsResponse(data);
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
 
@@ -668,6 +671,31 @@ public class ClientController extends AbstractClient {
             controller.setAllSubscribers(sessions);
         } else {
             System.err.println("⚠️ AdminOrdersController not registered.");
+        }
+    }
+    
+    private void handleAdminLogsResponse(Object data) {
+        if (!(data instanceof List<?> rawList)) {
+            System.err.println("❌ Invalid or missing log data.");
+            return;
+        }
+
+        // Create a safe typed list
+        List<SystemLog> logs = new ArrayList<>();
+
+        for (Object item : rawList) {
+            if (item instanceof SystemLog log) {
+                logs.add(log);
+            } else {
+                System.err.println("⚠️ Skipping invalid log entry: " + item);
+            }
+        }
+
+        AdminLogsController controller = getAdminLogsController();
+        if (controller != null) {
+            controller.setLogs(logs);
+        } else {
+            System.err.println("⚠️ AdminLogsController not registered.");
         }
     }
 }

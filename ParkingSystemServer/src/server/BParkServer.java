@@ -83,6 +83,7 @@ public class BParkServer extends AbstractServer {
                 case "get_parking_history_all_active" -> handleGetAllActiveParkings(client);
                 case "get_subscribers_all_active" -> handleGetAllSubscribers(client);
                 case "add_subscriber" -> handleAddSubscriber(request, client);
+                case "get_all_system_logs" -> handleGetLogs(client);
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -548,4 +549,18 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Handles request to fetch all system logs for the admin.
+     */
+    private void handleGetLogs(ConnectionToClient client) {
+        try {
+            List<SystemLog> logs = dbController.getAllSystemLogs();
+            sendServerResponse(client, "ADMIN_LOGS", true, "System logs fetched.", logs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendServerResponse(client, "ADMIN_LOGS", false, "Failed to retrieve logs.", null);
+        }
+    }
+
 }

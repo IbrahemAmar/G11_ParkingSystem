@@ -4,6 +4,7 @@ import entities.ParkingHistory;
 import entities.ParkingSpace;
 import entities.Reservation;
 import entities.Subscriber;
+import entities.SystemLog;
 import utils.EmailUtil;
 
 import java.util.Random;
@@ -948,5 +949,32 @@ public class DBController {
         return -1; // Not found
     }
 
+    public List<SystemLog> getAllSystemLogs() {
+        List<SystemLog> logs = new ArrayList<>();
 
+        String sql = "SELECT log_id, action, target, by_user, log_time, note FROM system_log ORDER BY log_time DESC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                SystemLog log = new SystemLog();
+                log.setLogId(rs.getInt("log_id"));
+                log.setAction(rs.getString("action"));
+                log.setTarget(rs.getString("target"));
+                log.setByUser(rs.getInt("by_user"));
+                log.setLogTime(rs.getTimestamp("log_time").toLocalDateTime());
+                log.setNote(rs.getString("note"));
+
+                logs.add(log);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error fetching system logs: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return logs;
+    }
 }
