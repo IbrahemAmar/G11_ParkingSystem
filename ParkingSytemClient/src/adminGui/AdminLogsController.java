@@ -39,10 +39,15 @@ public class AdminLogsController{
 	@FXML private TableColumn<SystemLog, String> colNote;
 
 	@FXML private Button btnRefreshLogs;
+	
+	@FXML private Label lblStatus;
+	
+	private ObservableList<SystemLog> allLogs = FXCollections.observableArrayList();
 
     public void setClient(ClientController client) {
         this.client = client;
         client.setAdminLogsController(this);
+        loadAllLogs();
     }
 
     /**
@@ -58,20 +63,24 @@ public class AdminLogsController{
         colTime.setCellValueFactory(new PropertyValueFactory<>("logTime"));
         colNote.setCellValueFactory(new PropertyValueFactory<>("note"));
 
-        btnRefreshLogs.setOnAction(e -> handleRefreshLogs());
+        btnRefreshLogs.setOnAction(e -> loadAllLogs());
         
-        handleRefreshLogs();
     }
     
-    private void handleRefreshLogs() {
+    private void loadAllLogs() {
+    	allLogs.clear();
+    	tableLogs.getItems().clear();
+        lblStatus.setText("Loading Logs...");
+
         ClientRequest request = new ClientRequest("get_all_system_logs", new Object[0]);
-        client.sendObjectToServer(request);
+        ClientController.getClient().sendObjectToServer(request);
     }
     
     public void setLogs(List<SystemLog> logs) {
-        Platform.runLater(() -> {
-            ObservableList<SystemLog> observableLogs = FXCollections.observableArrayList(logs);
-            tableLogs.setItems(observableLogs);
+    	javafx.application.Platform.runLater(() -> {
+        	allLogs.setAll(logs);
+        	tableLogs.setItems(allLogs);
+            lblStatus.setText(logs.size() + " Logs loaded.");
         });
     }
     /**

@@ -22,6 +22,11 @@
             <TableColumn fx:id="colNote" text="Note" prefWidth="200" />
         </columns>
     </TableView>
+    
+    <Label fx:id="lblStatus"
+       text="Logs not loaded"
+       style="-fx-font-style: italic; -fx-text-fill: gray;" />
+
 
     <!-- Action Buttons -->
     <HBox spacing="15" alignment="CENTER_RIGHT">
