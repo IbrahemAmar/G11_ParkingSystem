@@ -10,13 +10,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import utils.SceneNavigator;
 import javafx.event.ActionEvent;
 
 /**
  * Controller for SubscriberSettings.fxml.
  * Displays the currently logged-in subscriber's details using labels.
  */
-public class AdminLogsController /*SubscriberSettingsController*/ {
+public class AdminLogsController{
 	
 	private ClientController client;
 
@@ -34,12 +35,10 @@ public class AdminLogsController /*SubscriberSettingsController*/ {
 
     @FXML
     private Label lblCurrentPhone;
-
-    @FXML
-    private Button btnBack;
     
     public void setClient(ClientController client) {
         this.client = client;
+        client.setAdminLogsController(this);
     }
 
     /**
@@ -71,14 +70,10 @@ public class AdminLogsController /*SubscriberSettingsController*/ {
      * @param event The action event triggered by the button click.
      */
     @FXML
-    private void handleBackButton(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("SubscriberDashboard.fxml"));
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Subscriber Dashboard");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void handleBack(ActionEvent event) {
+        AdminMainMenuController controller = SceneNavigator.navigateToAndGetController(
+            event, "/adminGui/AdminMainMenu.fxml", "Admin Dashboard"
+        );
+        if (controller != null) controller.setClient(client);
     }
 }

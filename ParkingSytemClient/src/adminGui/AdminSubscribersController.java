@@ -7,11 +7,13 @@ import java.util.stream.Collectors;
 
 import bpark_common.ClientRequest;
 import client.ClientController;
+import client.MainMenuController;
 import entities.ParkingHistory;
 import entities.Subscriber;
 import entities.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,6 +26,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import utils.SceneNavigator;
 
 public class AdminSubscribersController {
 
@@ -32,8 +35,8 @@ public class AdminSubscribersController {
     @FXML private TableView<Subscriber> subscriberTable;
     @FXML private TableColumn<Subscriber, String> colSubCode;
     @FXML private TableColumn<Subscriber, Integer> colId;
-    @FXML private TableColumn<Subscriber, String> colUsername;//
-    @FXML private TableColumn<Subscriber, String> colFullName;//
+    @FXML private TableColumn<Subscriber, String> colUsername;
+    @FXML private TableColumn<Subscriber, String> colFullName;
     @FXML private TableColumn<Subscriber, String> colEmail;
     @FXML private TableColumn<Subscriber, String> colPhone;
 
@@ -49,7 +52,6 @@ public class AdminSubscribersController {
     @FXML private Button btnSearch;
     @FXML private Button btnRefresh;
     @FXML private Button btnAddSubscriber;
-    @FXML private Button btnBack;
     
     @FXML private Label lblStatus;
 
@@ -73,7 +75,6 @@ public class AdminSubscribersController {
     	btnSearch.setOnAction(e -> handleSearch());
         btnRefresh.setOnAction(e -> loadAllSubscribers());
         btnAddSubscriber.setOnAction(e -> handleAddSubscriber());
-        btnBack.setOnAction(e -> handleBack());
     }
     
     private void loadAllSubscribers() {
@@ -122,20 +123,26 @@ public class AdminSubscribersController {
         
         //Formating the phone number
         int len = phoneTrim.length();
-        int prefixLen = len - 4;
-        StringBuilder phoneFormatted = new StringBuilder();
-        for (int i = 0; i < prefixLen; i++) {
-            phoneFormatted.append(phoneTrim.charAt(i));
-            if ((i + 1) % 3 == 0 && (i + 1) < prefixLen) {
-                phoneFormatted.append("-");                                //Error if phone number <= 3
-            }
+        String phone;
+        if(len <= 3) {
+        	phone = phoneTrim;
         }
-        if (prefixLen > 0) {
-            phoneFormatted.append("-");
+        else {
+        	int prefixLen = len - 4;
+        	StringBuilder phoneFormatted = new StringBuilder();
+        	for (int i = 0; i < prefixLen; i++) {
+        		phoneFormatted.append(phoneTrim.charAt(i));
+        		if ((i + 1) % 3 == 0 && (i + 1) < prefixLen) {
+        			phoneFormatted.append("-");                             
+        		}
+        	}
+        	if (prefixLen > 0) {
+        		phoneFormatted.append("-");
+        	}
+        	phoneFormatted.append(phoneTrim.substring(len - 4));
+        	phone = phoneFormatted.toString();
+        	//Phone formating done
         }
-        phoneFormatted.append(phoneTrim.substring(len - 4));
-        String phone = phoneFormatted.toString();
-        //Phone formating done
         
         int id;
         try {
@@ -162,21 +169,12 @@ public class AdminSubscribersController {
         txtPhone.clear();
         txtID.clear();
     }
-
-    private void handleBack() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminMainMenu.fxml"));
-            Parent root = loader.load();
-
-            AdminMainMenuController controller = loader.getController();
-            controller.setClient(client);
-
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Admin Dashboard");
-            stage.show();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    
+    @FXML
+    private void handleBack(ActionEvent event) {
+        AdminMainMenuController controller = SceneNavigator.navigateToAndGetController(
+            event, "/adminGui/AdminMainMenu.fxml", "Admin Dashboard"
+        );
+        if (controller != null) controller.setClient(client);
     }
 }

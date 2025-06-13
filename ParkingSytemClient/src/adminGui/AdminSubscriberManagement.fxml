@@ -60,7 +60,7 @@
             <Region HBox.hgrow="ALWAYS" />
         </HBox>
           <Button fx:id="btnAddSubscriber" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="➕ Add Subscriber" />
-         <Button fx:id="btnBack" style="-fx-background-color: #9e9e9e; -fx-text-fill: white;" text="🔙 Back" />
+         <Button fx:id="btnBack" onAction="#handleBack" style="-fx-background-color: #9e9e9e; -fx-text-fill: white;" text="🔙 Back" />
 
         <!-- Status -->
         <Label fx:id="lblStatus" style="-fx-text-fill: #777; -fx-font-size: 12px;" text="Status messages appear here" />

@@ -5,6 +5,7 @@ import client.ClientController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import utils.SceneNavigator;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -44,7 +46,6 @@ public class AdminOrdersController implements ChatIF {
 
     @FXML private Button btnSearch;
     @FXML private Button btnClear;
-    @FXML private Button btnBack;
     @FXML private Button btnRefresh;
     
     private ObservableList<ParkingHistory> allActiveSessions = FXCollections.observableArrayList();
@@ -72,7 +73,6 @@ public class AdminOrdersController implements ChatIF {
         btnSearch.setOnAction(e -> handleSearch());
         btnClear.setOnAction(e -> handleClearSearch());
         btnRefresh.setOnAction(e -> loadActiveSessions());
-        btnBack.setOnAction(e -> handleBack());
     }
     
     private void loadActiveSessions() {
@@ -114,23 +114,10 @@ public class AdminOrdersController implements ChatIF {
     }
     
     @FXML
-    private void handleBack() {
-    	try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/adminGui/AdminMainMenu.fxml"));
-            Parent root = loader.load();
-
-            // Get the controller and pass the client
-            AdminMainMenuController controller = loader.getController();
-            controller.setClient(client);  // Restore the client reference
-
-            // Switch the scene
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Admin Dashboard");
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void handleBack(ActionEvent event) {
+        AdminMainMenuController controller = SceneNavigator.navigateToAndGetController(
+            event, "/adminGui/AdminMainMenu.fxml", "Admin Dashboard"
+        );
+        if (controller != null) controller.setClient(client);
     }
 }

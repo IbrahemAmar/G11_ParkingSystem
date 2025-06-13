@@ -49,6 +49,8 @@ public class ClientController extends AbstractClient {
     private subscriberGui.ForgotCodeController forgotCodeController;
     private adminGui.AdminOrdersController adminOrdersController;
     private adminGui.AdminSubscribersController adminSubscribersController;
+    private adminGui.AdminReportsController adminReportsController;
+    private adminGui.AdminLogsController adminLogsController;
 
 
 
@@ -200,6 +202,22 @@ public class ClientController extends AbstractClient {
     
     public adminGui.AdminOrdersController getAdminOrdersController() {
 		return adminOrdersController;
+	}
+    
+    public void setAdminReportsController(adminGui.AdminReportsController adminReportsController) {
+		this.adminReportsController = adminReportsController;
+	}
+    
+    public adminGui.AdminReportsController getAdminReportsController() {
+		return adminReportsController;
+	}
+    
+    public void setAdminLogsController(adminGui.AdminLogsController adminLogsController) {
+		this.adminLogsController = adminLogsController;
+	}
+    
+    public adminGui.AdminLogsController getAdminLogsController() {
+		return adminLogsController;
 	}
 
     /**
@@ -652,14 +670,4 @@ public class ClientController extends AbstractClient {
             System.err.println("⚠️ AdminOrdersController not registered.");
         }
     }
-    
-    /*private void handleAdminSubscribersResponse(Object data) {
-        if (data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber)) {
-            List<Subscriber> sessions = (List<Subscriber>) data;
-            AdminSubscribersController controller = getAdminSubscribersController();
-            if (controller != null) {
-                controller.setAllSubscribers(sessions);
-            }
-        }
-    }*/
 }

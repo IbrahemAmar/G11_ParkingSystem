@@ -271,6 +271,11 @@ public class BParkServer extends AbstractServer {
                 sendServerResponse(client, "ACCESS_MODE", true, "Access mode data", request.getAccessMode());
             }
         }
+        
+        //Save Username to access it later
+        if (isValid) {
+            client.setInfo("username", request.getUsername());
+        }
     }
 
     @Override
@@ -527,9 +532,15 @@ public class BParkServer extends AbstractServer {
             String password = (String) request.getParams()[1];
             String firstName = (String) request.getParams()[2];
             String lastName = (String) request.getParams()[3];
-
             boolean success = dbController.addSubscriber(subscriber, password, firstName, lastName);
-            dbController.insertSystemLog("Add User", "Target-" + subscriber.getId(), "SUB" + subscriber.getId()); //must edit
+            
+            if(success == true) {
+            	String username = (String) client.getInfo("username");
+            	int byUserId = dbController.getUserIdByUsername(username);
+            	String target = "Target-" + subscriber.getId();//dbController.getNextSystemLogId();
+            	dbController.insertSubscriberSystemLog("Add User", target, byUserId);
+            }
+            
             String message = success ? "Subscriber added successfully." : "Failed to add subscriber.";
             sendServerResponse(client, "ADMIN_SUBSCRIBERS", success, message, dbController.getAllSubscribers());
         } catch (Exception e) {

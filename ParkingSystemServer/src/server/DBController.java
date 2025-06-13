@@ -874,7 +874,7 @@ public class DBController {
                 userStmt.setString(5, lastName);
                 userStmt.executeUpdate();
 
-                String subscriberCode = "SUB" + subscriber.getId(); // Or generate differently
+                String subscriberCode = "SUB" + subscriber.getId();
                 subStmt.setInt(1, subscriber.getId());
                 subStmt.setString(2, subscriber.getEmail());
                 subStmt.setString(3, subscriber.getPhone());
@@ -897,24 +897,56 @@ public class DBController {
     }
     
     
-    //Must Edit
-    private void insertSubscriberSystemLog(String action, String target, String subscriberCode) {
-    	String sql = """
-                INSERT INTO system_log (action, target, by_user, log_time, note)
-                SELECT ?, ?, u.id, NOW(), 'Subscriber Addition'
-                FROM users u
-                JOIN subscriber s ON s.subscriber_id = u.id
-                WHERE s.subscriber_code = ?
-                """;
-            try (Connection conn = getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, action);
-                stmt.setString(2, target);
-                stmt.setString(3, subscriberCode);
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                System.err.println("❌ Failed to insert system log.");
-                e.printStackTrace();
-            }
+    public void insertSubscriberSystemLog(String action, String target, int byUserId) {
+        String sql = """
+            INSERT INTO system_log (action, target, by_user, log_time, note)
+            VALUES (?, ?, ?, NOW(), ?)
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, action);
+            stmt.setString(2, target);
+            stmt.setInt(3, byUserId);
+            stmt.setString(4, "Subscriber inserted");
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to insert system log.");
+            e.printStackTrace();
+        }
     }
+
+    public int getNextSystemLogId() {
+        String sql = "SELECT MAX(log_id) FROM system_log";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+    
+    public int getUserIdByUsername(String username) {
+        String sql = "SELECT id FROM users WHERE username = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Not found
+    }
+
+
 }
