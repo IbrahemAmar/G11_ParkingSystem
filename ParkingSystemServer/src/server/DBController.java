@@ -12,6 +12,7 @@ import java.util.Random;
 import javax.mail.MessagingException;
 
 import java.sql.*;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,6 +31,7 @@ public class DBController {
     private static final String URL = "jdbc:mysql://localhost:3306/bpark?serverTimezone=Asia/Jerusalem&useSSL=false&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
     private static final String PASSWORD = "Aa123456";
+    private static final int EXTEND_HOURS_PER_REQUEST = 4;
 
     /**
      * Opens a connection to the MySQL database.
@@ -46,7 +48,7 @@ public class DBController {
     /**
      * Maps a ResultSet row to a ParkingHistory object.
      */
-    public ParkingHistory mapParkingHistory(ResultSet rs) throws SQLException { 
+    public ParkingHistory mapParkingHistory(ResultSet rs) throws SQLException {
         return new ParkingHistory(
             rs.getInt("history_id"),
             rs.getString("subscriber_code"),
@@ -54,6 +56,7 @@ public class DBController {
             rs.getTimestamp("entry_time").toLocalDateTime(),
             rs.getTimestamp("exit_time").toLocalDateTime(),
             rs.getBoolean("extended"),
+            rs.getInt("extended_hours"),
             rs.getBoolean("was_late"),
             rs.getBoolean("picked_up")
         );
@@ -167,10 +170,11 @@ public class DBController {
         }
     }
 
+
     public List<ParkingHistory> getParkingHistoryForSubscriber(String subscriberCode) {
         List<ParkingHistory> history = new ArrayList<>();
         String sql = """
-            SELECT history_id, subscriber_code, parking_space_id, entry_time, exit_time, extended, was_late, picked_up
+            SELECT history_id, subscriber_code, parking_space_id, entry_time, exit_time, extended, extended_hours, was_late, picked_up
             FROM parking_history
             WHERE subscriber_code = ?
             ORDER BY entry_time DESC
@@ -188,6 +192,7 @@ public class DBController {
         }
         return history;
     }
+
 
     public int getRandomAvailableSpotWithoutA() {
         String sql = """
@@ -256,19 +261,21 @@ public class DBController {
                 entry_time,
                 exit_time,
                 extended,
+                extended_hours,
                 was_late,
                 picked_up
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """;
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, history.getSubscriberCode());
             stmt.setInt(2, history.getParkingSpaceId());
-            stmt.setTimestamp(3, java.sql.Timestamp.valueOf(history.getEntryTime()));
-            stmt.setTimestamp(4, java.sql.Timestamp.valueOf(history.getExitTime()));
+            stmt.setTimestamp(3, Timestamp.valueOf(history.getEntryTime()));
+            stmt.setTimestamp(4, Timestamp.valueOf(history.getExitTime()));
             stmt.setBoolean(5, history.isExtended());
-            stmt.setBoolean(6, history.isWasLate());
-            stmt.setBoolean(7, history.isPickedUp());
+            stmt.setInt(6, history.getExtendedHours());
+            stmt.setBoolean(7, history.isWasLate());
+            stmt.setBoolean(8, history.isPickedUp());
             stmt.executeUpdate();
             System.out.println("✅ Parking deposit saved for " + history.getSubscriberCode());
         } catch (SQLException e) {
@@ -276,6 +283,7 @@ public class DBController {
             e.printStackTrace();
         }
     }
+
 
     public boolean hasActiveReservation(String subscriberCode) {
         String sql = """
@@ -354,19 +362,22 @@ public class DBController {
     }
 
     public int updateExitTime(String subscriberCode, LocalDateTime newExitTime) {
-        String query = "UPDATE parking_history SET exit_time = ?, extended = 1 " +
-                "WHERE subscriber_code = ? AND exit_time > NOW() " +
-                "ORDER BY exit_time DESC LIMIT 1";
+        String query = "UPDATE parking_history SET exit_time = ?, extended = 1, extended_hours = extended_hours + ? " +
+                       "WHERE subscriber_code = ? AND exit_time > NOW() " +
+                       "ORDER BY exit_time DESC LIMIT 1";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setTimestamp(1, Timestamp.valueOf(newExitTime));
-            stmt.setString(2, subscriberCode);
+            stmt.setInt(2, EXTEND_HOURS_PER_REQUEST);
+            stmt.setString(3, subscriberCode);
             return stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return 0;
     }
+
+
 
     public ParkingHistory getPendingParkingBySubscriberAndSpot(String subscriberCode, int parkingSpaceId) {
         String query = "SELECT * FROM parking_history WHERE subscriber_code = ? AND parking_space_id = ? AND picked_up = 0 ORDER BY entry_time DESC LIMIT 1";
@@ -397,27 +408,31 @@ public class DBController {
     public int completePickup(String subscriberCode, int parkingSpaceId, boolean wasLate, LocalDateTime pickupTime) {
         String query;
         if (wasLate) {
-            // Set extended and was_late flags
-            query = "UPDATE parking_history SET exit_time = ?, picked_up = 1, extended = 1, was_late = 1 " +
-                    "WHERE subscriber_code = ? AND parking_space_id = ? AND picked_up = 0 " +
-                    "ORDER BY entry_time DESC LIMIT 1";
+            query = "UPDATE parking_history SET exit_time = ?, picked_up = 1, extended = 1, was_late = 1, extended_hours = extended_hours + ? " +
+                    "WHERE subscriber_code = ? AND parking_space_id = ? AND picked_up = 0 ORDER BY entry_time DESC LIMIT 1";
         } else {
-            // Only update exit_time and picked_up
             query = "UPDATE parking_history SET exit_time = ?, picked_up = 1 " +
-                    "WHERE subscriber_code = ? AND parking_space_id = ? AND picked_up = 0 " +
-                    "ORDER BY entry_time DESC LIMIT 1";
+                    "WHERE subscriber_code = ? AND parking_space_id = ? AND picked_up = 0 ORDER BY entry_time DESC LIMIT 1";
         }
+
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setTimestamp(1, Timestamp.valueOf(pickupTime));
-            stmt.setString(2, subscriberCode);
-            stmt.setInt(3, parkingSpaceId);
+            if (wasLate) {
+                stmt.setInt(2, EXTEND_HOURS_PER_REQUEST);
+                stmt.setString(3, subscriberCode);
+                stmt.setInt(4, parkingSpaceId);
+            } else {
+                stmt.setString(2, subscriberCode);
+                stmt.setInt(3, parkingSpaceId);
+            }
             return stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return 0;
     }
+
     
     /**
      * Checks if at least 40% of parking spots are available.
@@ -812,15 +827,11 @@ public class DBController {
     
     //////////////
     public List<ParkingHistory> getAllActiveParkings() {
-        String sql = "SELECT * FROM parking_history\r\n"
-        		+ "        WHERE picked_up = 0 AND entry_time <= NOW() AND exit_time >= NOW()\r\n"
-        		+ "        ORDER BY entry_time DESC";
-
+        String sql = "SELECT * FROM parking_history WHERE picked_up = 0 AND entry_time <= NOW() AND exit_time >= NOW() ORDER BY entry_time DESC";
         List<ParkingHistory> list = new ArrayList<>();
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-
             while (rs.next()) {
                 list.add(mapParkingHistory(rs));
             }
@@ -977,4 +988,102 @@ public class DBController {
 
         return logs;
     }
+    
+
+    public List<Integer> getMonthlyParkingTimeSummary() {
+        List<Integer> durations = new ArrayList<>();
+
+        int normalHours = 0;
+        int extendedHours = 0;
+        int delayedHours = 0;
+
+        String sql = """
+            SELECT entry_time, exit_time, extended_hours, was_late
+            FROM parking_history
+            WHERE MONTH(entry_time) = MONTH(CURRENT_DATE())
+              AND YEAR(entry_time) = YEAR(CURRENT_DATE())
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                LocalDateTime entry = rs.getTimestamp("entry_time").toLocalDateTime();
+                LocalDateTime exit = rs.getTimestamp("exit_time").toLocalDateTime();
+                int extHours = rs.getInt("extended_hours");
+                boolean wasLate = rs.getBoolean("was_late");
+
+                // Base normal time
+                int baseMinutes = 240; // 4 hours in minutes
+                int extendedMinutes = extHours * 60;
+
+                // Total allowed time (normal + extended)
+                LocalDateTime allowedExit = entry.plusMinutes(baseMinutes + extendedMinutes);
+
+                // Actual total time
+                long totalMinutes = Duration.between(entry, exit).toMinutes();
+
+                // Add normal and extended to report
+                normalHours += 4;
+                extendedHours += extHours;
+
+                // Late time = time after allowedExit
+                if (wasLate && exit.isAfter(allowedExit)) {
+                    long lateMinutes = Duration.between(allowedExit, exit).toMinutes();
+                    delayedHours += Math.round(lateMinutes / 60.0);
+                }
+                
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error fetching monthly parking durations: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        durations.add(normalHours);
+        durations.add(extendedHours);
+        durations.add(delayedHours);
+        
+
+        return durations;
+    }
+
+
+    public List<Integer> getMonthlySubscriberCounts() {
+        List<Integer> dailyCounts = new ArrayList<>();
+
+        String sql = """
+            SELECT DAY(entry_time) AS day, COUNT(DISTINCT subscriber_code) AS count
+            FROM parking_history
+            WHERE MONTH(entry_time) = MONTH(CURRENT_DATE())
+              AND YEAR(entry_time) = YEAR(CURRENT_DATE())
+            GROUP BY DAY(entry_time)
+        """;
+
+        // Initialize all days to 0 (max 31 days)
+        for (int i = 0; i < 31; i++) {
+            dailyCounts.add(0);
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int day = rs.getInt("day");
+                int count = rs.getInt("count");
+                dailyCounts.set(day - 1, count); // zero-based index
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error fetching monthly subscriber counts: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return dailyCounts;
+    }
+
+
+
 }

@@ -84,6 +84,9 @@ public class BParkServer extends AbstractServer {
                 case "get_subscribers_all_active" -> handleGetAllSubscribers(client);
                 case "add_subscriber" -> handleAddSubscriber(request, client);
                 case "get_all_system_logs" -> handleGetLogs(client);
+                case "get_monthly_parking_time" -> handleMonthlyParkingTime(client);
+                case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(client);
+
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -91,6 +94,32 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    private void handleMonthlySubscriberReport(ConnectionToClient client) {
+        List<Integer> dailyCounts = dbController.getMonthlySubscriberCounts();
+        boolean success = dailyCounts != null;
+
+        sendServerResponse(
+            client,
+            "monthly_subscriber_report_result",
+            success,
+            success ? "Subscriber daily activity retrieved." : "Error retrieving subscriber activity.",
+            dailyCounts
+        );
+    }
+
+    private void handleMonthlyParkingTime(ConnectionToClient client) {
+        List<Integer> durations = dbController.getMonthlyParkingTimeSummary();
+        boolean success = durations != null;
+
+        sendServerResponse(
+            client,
+            "monthly_parking_time_result",
+            success,
+            success ? "Monthly data retrieved" : "Error retrieving data",
+            durations
+        );
+    }
+
 
     /**
      * Handles available parking spots request.
@@ -99,6 +128,7 @@ public class BParkServer extends AbstractServer {
         List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
         sendServerResponse(client, "AVAILABLE_SPOTS", true, "Available spots fetched", spots);
     }
+    
 
     /**
      * Handles a request to send a random available parking space.

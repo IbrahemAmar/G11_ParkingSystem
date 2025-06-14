@@ -97,16 +97,17 @@ public class CarDepositController {
             LocalDateTime now = LocalDateTime.now();
 
          // Build the ParkingHistory for deposit (does not need history_id)
-         ParkingHistory deposit = new ParkingHistory(
-             0,
-             subscriberCode,
-             selectedSpotId,
-             now,
-             now.plusHours(4),
-             false,
-             false,
-             false
-         );
+            ParkingHistory deposit = new ParkingHistory(
+                    0,
+                    subscriberCode,
+                    selectedSpotId,
+                    now,
+                    now.plusHours(4),
+                    false,
+                    0,          // extendedHours is 0 for initial deposit
+                    false,
+                    false
+                );
 
 
             // Send deposit as a ClientRequest
