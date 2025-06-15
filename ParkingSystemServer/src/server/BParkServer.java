@@ -397,7 +397,7 @@ public class BParkServer extends AbstractServer {
      * Handles a reservation request from the client.
      * Attempts to add a reservation with a random free spot, generates a confirmation code,
      * sends an email, and adds a system log entry if successful.
-     * Sends a ServerResponse to the client with the result.
+     * If an error occurs (e.g., <40% availability), it sends the detailed error message to the client.
      *
      * @param request The client request containing a Reservation object.
      * @param client  The client connection.
@@ -420,30 +420,39 @@ public class BParkServer extends AbstractServer {
                 );
             }
 
-            // Prepare response
+            // Send response to client with result
             response = new ServerResponse(
                 "add_reservation",
                 success,
                 success
-                    ? "✅ Reservation successful! Confirmation code sent to your email."
-                    : "❌ Reservation failed. No available spots or another error occurred.",
+                    ? "Reservation successful! Confirmation code sent to your email."
+                    : "Reservation failed. No available spots or another error occurred.",
                 null
             );
             client.sendToClient(response);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            // Optional: log message only, without full stack trace
+            System.err.println("Reservation error: " + ex.getMessage());
+
+            String errorMessage = ex.getMessage() != null
+                ? ex.getMessage()
+                : "Server error during reservation. Please try again later.";
+
             response = new ServerResponse(
                 "add_reservation",
                 false,
-                "❌ Server error during reservation. Please try again later.",
+                errorMessage,
                 null
             );
+
             try {
                 client.sendToClient(response);
             } catch (Exception ignored) {}
         }
     }
+
+
     
     /**
      * Handles a request to resend the current active parking code to the subscriber's email.

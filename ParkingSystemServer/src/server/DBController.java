@@ -532,7 +532,7 @@ public class DBController {
                 }
 
                 double availablePercent = ((double) freeSpots) / totalSpots;
-                if (availablePercent >= 0.4) {
+                if (availablePercent > 0.4) {
                     availableTimes.add(slotTime);
                 }
                 if (slotTime.equals(LocalTime.of(23, 45))) break;
@@ -648,28 +648,28 @@ public class DBController {
 
     /**
      * Handles all logic for creating a reservation:
-     * - Finds a random free parking spot for the requested time window
+     * - Finds a random free parking spot for the requested 4-hour time window
      * - Generates a unique confirmation code
-     * - Inserts the reservation into the DB
-     * - Inserts a pending record in parking_history
+     * - Inserts the reservation into the database
+     * - Inserts a corresponding record into the parking_history table
      * - Sends a confirmation email to the subscriber
      *
-     * @param reservationRequest Reservation object from client (without spot ID or confirmation code)
-     * @return true if successful, false otherwise
+     * @param reservationRequest Reservation object from client (without assigned spot ID or confirmation code)
+     * @return true if the reservation was created successfully, false otherwise
      */
     public boolean addReservationRandomSpotWithConfirmation(Reservation reservationRequest) {
         try (Connection conn = getConnection()) {
-            // 1. Find a random free parking spot for the requested time window
+            // Step 1: Find a random free parking spot for the reservation time window
             int spotId = getRandomFreeSpotForReservation(reservationRequest.getReservationDate(), conn);
             if (spotId == -1) {
-                System.err.println("❌ No available parking spots for the requested time.");
+                System.err.println("No available parking spots for the requested time.");
                 return false;
             }
 
-            // 2. Generate a unique confirmation code
+            // Step 2: Generate a unique confirmation code
             int confirmationCode = generateUniqueConfirmationCode(conn);
 
-            // 3. Insert reservation into DB
+            // Step 3: Insert the reservation into the reservation table
             String reservationSql = "INSERT INTO reservation (subscriber_code, parking_space_id, reservation_date, confirmation_code, status) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(reservationSql)) {
                 stmt.setString(1, reservationRequest.getSubscriberCode());
@@ -680,7 +680,7 @@ public class DBController {
                 stmt.executeUpdate();
             }
 
-            // 4. Insert a pending record into parking_history
+            // Step 4: Insert the pending entry in the parking_history table
             LocalDateTime entryTime = reservationRequest.getReservationDate();
             LocalDateTime exitTime = entryTime.plusHours(4);
 
@@ -706,15 +706,18 @@ public class DBController {
                 stmt.executeUpdate();
             }
 
-            // 5. Fetch subscriber email
+            // Step 5: Get subscriber email address
             String email = getSubscriberEmail(conn, reservationRequest.getSubscriberCode());
-            if (email == null) throw new SQLException("Subscriber email not found.");
+            if (email == null) {
+                throw new SQLException("Subscriber email not found.");
+            }
 
-            // 6. Send confirmation email
+            // Step 6: Send confirmation email
             String subject = "BPARK: Reservation Confirmation";
-            String body = "Your reservation is confirmed.\nParking Spot: " + spotId +
-                          "\nConfirmation Code: " + confirmationCode +
-                          "\nDate: " + reservationRequest.getReservationDate().toString();
+            String body = "Your reservation is confirmed.\n"
+                        + "Parking Spot: " + spotId + "\n"
+                        + "Confirmation Code: " + confirmationCode + "\n"
+                        + "Date: " + reservationRequest.getReservationDate();
             EmailUtil.sendEmail(email, subject, body);
 
             return true;
@@ -723,62 +726,115 @@ public class DBController {
             return false;
         }
     }
-
     /**
-     * Finds a random free parking space for a 4-hour window starting at reservationDateTime.
-     *
+     * Finds a random free parking spot for a 4-hour window starting at the given reservation time,
+     * only if at least 40% of all parking spots are available in that window.
+     * 
+     * A parking spot is considered available if:
+     * - It has no active reservation overlapping with the requested time window
+     * - It has no entry in parking_history overlapping with the requested time window
+     * 
      * @param reservationDateTime The requested reservation start time (LocalDateTime)
      * @param conn                Active database connection
-     * @return Parking space ID if available, -1 otherwise
+     * @return Parking space ID if available and availability threshold is met; -1 otherwise
      * @throws SQLException If a database access error occurs
      */
     private int getRandomFreeSpotForReservation(LocalDateTime reservationDateTime, Connection conn) throws SQLException {
-        String sql = """
+        Timestamp start = Timestamp.valueOf(reservationDateTime);
+        Timestamp end = Timestamp.valueOf(reservationDateTime.plusHours(4));
+
+        //Count total parking spots
+        String countTotalSql = "SELECT COUNT(*) FROM parking_space";
+        int totalSpots = 0;
+        try (PreparedStatement stmt = conn.prepareStatement(countTotalSql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                totalSpots = rs.getInt(1);
+            }
+        }
+
+        //Count available parking spots in the requested time window
+        String countAvailableSql = """
+            SELECT COUNT(*) FROM parking_space ps
+            WHERE ps.parking_space_id NOT IN (
+                SELECT parking_space_id FROM reservation
+                WHERE status = 'active'
+                  AND (? < DATE_ADD(reservation_date, INTERVAL 4 HOUR))
+                  AND (DATE_ADD(?, INTERVAL 4 HOUR) > reservation_date)
+            )
+            AND ps.parking_space_id NOT IN (
+                SELECT parking_space_id FROM parking_history
+                WHERE (exit_time > ? AND entry_time < DATE_ADD(?, INTERVAL 4 HOUR))
+            )
+        """;
+
+        int availableSpots = 0;
+        try (PreparedStatement stmt = conn.prepareStatement(countAvailableSql)) {
+            stmt.setTimestamp(1, start);
+            stmt.setTimestamp(2, start);
+            stmt.setTimestamp(3, start);
+            stmt.setTimestamp(4, end);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    availableSpots = rs.getInt(1);
+                }
+            }
+        }
+
+        //Check if at least 40% are available
+        double availabilityRatio = (double) availableSpots / totalSpots;
+        if (availabilityRatio <= 0.4) {
+            System.err.println("Reservation denied: less than 40% of parking spots are available.");
+            throw new RuntimeException("Reservation denied: less than 40% of parking spots are available.");
+        }
+
+        //Select a random available spot
+        String selectSpotSql = """
             SELECT ps.parking_space_id
             FROM parking_space ps
-            WHERE ps.is_available = TRUE
-              AND ps.parking_space_id NOT IN (
-                  SELECT parking_space_id FROM reservation
-                  WHERE status = 'active'
-                    AND (
-                        (? < DATE_ADD(reservation_date, INTERVAL 4 HOUR))
-                        AND (DATE_ADD(?, INTERVAL 4 HOUR) > reservation_date)
-                    )
-              )
-              AND ps.parking_space_id NOT IN (
-                  SELECT parking_space_id FROM parking_history
-                  WHERE (exit_time > ? AND entry_time < DATE_ADD(?, INTERVAL 4 HOUR))
-              )
+            WHERE ps.parking_space_id NOT IN (
+                SELECT parking_space_id FROM reservation
+                WHERE status = 'active'
+                  AND (? < DATE_ADD(reservation_date, INTERVAL 4 HOUR))
+                  AND (DATE_ADD(?, INTERVAL 4 HOUR) > reservation_date)
+            )
+            AND ps.parking_space_id NOT IN (
+                SELECT parking_space_id FROM parking_history
+                WHERE (exit_time > ? AND entry_time < DATE_ADD(?, INTERVAL 4 HOUR))
+            )
             ORDER BY RAND()
             LIMIT 1
         """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            Timestamp start = Timestamp.valueOf(reservationDateTime);
-            stmt.setTimestamp(1, start); // reservation_date in reservation table
-            stmt.setTimestamp(2, start); // reservation window end in reservation table
-            stmt.setTimestamp(3, start); // exit_time in parking_history
-            stmt.setTimestamp(4, start); // entry_time in parking_history
+
+        try (PreparedStatement stmt = conn.prepareStatement(selectSpotSql)) {
+            stmt.setTimestamp(1, start);
+            stmt.setTimestamp(2, start);
+            stmt.setTimestamp(3, start);
+            stmt.setTimestamp(4, end);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("parking_space_id");
                 }
             }
         }
+
         return -1;
     }
 
     /**
-     * Generates a unique random confirmation code not present in the reservation table.
+     * Generates a unique 6-digit confirmation code that does not exist in the reservation table.
      *
-     * @param conn The active database connection
-     * @return Unique confirmation code
+     * @param conn Active database connection
+     * @return A unique confirmation code
      * @throws SQLException If a database access error occurs
      */
     public int generateUniqueConfirmationCode(Connection conn) throws SQLException {
         Random random = new Random();
         int code;
+
         while (true) {
-            code = 100000 + random.nextInt(900000); // 6-digit code
+            code = 100000 + random.nextInt(900000); // Generates a number between 100000 and 999999
+
             String sql = "SELECT COUNT(*) FROM reservation WHERE confirmation_code = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, code);
@@ -790,27 +846,32 @@ public class DBController {
                 }
             }
         }
+
         return code;
     }
-
     /**
-     * Gets the subscriber's email address by their code.
+     * Retrieves the subscriber's email address based on their subscriber code.
      *
-     * @param conn           Database connection
+     * @param conn           Active database connection
      * @param subscriberCode The subscriber's unique code
-     * @return Subscriber's email address or null if not found
+     * @return Email address if found, or null if not found
      * @throws SQLException If a database access error occurs
      */
     private String getSubscriberEmail(Connection conn, String subscriberCode) throws SQLException {
         String sql = "SELECT email FROM subscriber WHERE subscriber_code = ?";
+
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, subscriberCode);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return rs.getString("email");
+                if (rs.next()) {
+                    return rs.getString("email");
+                }
             }
         }
+
         return null;
     }
+
     /**
      * Convenience method to get a subscriber's email by code, opening its own connection.
      *
