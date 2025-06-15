@@ -41,7 +41,6 @@ public class AdminOrdersController implements ChatIF {
     @FXML private TableColumn<ParkingHistory, String> colActiveCode;
 
     @FXML private TextField txtSearchSubId;
-    @FXML private TextField txtSearchPlate;
     @FXML private TextField txtSearchSpot;
 
     @FXML private Button btnSearch;

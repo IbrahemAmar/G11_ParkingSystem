@@ -998,7 +998,7 @@ public class DBController {
         int delayedHours = 0;
 
         String sql = """
-            SELECT entry_time, exit_time, extended_hours, was_late
+            SELECT entry_time, exit_time, extended, was_late
             FROM parking_history
             WHERE MONTH(entry_time) = MONTH(CURRENT_DATE())
               AND YEAR(entry_time) = YEAR(CURRENT_DATE())
@@ -1011,7 +1011,7 @@ public class DBController {
             while (rs.next()) {
                 LocalDateTime entry = rs.getTimestamp("entry_time").toLocalDateTime();
                 LocalDateTime exit = rs.getTimestamp("exit_time").toLocalDateTime();
-                int extHours = rs.getInt("extended_hours");
+                int extHours = rs.getInt("extended");
                 boolean wasLate = rs.getBoolean("was_late");
 
                 // Base normal time
