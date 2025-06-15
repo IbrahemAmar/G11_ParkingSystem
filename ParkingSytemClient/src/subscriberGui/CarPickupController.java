@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import utils.SceneNavigator;
 import bpark_common.ClientRequest;
 import client.ClientController;
+import entities.Subscriber;
 
 /**
  * Controller for the CarPickup.fxml screen.
@@ -113,15 +114,27 @@ public class CarPickupController {
      * @param event The action event triggered by clicking the hyperlink.
      */
     @FXML
-    private void onLostCodeClicked(ActionEvent event) 
-    {
-    	SceneNavigator.navigateTo(
-    		    null,
-    		    "/subscriberGui/ForgotCode.fxml",
-    		    "BPARK - Forgot Code"
-    		);
+    private void onLostCodeClicked(ActionEvent event) {
+        subscriberGui.ForgotCodeController controller = SceneNavigator.navigateToAndGetController(
+            event,
+            "/subscriberGui/ForgotCode.fxml",
+            "BPARK - Forgot Code"
+        );
 
+        if (controller != null) {
+            ClientController.getClient().setForgotCodeController(controller);
+
+            Subscriber current = ClientController.getClient().getCurrentSubscriber();
+            if (current != null) {
+                ClientRequest req = new ClientRequest("get_subscriber_contact", new Object[]{current.getSubscriberCode()});
+                ClientController.getClient().sendObjectToServer(req);
+            }
+        } else {
+            System.err.println("❌ Failed to get ForgotCodeController");
+        }
     }
+
+
 
 
 

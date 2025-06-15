@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 import bpark_common.ClientRequest;
 import bpark_common.ServerResponse;
@@ -86,6 +87,7 @@ public class BParkServer extends AbstractServer {
                 case "get_all_system_logs" -> handleGetLogs(client);
                 case "get_monthly_parking_time" -> handleMonthlyParkingTime(client);
                 case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(client);
+                case "get_subscriber_contact" -> handleGetSubscriberContact(request, client);
 
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
@@ -592,5 +594,56 @@ public class BParkServer extends AbstractServer {
             sendServerResponse(client, "ADMIN_LOGS", false, "Failed to retrieve logs.", null);
         }
     }
+    /**
+     * Handles a client request to retrieve a subscriber's contact information (email and phone)
+     * using their subscriber code. This is typically used by the ForgotCode screen to update
+     * the displayed contact method options.
+     * <p>
+     * Expected client request: <br>
+     * {@code new ClientRequest("get_subscriber_contact", new Object[] {subscriberCode})}
+     * <p>
+     * Server sends back: <br>
+     * A {@link ServerResponse} containing a {@code Map<String, String>} with keys:
+     * <ul>
+     *     <li>{@code "email"} – The subscriber's email address</li>
+     *     <li>{@code "phone"} – The subscriber's phone number</li>
+     * </ul>
+     * or an error message if the subscriber is not found or contact info is missing.
+     *
+     * @param request The {@link ClientRequest}, expected to contain a single parameter: subscriberCode.
+     * @param client  The {@link ConnectionToClient} to send the response to.
+     */
+    private void handleGetSubscriberContact(ClientRequest request, ConnectionToClient client) {
+        try {
+            String subscriberCode = (String) request.getParams()[0];
+
+            // Fetch contact info from the database
+            Map<String, String> contactInfo = dbController.getSubscriberContactByCode(subscriberCode);
+
+            if (contactInfo != null && contactInfo.get("email") != null) {
+                ServerResponse response = new ServerResponse(
+                    "get_subscriber_contact",
+                    true,
+                    "Contact info retrieved.",
+                    contactInfo
+                );
+                client.sendToClient(response);
+            } else {
+                ServerResponse response = new ServerResponse(
+                    "get_subscriber_contact",
+                    false,
+                    "Subscriber not found or missing email.",
+                    null
+                );
+                client.sendToClient(response);
+            }
+
+        } catch (Exception e) {
+            sendError(client, "Error retrieving contact info: " + e.getMessage(), "get_subscriber_contact");
+            e.printStackTrace();
+        }
+    }
+
+
 
 }

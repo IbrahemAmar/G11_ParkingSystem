@@ -5,9 +5,6 @@ import entities.*;
 import guestGui.PublicAvailabilityController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
@@ -305,6 +302,7 @@ public class ClientController extends AbstractClient {
             case "ADMIN_LOGS" -> handleAdminLogsResponse(data);
             case "monthly_parking_time_result" -> handleAdminReportsResponse(data);
             case "monthly_subscriber_report_result" -> handleMonthlySubscriberReport(data);
+            case "get_subscriber_contact" -> handleSubscriberContactResponse(success, message, data);
 
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
@@ -333,7 +331,6 @@ public class ClientController extends AbstractClient {
         });
     }
 
-    @SuppressWarnings("unchecked")
     private void handleAdminReportsResponse(Object data) {
         if (data instanceof List<?> list && list.size() == 3 &&
             list.get(0) instanceof Integer && list.get(1) instanceof Integer && list.get(2) instanceof Integer) {
@@ -693,7 +690,8 @@ public class ClientController extends AbstractClient {
     }
     
     //////
-    private void handleAdminActiveSessionsResponse(Object data) {
+    @SuppressWarnings("unchecked")
+	private void handleAdminActiveSessionsResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof ParkingHistory))) {
             System.err.println("❌ Invalid or failed session data.");
             return;
@@ -709,7 +707,8 @@ public class ClientController extends AbstractClient {
         }
     }
     
-    private void handleAdminSubscribersResponse(Object data) {
+    @SuppressWarnings("unchecked")
+	private void handleAdminSubscribersResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber))) {
             System.err.println("❌ Invalid or failed session data.");
             return;
@@ -749,4 +748,36 @@ public class ClientController extends AbstractClient {
             System.err.println("⚠️ AdminLogsController not registered.");
         }
     }
+    /**
+     * Handles the server response for retrieving subscriber contact information (email and phone).
+     * If successful, passes the masked values to the {@link ForgotCodeController} to display updated text.
+     *
+     * @param success Indicates whether the server operation succeeded.
+     * @param message The message from the server (informational or error).
+     * @param data    A Map containing "email" and "phone" keys with their respective values.
+     */
+    private void handleSubscriberContactResponse(boolean success, String message, Object data) {
+        if (success && data instanceof Map<?, ?> map) {
+            Object emailObj = map.get("email");
+            Object phoneObj = map.get("phone");
+
+            String email = (emailObj instanceof String) ? (String) emailObj : null;
+            String phone = (phoneObj instanceof String) ? (String) phoneObj : null;
+
+            if (forgotCodeController != null) {
+                if (email != null && !email.isEmpty()) {
+                    forgotCodeController.updateEmailDisplay(email);
+                }
+                if (phone != null && !phone.isEmpty()) {
+                    forgotCodeController.updatePhoneDisplay(phone);
+                }
+            } else {
+                System.out.println("forgotCodeController is null!");
+            }
+        } else {
+            System.out.println("Failed to get subscriber contact info: " + message);
+        }
+    }
+
+
 }

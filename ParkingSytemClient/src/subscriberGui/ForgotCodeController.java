@@ -11,7 +11,7 @@ import utils.SceneNavigator;
 
 /**
  * Controller for the ForgotCode screen.
- * Handles the logic for resending the parking code via email or SMS.
+ * Allows the user to request their parking code via email or SMS.
  */
 public class ForgotCodeController {
 
@@ -33,8 +33,11 @@ public class ForgotCodeController {
     @FXML
     private Label lblResult;
 
+    private String actualEmail;
+    private String actualPhone;
+
     /**
-     * Called automatically after FXML loading; sets up listeners.
+     * Initializes the controller, sets actions and fetches latest contact info.
      */
     @FXML
     public void initialize() {
@@ -43,41 +46,47 @@ public class ForgotCodeController {
     }
 
     /**
-     * Handles the logic for sending the code, based on the selected method.
-     * If SMS is selected, simulates SMS send and goes back.
-     * If email is selected, sends a request to the server to send the code by email.
+     * Handles the Send Code action based on selected method.
      */
     private void handleSendCode() {
         if (radioPhone.isSelected()) {
-            // Simulate SMS send
-            showAlertAndBack("SMS Sent", "A code was sent to your phone number.", Alert.AlertType.INFORMATION);
-        } else if (radioEmail.isSelected()) {
-            // Send request to server for email
-            Subscriber sub = ClientController.getClient().getCurrentSubscriber();
-            if (sub == null) {
-                lblResult.setText("❌ Subscriber not found.");
-                lblResult.setStyle("-fx-text-fill: red;");
+            if (actualPhone == null) {
+                setResult("Phone number not available.", "red");
                 return;
             }
-            // Send client request to server (example: "send_code_email", with subscriber code param)
+
+            showAlertAndBack("SMS Sent", "A code was sent to your phone.", Alert.AlertType.INFORMATION);
+        } else if (radioEmail.isSelected()) {
+            if (actualEmail == null) {
+                setResult("Email address not available.", "red");
+                return;
+            }
+
+            Subscriber sub = ClientController.getClient().getCurrentSubscriber();
+            if (sub == null) {
+                setResult("Subscriber not found.", "red");
+                return;
+            }
+
             ClientRequest req = new ClientRequest("send_code_email", new Object[]{sub.getSubscriberCode()});
             ClientController.getClient().sendObjectToServer(req);
 
-            // Show loading
-            lblResult.setText("⏳ Sending code to your email...");
-            lblResult.setStyle("-fx-text-fill: blue;");
+            setResult("Sending code to your email...", "blue");
         } else {
-            lblResult.setText("❗ Please select a method.");
-            lblResult.setStyle("-fx-text-fill: orange;");
+            setResult("Please select a method.", "orange");
         }
     }
 
     /**
-     * Shows an alert and navigates back to the CarPickup screen after closing.
-     *
-     * @param title    The alert title.
-     * @param content  The message content.
-     * @param type     The alert type.
+     * Displays result text with given color.
+     */
+    private void setResult(String message, String color) {
+        lblResult.setText(message);
+        lblResult.setStyle("-fx-text-fill: " + color + ";");
+    }
+
+    /**
+     * Navigates to CarPickup screen after alert and injects the client.
      */
     private void showAlertAndBack(String title, String content, Alert.AlertType type) {
         Alert alert = new Alert(type);
@@ -85,47 +94,90 @@ public class ForgotCodeController {
         alert.setHeaderText(null);
         alert.setContentText(content);
 
-        // Set handler for when the alert is closed
         alert.setOnHidden(event -> {
-            System.out.println("Navigating to CarPickup.fxml");
-            SceneNavigator.navigateTo(
-                    null,
-                    "/subscriberGui/CarPickup.fxml",
-                    "BPARK - Retrieve Your Vehicle"
-            );
-        });
-
-        alert.show(); // NON-blocking!
-    }
-
-
-
-
-    /**
-     * Handles the Back button, returning the user to the CarPickup screen.
-     */
-    private void handleBack() {
-        SceneNavigator.navigateTo(
+            CarPickupController controller = SceneNavigator.navigateToAndGetController(
                 null,
                 "/subscriberGui/CarPickup.fxml",
                 "BPARK - Retrieve Your Vehicle"
-        );
+            );
+            if (controller != null) {
+                controller.setClient(ClientController.getClient());
+            }
+        });
+
+        alert.show();
     }
 
     /**
-     * Call this from your ClientController when a server response for send_code_email arrives.
-     *
-     * @param response The ServerResponse from the server.
+     * Navigates back to the CarPickup screen.
+     */
+    private void handleBack() {
+        CarPickupController controller = SceneNavigator.navigateToAndGetController(
+            null,
+            "/subscriberGui/CarPickup.fxml",
+            "BPARK - Retrieve Your Vehicle"
+        );
+        if (controller != null) {
+            controller.setClient(ClientController.getClient());
+        }
+    }
+
+    /**
+     * Handles email send response.
      */
     public void handleEmailResponse(ServerResponse response) {
         Platform.runLater(() -> {
             if (response.isSuccess()) {
                 showAlertAndBack("Email Sent", "A code was sent to your email.", Alert.AlertType.INFORMATION);
             } else {
-                lblResult.setText("❌ " + response.getMessage());
-                lblResult.setStyle("-fx-text-fill: red;");
+                setResult(response.getMessage(), "red");
             }
         });
     }
 
+    /**
+     * Updates the email display and masks it.
+     */
+    public void updateEmailDisplay(String email) {
+        if (email == null || !email.contains("@")) return;
+
+        this.actualEmail = email;
+
+        String[] parts = email.split("@");
+        String name = parts[0];
+        String domain = parts[1];
+        String maskedName = name.length() <= 2 ? name : name.substring(0, 2) + "****";
+        String maskedEmail = maskedName + "@" + domain;
+
+        Platform.runLater(() -> {
+            if (radioEmail != null) {
+                radioEmail.setText("Send to Email: " + maskedEmail);
+            }
+        });
+    }
+
+    /**
+     * Updates the phone display and masks it.
+     */
+    public void updatePhoneDisplay(String phone) {
+        if (phone == null || phone.length() < 7) return;
+
+        this.actualPhone = phone;
+
+        String masked = phone.substring(0, 2) + "*-***-" + phone.substring(phone.length() - 4);
+
+        Platform.runLater(() -> {
+            if (radioPhone != null) {
+                radioPhone.setText("Send to Phone: " + masked);
+            }
+        });
+    }
+
+    public String getActualEmail() {
+        return actualEmail;
+    }
+
+    public String getActualPhone() {
+        return actualPhone;
+    }
 }

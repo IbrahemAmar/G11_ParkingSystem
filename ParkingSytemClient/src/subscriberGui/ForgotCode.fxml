@@ -19,9 +19,9 @@
 
         <VBox spacing="15">
             <RadioButton fx:id="radioEmail" toggleGroup="$toggleMethod"
-                         text="Send to Email: mo***@gmail.com" />
+                         text="" />
             <RadioButton fx:id="radioPhone" toggleGroup="$toggleMethod"
-                         text="Send to Phone: 05*-***-1294" />
+                         text="" />
         </VBox>
 
         <Button text="📨 Send Code" fx:id="btnSendCode"

@@ -46,7 +46,8 @@ public class Subscriber implements Serializable {
         this.phone = phone; 
         this.subscriberCode = subscriberCode;
     }
-    /**
+
+	/**
      * Constructs a Subscriber object.
      *
      * @param subscriberCode unique subscriber code (primary key)

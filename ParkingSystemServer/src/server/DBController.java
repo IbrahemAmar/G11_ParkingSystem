@@ -17,7 +17,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -76,7 +78,7 @@ public class DBController {
      * Maps a ResultSet row to a Subscriber object.
      */
     public Subscriber mapSubscriber(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
+    	int id = rs.getInt("id");
         String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
         String username = rs.getString("username");
         String email = rs.getString("email");
@@ -230,6 +232,29 @@ public class DBController {
         } catch (SQLException e) {
             System.err.println("❌ Failed to update spot availability.");
             e.printStackTrace();
+        }
+    }
+    /**
+     * Retrieves a Subscriber object from the database using the given subscriber code.
+     * This method is used to refresh the subscriber's data (e.g., email or phone) from the DB.
+     *
+     * @param subscriberCode The unique subscriber code to look up.
+     * @return A Subscriber object if found; otherwise, null.
+     * @throws SQLException If a database access error occurs.
+     */
+    public Subscriber getSubscriberByCode(String subscriberCode) throws SQLException {
+        String sql = "SELECT * FROM subscriber WHERE subscriber_code = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, subscriberCode);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapSubscriber(rs);
+            }
+            return null;
         }
     }
 
@@ -1022,7 +1047,7 @@ public class DBController {
                 LocalDateTime allowedExit = entry.plusMinutes(baseMinutes + extendedMinutes);
 
                 // Actual total time
-                long totalMinutes = Duration.between(entry, exit).toMinutes();
+                //long totalMinutes = Duration.between(entry, exit).toMinutes();
 
                 // Add normal and extended to report
                 normalHours += 4;
@@ -1084,6 +1109,32 @@ public class DBController {
         return dailyCounts;
     }
 
+    /**
+     * Retrieves the email and phone number of a subscriber by their subscriber code.
+     *
+     * @param subscriberCode The unique subscriber code.
+     * @return A map containing "email" and "phone" keys if found, or null otherwise.
+     * @throws SQLException if a database error occurs.
+     */
+    public Map<String, String> getSubscriberContactByCode(String subscriberCode) throws SQLException {
+        String sql = "SELECT email, phone_number FROM subscriber WHERE subscriber_code = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, subscriberCode);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Map<String, String> contact = new HashMap<>();
+                contact.put("email", rs.getString("email"));
+                contact.put("phone", rs.getString("phone_number"));
+                return contact;
+            }
+
+            return null; // No subscriber found
+        }
+    }
 
 
 }
