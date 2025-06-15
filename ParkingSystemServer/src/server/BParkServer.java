@@ -80,6 +80,13 @@ public class BParkServer extends AbstractServer {
                 case "add_reservation" -> handleReservation(request, client);
                 case "send_code_email" -> handleSendCodeEmail(request, client);
                 case "scan_tag_login" -> handleScanTagLogin(request, client);
+                case "get_parking_history_all_active" -> handleGetAllActiveParkings(client);
+                case "get_subscribers_all_active" -> handleGetAllSubscribers(client);
+                case "add_subscriber" -> handleAddSubscriber(request, client);
+                case "get_all_system_logs" -> handleGetLogs(client);
+                case "get_monthly_parking_time" -> handleMonthlyParkingTime(client);
+                case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(client);
+
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
         } catch (Exception e) {
@@ -87,6 +94,32 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    private void handleMonthlySubscriberReport(ConnectionToClient client) {
+        List<Integer> dailyCounts = dbController.getMonthlySubscriberCounts();
+        boolean success = dailyCounts != null;
+
+        sendServerResponse(
+            client,
+            "monthly_subscriber_report_result",
+            success,
+            success ? "Subscriber daily activity retrieved." : "Error retrieving subscriber activity.",
+            dailyCounts
+        );
+    }
+
+    private void handleMonthlyParkingTime(ConnectionToClient client) {
+        List<Integer> durations = dbController.getMonthlyParkingTimeSummary();
+        boolean success = durations != null;
+
+        sendServerResponse(
+            client,
+            "monthly_parking_time_result",
+            success,
+            success ? "Monthly data retrieved" : "Error retrieving data",
+            durations
+        );
+    }
+
 
     /**
      * Handles available parking spots request.
@@ -95,6 +128,7 @@ public class BParkServer extends AbstractServer {
         List<ParkingSpace> spots = dbController.getAvailableParkingSpaces();
         sendServerResponse(client, "AVAILABLE_SPOTS", true, "Available spots fetched", spots);
     }
+    
 
     /**
      * Handles a request to send a random available parking space.
@@ -267,6 +301,11 @@ public class BParkServer extends AbstractServer {
                 // this line for the access mode
                 sendServerResponse(client, "ACCESS_MODE", true, "Access mode data", request.getAccessMode());
             }
+        }
+        
+        //Save Username to access it later
+        if (isValid) {
+            client.setInfo("username", request.getUsername());
         }
     }
 
@@ -505,7 +544,53 @@ public class BParkServer extends AbstractServer {
         }
     }
 
+    /**
+     * Sends all currently active parking sessions to the admin GUI.
+     */
+    private void handleGetAllActiveParkings(ConnectionToClient client) {
+        List<ParkingHistory> activeList = dbController.getAllActiveParkings();
+        sendServerResponse(client, "ADMIN_ACTIVE_SESSIONS", true, "All active parkings fetched.", activeList);
+    }
     
-
+    private void handleGetAllSubscribers(ConnectionToClient client) {
+        List<Subscriber> activeList = dbController.getAllSubscribers();
+        sendServerResponse(client, "ADMIN_SUBSCRIBERS", true, "All Subscribers fetched.", activeList);
+    }
+    
+    private void handleAddSubscriber(ClientRequest request, ConnectionToClient client) {
+        try {
+            Subscriber subscriber = (Subscriber) request.getParams()[0];
+            String password = (String) request.getParams()[1];
+            String firstName = (String) request.getParams()[2];
+            String lastName = (String) request.getParams()[3];
+            boolean success = dbController.addSubscriber(subscriber, password, firstName, lastName);
+            
+            if(success == true) {
+            	String username = (String) client.getInfo("username");
+            	int byUserId = dbController.getUserIdByUsername(username);
+            	String target = "Target-" + subscriber.getId();//dbController.getNextSystemLogId();
+            	dbController.insertSubscriberSystemLog("Add User", target, byUserId);
+            }
+            
+            String message = success ? "Subscriber added successfully." : "Failed to add subscriber.";
+            sendServerResponse(client, "ADMIN_SUBSCRIBERS", success, message, dbController.getAllSubscribers());
+        } catch (Exception e) {
+            sendError(client, "Server error: " + e.getMessage(), "ADMIN_SUBSCRIBERS");
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Handles request to fetch all system logs for the admin.
+     */
+    private void handleGetLogs(ConnectionToClient client) {
+        try {
+            List<SystemLog> logs = dbController.getAllSystemLogs();
+            sendServerResponse(client, "ADMIN_LOGS", true, "System logs fetched.", logs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendServerResponse(client, "ADMIN_LOGS", false, "Failed to retrieve logs.", null);
+        }
+    }
 
 }

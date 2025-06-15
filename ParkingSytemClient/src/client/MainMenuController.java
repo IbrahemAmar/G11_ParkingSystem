@@ -201,6 +201,8 @@ public class MainMenuController implements ChatIF {
 
             switch (role) {
                 case "admin":
+                	loader = new FXMLLoader(getClass().getResource("/adminGui/AdminMainMenu.fxml"));
+                	break;
                 case "supervisor":
                     loader = new FXMLLoader(getClass().getResource("/adminGui/AdminMainMenu.fxml"));
                     break;

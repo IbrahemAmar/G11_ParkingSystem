@@ -22,12 +22,17 @@
             <TableColumn fx:id="colNote" text="Note" prefWidth="200" />
         </columns>
     </TableView>
+    
+    <Label fx:id="lblStatus"
+       text="Logs not loaded"
+       style="-fx-font-style: italic; -fx-text-fill: gray;" />
+
 
     <!-- Action Buttons -->
     <HBox spacing="15" alignment="CENTER_RIGHT">
         <Button fx:id="btnRefreshLogs" text="🔄 Refresh"
                 style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 6;" />
-        <Button fx:id="btnBack" text="🔙 Back to Menu"
+        <Button text="🔙 Back to Menu" fx:id="btnBack" onAction="#handleBack" 
                 style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 6;" />
     </HBox>
 </VBox>

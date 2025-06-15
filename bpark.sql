@@ -24,21 +24,24 @@ USE `bpark`;
 DROP TABLE IF EXISTS `parking_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `parking_history` (
-  `history_id` int NOT NULL AUTO_INCREMENT,
-  `subscriber_code` varchar(20) NOT NULL,
-  `parking_space_id` int NOT NULL,
-  `entry_time` datetime NOT NULL,
-  `exit_time` datetime DEFAULT NULL,
-  `extended` tinyint(1) DEFAULT '0',
-  `was_late` tinyint(1) DEFAULT '0',
-  `picked_up` tinyint(1) DEFAULT '0',
+  `history_id` INT NOT NULL AUTO_INCREMENT,
+  `subscriber_code` VARCHAR(20) NOT NULL,
+  `parking_space_id` INT NOT NULL,
+  `entry_time` DATETIME NOT NULL,
+  `exit_time` DATETIME DEFAULT NULL,
+  `extended` TINYINT(1) DEFAULT '0',           -- 1 if extended at least once
+  `extended_hours` INT DEFAULT 0,              -- total hours of extension (e.g., 4, 8, etc.)
+  `was_late` TINYINT(1) DEFAULT '0',           -- 1 if picked up after exit_time
+  `picked_up` TINYINT(1) DEFAULT '0',          -- 1 if user picked up the car
   PRIMARY KEY (`history_id`),
   KEY `subscriber_code` (`subscriber_code`),
   KEY `parking_space_id` (`parking_space_id`),
   CONSTRAINT `parking_history_ibfk_1` FOREIGN KEY (`subscriber_code`) REFERENCES `subscriber` (`subscriber_code`),
   CONSTRAINT `parking_history_ibfk_2` FOREIGN KEY (`parking_space_id`) REFERENCES `parking_space` (`parking_space_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,10 +50,36 @@ CREATE TABLE `parking_history` (
 
 LOCK TABLES `parking_history` WRITE;
 /*!40000 ALTER TABLE `parking_history` DISABLE KEYS */;
-INSERT INTO `parking_history` VALUES (13,'SUB0005',6,'2025-05-30 22:27:38','2025-05-31 02:27:38',0,0,0),(14,'SUB0005',5,'2025-05-30 18:27:38','2025-05-30 21:27:38',0,0,0),(15,'SUB0005',7,'2025-05-30 15:27:38','2025-05-30 19:27:38',0,0,0),(16,'SUB0005',9,'2025-05-31 01:27:38','2025-05-31 05:27:38',0,0,0),(17,'SUB0006',7,'2025-05-30 23:50:20','2025-05-31 03:50:20',0,0,0),(18,'SUB0003',5,'2025-05-30 23:50:48','2025-05-31 03:50:48',0,0,0),(19,'SUB0007',1,'2025-05-31 00:06:50','2025-06-01 15:24:44',1,1,1),(20,'SUB0003',2,'2025-06-01 00:36:34','2025-06-01 12:36:34',1,0,0),(21,'SUB0005',3,'2025-06-01 12:32:33','2025-06-01 15:20:19',1,1,1),(22,'SUB0003',10,'2025-06-01 14:06:15','2025-06-01 15:22:56',0,0,1),(23,'SUB0007',1,'2025-06-01 14:32:16','2025-06-01 15:23:20',1,1,1),(24,'SUB0007',4,'2025-06-01 15:24:29','2025-06-01 15:24:35',0,1,1),(25,'SUB0005',8,'2025-06-01 15:28:02','2025-06-01 15:28:05',0,0,1),(26,'SUB0005',1,'2025-06-01 15:28:23','2025-06-01 15:28:37',0,0,1),(27,'SUB0007',1,'2025-06-01 11:16:29','2025-06-01 16:17:30',1,0,1),(29,'SUB0003',1,'2025-06-01 16:32:37','2025-06-01 16:33:08',0,0,1);
+
+INSERT INTO `parking_history` 
+(`history_id`, `subscriber_code`, `parking_space_id`, `entry_time`, `exit_time`, `extended`, `extended_hours`, `was_late`, `picked_up`) VALUES
+(13, 'SUB0005', 6, '2025-05-30 22:27:38', '2025-05-31 02:27:38', 0, 0, 0, 0),
+(14, 'SUB0005', 5, '2025-05-30 18:27:38', '2025-05-30 21:27:38', 0, 0, 0, 0),
+(15, 'SUB0005', 7, '2025-05-30 15:27:38', '2025-05-30 19:27:38', 0, 0, 1, 0), -- 4h stay, not late
+(16, 'SUB0005', 9, '2025-05-31 01:27:38', '2025-05-31 05:27:38', 0, 0, 1, 0), -- 4h stay, no extension
+(17, 'SUB0006', 7, '2025-05-30 23:50:20', '2025-05-31 03:50:20', 0, 0, 1, 0), -- 4h stay, no extension
+(18, 'SUB0003', 5, '2025-05-30 23:50:48', '2025-05-31 03:50:48', 0, 0, 1, 0),
+(19, 'SUB0007', 1, '2025-05-31 00:06:50', '2025-06-01 15:24:44', 1, 4, 1, 1), -- ~39h stay, extended only 4h → late
+(20, 'SUB0003', 2, '2025-06-01 00:36:34', '2025-06-01 12:36:34', 1, 4, 1, 0), -- 12h > 8h allowed → late
+(21, 'SUB0005', 3, '2025-06-01 12:32:33', '2025-06-01 15:20:19', 1, 4, 0, 1), -- ~3h, within limit → not late
+(22, 'SUB0003', 10, '2025-06-01 14:06:15', '2025-06-01 15:22:56', 0, 0, 0, 1), -- ~1h stay → OK
+(23, 'SUB0007', 1, '2025-06-01 14:32:16', '2025-06-01 15:23:20', 1, 4, 0, 1), -- ~1h, well within → OK
+(24, 'SUB0007', 4, '2025-06-01 15:24:29', '2025-06-01 15:24:35', 0, 0, 0, 1), -- ~6s, OK
+(25, 'SUB0005', 8, '2025-06-01 15:28:02', '2025-06-01 15:28:05', 0, 0, 0, 1),
+(26, 'SUB0005', 1, '2025-06-01 15:28:23', '2025-06-01 15:28:37', 0, 0, 0, 1),
+(27, 'SUB0007', 1, '2025-06-01 11:16:29', '2025-06-01 16:17:30', 1, 4, 0, 1), -- 5h → OK
+(29, 'SUB0003', 1, '2025-06-01 16:32:37', '2025-06-01 16:33:08', 0, 0, 0, 1);
+
+INSERT INTO `parking_history` 
+(subscriber_code, parking_space_id, entry_time, exit_time, extended, extended_hours, was_late, picked_up) VALUES 
+('SUB0001', 1, '2025-06-10 08:00:00', '2025-06-10 14:45:00', 1, 4, 1, 1),  -- stayed 6h45m → late
+('SUB0002', 2, '2025-06-10 09:00:00', '2025-06-10 14:30:00', 1, 4, 1, 1),  -- stayed 5.5h > 4+4 = 8h → NOT late
+('SUB0003', 3, '2025-06-10 10:00:00', '2025-06-10 15:30:00', 0, 0, 1, 1),  -- 5.5h > 4 → late
+('SUB0004', 4, '2025-06-10 07:30:00', '2025-06-10 13:50:00', 1, 4, 1, 1),  -- stayed 6h20m > 8h → NOT late
+('SUB0005', 5, '2025-06-10 06:00:00', '2025-06-10 12:30:00', 1, 4, 1, 1);  -- 6.5h > 8h → NOT late
+
 /*!40000 ALTER TABLE `parking_history` ENABLE KEYS */;
 UNLOCK TABLES;
-
 --
 -- Table structure for table `parking_space`
 --

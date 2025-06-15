@@ -5,6 +5,9 @@ import entities.*;
 import guestGui.PublicAvailabilityController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import ocsf.client.AbstractClient;
@@ -15,7 +18,14 @@ import utils.SceneNavigator;
 
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import adminGui.AdminLogsController;
+import adminGui.AdminOrdersController;
+import adminGui.AdminReportsController;
+import adminGui.AdminSubscribersController;
 
 /**
  * The main client-side controller that manages the connection to the server,
@@ -41,6 +51,10 @@ public class ClientController extends AbstractClient {
     public String accessMode;
     public ReservationRequestController reservationRequestController;
     private subscriberGui.ForgotCodeController forgotCodeController;
+    private adminGui.AdminOrdersController adminOrdersController;
+    private adminGui.AdminSubscribersController adminSubscribersController;
+    private adminGui.AdminReportsController adminReportsController;
+    private adminGui.AdminLogsController adminLogsController;
 
 
 
@@ -177,6 +191,39 @@ public class ClientController extends AbstractClient {
     public void setCurrentSubscriber(Subscriber subscriber) {
         this.currentSubscriber = subscriber;
     }
+    
+    public void setAdminSubscribersController(adminGui.AdminSubscribersController adminSubscribersController) {
+		this.adminSubscribersController = adminSubscribersController;
+	}
+    
+    public adminGui.AdminSubscribersController getAdminSubscribersController() {
+		return adminSubscribersController;
+	}
+    
+    public void setAdminOrdersController(adminGui.AdminOrdersController adminOrdersController) {
+		this.adminOrdersController = adminOrdersController;
+	}
+    
+    public adminGui.AdminOrdersController getAdminOrdersController() {
+		return adminOrdersController;
+	}
+    
+    public void setAdminReportsController(adminGui.AdminReportsController adminReportsController) {
+		this.adminReportsController = adminReportsController;
+	}
+    
+    public adminGui.AdminReportsController getAdminReportsController() {
+		return adminReportsController;
+	}
+    
+    public void setAdminLogsController(adminGui.AdminLogsController adminLogsController) {
+		this.adminLogsController = adminLogsController;
+	}
+    
+    public adminGui.AdminLogsController getAdminLogsController() {
+		return adminLogsController;
+	}
+ 
 
     /**
      * Sets the primary application stage for GUI transitions.
@@ -253,12 +300,63 @@ public class ClientController extends AbstractClient {
             case "add_reservation" -> handleReservationResponse(success, message);
             case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
+            case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessionsResponse(data);
+            case "ADMIN_SUBSCRIBERS" -> handleAdminSubscribersResponse(data);
+            case "ADMIN_LOGS" -> handleAdminLogsResponse(data);
+            case "monthly_parking_time_result" -> handleAdminReportsResponse(data);
+            case "monthly_subscriber_report_result" -> handleMonthlySubscriberReport(data);
+
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
 
     }
-
     /**
+     * Handles the monthly subscriber report data from the server.
+     * Expects a List<Integer> where index+1 is the day and value is the count of subscribers parked.
+     */
+    @SuppressWarnings("unchecked")
+    private void handleMonthlySubscriberReport(Object data) {
+        if (!(data instanceof List<?> rawList && (rawList.isEmpty() || rawList.get(0) instanceof Integer))) {
+            System.err.println("\u274c Invalid format for monthly subscriber report data");
+            return;
+        }
+
+        List<Integer> dailyCounts = (List<Integer>) data;
+
+        Platform.runLater(() -> {
+            AdminReportsController controller = getAdminReportsController();
+            if (controller != null) {
+                controller.setSubscribersPerDayData(dailyCounts);
+            } else {
+                System.err.println("\u26a0\ufe0f AdminReportsController not registered for subscriber chart update.");
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleAdminReportsResponse(Object data) {
+        if (data instanceof List<?> list && list.size() == 3 &&
+            list.get(0) instanceof Integer && list.get(1) instanceof Integer && list.get(2) instanceof Integer) {
+
+            int normal = (Integer) list.get(0);
+            int extended = (Integer) list.get(1);
+            int delayed = (Integer) list.get(2);
+
+            Platform.runLater(() -> {
+                AdminReportsController controller = getAdminReportsController();
+                if (controller != null) {
+                    controller.setParkingTimeData(normal, extended, delayed);
+                } else {
+                    System.err.println("⚠️ AdminReportsController not registered.");
+                }
+            });
+
+        } else {
+            System.err.println("❌ Invalid data format for admin reports. Expected List<Integer> of size 3.");
+        }
+    }
+
+	/**
      * Handles the login response.
      * 
      * @param success if login succeeded
@@ -593,8 +691,62 @@ public class ClientController extends AbstractClient {
             }
         });
     }
+    
+    //////
+    private void handleAdminActiveSessionsResponse(Object data) {
+    	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof ParkingHistory))) {
+            System.err.println("❌ Invalid or failed session data.");
+            return;
+        }
 
+        List<ParkingHistory> sessions = (List<ParkingHistory>) data;
 
+        AdminOrdersController controller = getAdminOrdersController();
+        if (controller != null) {
+            controller.setActiveSessions(sessions);
+        } else {
+            System.err.println("⚠️ AdminOrdersController not registered.");
+        }
+    }
+    
+    private void handleAdminSubscribersResponse(Object data) {
+    	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber))) {
+            System.err.println("❌ Invalid or failed session data.");
+            return;
+        }
 
+        List<Subscriber> sessions = (List<Subscriber>) data;
 
+        AdminSubscribersController controller = getAdminSubscribersController();
+        if (controller != null) {
+            controller.setAllSubscribers(sessions);
+        } else {
+            System.err.println("⚠️ AdminOrdersController not registered.");
+        }
+    }
+    
+    private void handleAdminLogsResponse(Object data) {
+        if (!(data instanceof List<?> rawList)) {
+            System.err.println("❌ Invalid or missing log data.");
+            return;
+        }
+
+        // Create a safe typed list
+        List<SystemLog> logs = new ArrayList<>();
+
+        for (Object item : rawList) {
+            if (item instanceof SystemLog log) {
+                logs.add(log);
+            } else {
+                System.err.println("⚠️ Skipping invalid log entry: " + item);
+            }
+        }
+
+        AdminLogsController controller = getAdminLogsController();
+        if (controller != null) {
+            controller.setLogs(logs);
+        } else {
+            System.err.println("⚠️ AdminLogsController not registered.");
+        }
+    }
 }
