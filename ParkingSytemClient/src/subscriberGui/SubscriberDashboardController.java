@@ -251,4 +251,20 @@ public class SubscriberDashboardController {
 	public void setLastEvent(ActionEvent lastEvent) {
 		this.lastEvent = lastEvent;
 	}
+	
+	
+	
+	@FXML
+	private void handleDepositReservedCar(ActionEvent event) {
+	    subscriberGui.DepositReservedParkingController controller =
+	        SceneNavigator.navigateToAndGetController(event, "/subscriberGui/CarDepositReserved.fxml", "Car Deposit Reserved");
+
+	    if (controller != null) {
+	        controller.setClient(ClientController.getClient());
+	    } else {
+	        System.out.println("❌ Could not load DepositReservedParkingController.");
+	    }
+	}
+
+	
 }

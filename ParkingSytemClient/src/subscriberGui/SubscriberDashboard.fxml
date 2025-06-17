@@ -61,6 +61,8 @@
                 <Button fx:id="btnExtend" onAction="#openExtendParking" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="⏱ Extend Parking Time" />
 
                 <Button fx:id="btnReserve" onAction="#openReservationWindow" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="🗓 Reserve Future Parking" />
+                
+                <Button fx:id="btnDepositReserved" onAction="#handleDepositReservedCar" style="-fx-background-color: #673AB7; -fx-text-fill: white;" text="🚗 Deposit Reserved Car" />
 
                 <Button fx:id="btnPickup" onAction="#openCarPickup" style="-fx-background-color: #FF9800; -fx-text-fill: white;" text="🚙 Retrieve My Vehicle" />
 

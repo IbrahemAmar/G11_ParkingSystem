@@ -11,6 +11,7 @@ import ocsf.client.AbstractClient;
 import subscriberGui.CarDepositController;
 import subscriberGui.EditSubscriberDetailsController;
 import subscriberGui.ReservationRequestController;
+import subscriberGui.DepositReservedParkingController;
 import utils.SceneNavigator;
 
 import java.io.IOException;
@@ -297,6 +298,7 @@ public class ClientController extends AbstractClient {
             case "add_reservation" -> handleReservationResponse(success, message);
             case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
+            case "CheckAndDepositReservedCar" -> handleReservedDepositResponse(success, message);
             case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessionsResponse(data);
             case "ADMIN_SUBSCRIBERS" -> handleAdminSubscribersResponse(data);
             case "ADMIN_LOGS" -> handleAdminLogsResponse(data);
@@ -778,6 +780,24 @@ public class ClientController extends AbstractClient {
             System.out.println("Failed to get subscriber contact info: " + message);
         }
     }
+    
+    /**
+     * Handles the server response for reserved car deposit using confirmation code.
+     *
+     * @param success success status from the server
+     * @param message feedback or error message
+     */
+    private void handleReservedDepositResponse(boolean success, String message) {
+        Platform.runLater(() -> {
+            DepositReservedParkingController controller = DepositReservedParkingController.getInstance();
+            if (controller != null) {
+                controller.showServerResponse(message);
+            } else {
+                System.out.println("⚠️ DepositReservedParkingController is not registered.");
+            }
+        });
+    }
+
 
 
 }

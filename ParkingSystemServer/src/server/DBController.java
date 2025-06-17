@@ -680,6 +680,7 @@ public class DBController {
                 stmt.executeUpdate();
             }
 
+            /* THIISS SHOULD BE USED IN OTHER BUTTON WILL CHECK IT LATER
             // Step 4: Insert the pending entry in the parking_history table
             LocalDateTime entryTime = reservationRequest.getReservationDate();
             LocalDateTime exitTime = entryTime.plusHours(4);
@@ -706,6 +707,8 @@ public class DBController {
                 stmt.executeUpdate();
             }
 
+			*/
+            
             // Step 5: Get subscriber email address
             String email = getSubscriberEmail(conn, reservationRequest.getSubscriberCode());
             if (email == null) {
@@ -726,6 +729,7 @@ public class DBController {
             return false;
         }
     }
+    
     /**
      * Finds a random free parking spot for a 4-hour window starting at the given reservation time,
      * only if at least 40% of all parking spots are available in that window.
@@ -1198,4 +1202,95 @@ public class DBController {
     }
 
 
+    /**
+     * Retrieves an active reservation from the database by confirmation code.
+     *
+     * @param code the confirmation code entered by the subscriber
+     * @return a Reservation object if found and active; otherwise null
+     */
+    public Reservation getReservationByConfirmationCode(String code) {
+        String sql = "SELECT * FROM reservation WHERE confirmation_code = ? AND status = 'active'";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, code);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Reservation(
+                    rs.getInt("reservation_id"),
+                    rs.getString("subscriber_code"),
+                    rs.getInt("parking_space_id"),
+                    rs.getTimestamp("reservation_date").toLocalDateTime(),
+                    rs.getInt("confirmation_code"), // ✅ fixed to match Integer type
+                    rs.getString("status")
+                );
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Marks a reservation as expired (used or time has passed).
+     *
+     * @param reservationId the reservation ID to update
+     */
+    public void markReservationExpired(int reservationId) {
+        String sql = "UPDATE reservation SET status = 'expired' WHERE reservation_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, reservationId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Inserts a parking history record using reservation data.
+     *
+     * @param reservation the reservation object to base the parking on
+     * @param entryTime   the actual time the subscriber entered
+     * @param exitTime    the planned exit time (usually 4 hours after reservation)
+     */
+    public void insertParkingFromReservation(Reservation reservation, LocalDateTime entryTime, LocalDateTime exitTime) {
+        String sql = """
+            INSERT INTO parking_history (
+                subscriber_code,
+                parking_space_id,
+                entry_time,
+                exit_time,
+                extended,
+                was_late,
+                picked_up
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, reservation.getSubscriberCode());
+            stmt.setInt(2, reservation.getParkingSpaceId());
+            stmt.setTimestamp(3, Timestamp.valueOf(entryTime));
+            stmt.setTimestamp(4, Timestamp.valueOf(exitTime));
+            stmt.setBoolean(5, false); // extended
+            stmt.setBoolean(6, false); // was_late
+            stmt.setBoolean(7, false); // picked_up
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
 }
