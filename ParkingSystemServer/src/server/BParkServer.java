@@ -88,6 +88,10 @@ public class BParkServer extends AbstractServer {
                 case "get_monthly_parking_time" -> handleMonthlyParkingTime(client);
                 case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(client);
                 case "get_subscriber_contact" -> handleGetSubscriberContact(request, client);
+                case "CheckAndDepositReservedCar" -> handleDepositReservedCar(request, client);
+                case "CancelReservationByCode" -> handleCancelReservationByCode(request, client);
+
+                
 
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
@@ -653,6 +657,82 @@ public class BParkServer extends AbstractServer {
         }
     }
 
+    private void handleDepositReservedCar(ClientRequest request, ConnectionToClient client) {
+        try {
+            String confirmationCode = (String) request.getParams()[0];
+            Reservation reservation = dbController.getReservationByConfirmationCode(confirmationCode);
+
+            if (reservation == null) {
+                sendServerResponse(client, "CheckAndDepositReservedCar", false,
+                        "❌ Invalid confirmation code. No reservation found.", null);
+                return;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime start = reservation.getReservationDate();
+            LocalDateTime minTime = start.minusMinutes(15);
+            LocalDateTime maxTime = start.plusMinutes(15);
+
+            if (now.isBefore(minTime)) {
+                sendServerResponse(client, "CheckAndDepositReservedCar", false,
+                        "⏱️ You arrived too early.\nYou may deposit your car between "
+                                + formatTime(minTime) + " and " + formatTime(maxTime) + ".", null);
+                return;
+            }
+
+            if (now.isAfter(maxTime)) {
+                dbController.markReservationExpired(reservation.getReservationId());
+                sendServerResponse(client, "CheckAndDepositReservedCar", false,
+                        "❌ You arrived too late. The reservation has expired.", null);
+                return;
+            }
+
+            // Valid time window
+            LocalDateTime entryTime = now;
+            LocalDateTime exitTime = start.plusHours(4);
+
+            dbController.insertParkingFromReservation(reservation, entryTime, exitTime);
+            dbController.setSpotAvailability(reservation.getParkingSpaceId(), false);
+            dbController.markReservationExpired(reservation.getReservationId());
+
+            dbController.insertSystemLog("Deposit Reserved", "Reserved spot " + reservation.getParkingSpaceId(), reservation.getSubscriberCode());
+
+            sendServerResponse(client, "CheckAndDepositReservedCar", true,
+                    "✅ Car successfully deposited into reserved spot.", null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendServerResponse(client, "CheckAndDepositReservedCar", false,
+                    "❌ Server error while processing deposit request.", null);
+        }
+    }
+
+    private String formatTime(LocalDateTime time) {
+        return time.toLocalTime().withSecond(0).withNano(0).toString();
+    }
+
+    
+    /**
+     * Cancels a reservation by its confirmation code if it's active.
+     *
+     * @param request the client request containing the confirmation code
+     * @param client  the connection to the client
+     */
+    private void handleCancelReservationByCode(ClientRequest request, ConnectionToClient client) {
+        String confirmationCode = (String) request.getParams()[0];
+        Reservation reservation = dbController.getReservationByConfirmationCode(confirmationCode);
+
+        if (reservation == null || !"active".equalsIgnoreCase(reservation.getStatus())) {
+            sendServerResponse(client, "CancelReservationByCode", false,
+                "❌ Reservation not found or already cancelled.", null);
+            return;
+        }
+
+        dbController.cancelReservation(reservation.getReservationId());
+
+        sendServerResponse(client, "CancelReservationByCode", true,
+            "✅ Reservation cancelled successfully.", null);
+    }
 
 
 }

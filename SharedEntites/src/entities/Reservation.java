@@ -75,6 +75,10 @@ public class Reservation implements Serializable {
 	public LocalDateTime getReservationDate() {
 		return reservationDate;
 	}
+	
+	public LocalDateTime getEndTime() {
+	    return reservationDate.plusHours(4);
+	}
 
 	public void setReservationDate(LocalDateTime reservationDate) {
 		this.reservationDate = reservationDate;
