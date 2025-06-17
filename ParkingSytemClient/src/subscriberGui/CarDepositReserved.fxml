@@ -11,7 +11,7 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1"
             fx:controller="subscriberGui.DepositReservedParkingController">
 
-    <VBox alignment="CENTER" spacing="20" prefWidth="400" prefHeight="300"
+    <VBox alignment="CENTER" spacing="20" prefWidth="400" prefHeight="400"
           AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
           style="-fx-padding: 40; -fx-background-color: #ffffff;">
@@ -29,5 +29,12 @@
 
         <Label fx:id="lblMessage" text="" style="-fx-text-fill: red;" />
 
+        <!-- 🔻 New Section: Cancel Reservation -->
+        <Label text="❌ Cancel a Reservation" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 20 0 0 0;" />
+
+        <Label text="Enter confirmation code to cancel:" />
+        <TextField fx:id="txtCancelCode" promptText="e.g., 123456" prefWidth="250"/>
+
+        <Button fx:id="btnCancelReservation" text="Cancel Reservation" onAction="#handleCancelReservation" style="-fx-background-color: #f44336; -fx-text-fill: white;" />
     </VBox>
 </AnchorPane>

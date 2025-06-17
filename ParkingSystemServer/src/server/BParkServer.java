@@ -89,7 +89,9 @@ public class BParkServer extends AbstractServer {
                 case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(client);
                 case "get_subscriber_contact" -> handleGetSubscriberContact(request, client);
                 case "CheckAndDepositReservedCar" -> handleDepositReservedCar(request, client);
+                case "CancelReservationByCode" -> handleCancelReservationByCode(request, client);
 
+                
 
                 default -> sendError(client, "Unknown client command: " + request.getCommand(), "CLIENT_REQUEST");
             }
@@ -707,6 +709,29 @@ public class BParkServer extends AbstractServer {
 
     private String formatTime(LocalDateTime time) {
         return time.toLocalTime().withSecond(0).withNano(0).toString();
+    }
+
+    
+    /**
+     * Cancels a reservation by its confirmation code if it's active.
+     *
+     * @param request the client request containing the confirmation code
+     * @param client  the connection to the client
+     */
+    private void handleCancelReservationByCode(ClientRequest request, ConnectionToClient client) {
+        String confirmationCode = (String) request.getParams()[0];
+        Reservation reservation = dbController.getReservationByConfirmationCode(confirmationCode);
+
+        if (reservation == null || !"active".equalsIgnoreCase(reservation.getStatus())) {
+            sendServerResponse(client, "CancelReservationByCode", false,
+                "❌ Reservation not found or already cancelled.", null);
+            return;
+        }
+
+        dbController.cancelReservation(reservation.getReservationId());
+
+        sendServerResponse(client, "CancelReservationByCode", true,
+            "✅ Reservation cancelled successfully.", null);
     }
 
 

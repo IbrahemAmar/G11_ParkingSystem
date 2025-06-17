@@ -299,6 +299,7 @@ public class ClientController extends AbstractClient {
             case "send_code_email" -> handleForgotCodeEmailResponse(success, message);
             case "scan_tag_login" -> handleScanTagLoginResponse(success, data, message);
             case "CheckAndDepositReservedCar" -> handleReservedDepositResponse(success, message);
+            case "CancelReservationByCode" -> handleCancelReservationByCodeResponse(message);
             case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessionsResponse(data);
             case "ADMIN_SUBSCRIBERS" -> handleAdminSubscribersResponse(data);
             case "ADMIN_LOGS" -> handleAdminLogsResponse(data);
@@ -798,6 +799,19 @@ public class ClientController extends AbstractClient {
         });
     }
 
+    /**
+     * Handles the response from the server after a reservation cancellation attempt.
+     *
+     * @param message the success or error message returned from the server
+     */
+    private void handleCancelReservationByCodeResponse(String message) {
+        Platform.runLater(() -> {
+            DepositReservedParkingController controller = DepositReservedParkingController.getInstance();
+            if (controller != null) {
+                controller.showServerResponse(message);
+            }
+        });
+    }
 
 
 }

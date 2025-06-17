@@ -1292,5 +1292,24 @@ public class DBController {
         }
     }
 
+    /**
+     * Cancels a reservation by updating its status to 'cancelled'.
+     *
+     * @param reservationId the ID of the reservation to cancel
+     */
+    public void cancelReservation(int reservationId) {
+        String sql = "UPDATE reservation SET status = 'cancelled' WHERE reservation_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, reservationId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     
 }

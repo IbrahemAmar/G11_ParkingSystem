@@ -24,6 +24,9 @@ public class DepositReservedParkingController {
     @FXML
     private Label lblMessage;
 
+    @FXML
+    private TextField txtCancelCode;
+
     /**
      * Constructor that registers this instance statically for later reference.
      */
@@ -105,4 +108,24 @@ public class DepositReservedParkingController {
             "/subscriberGui/SubscriberDashboard.fxml",
             "BPARK - Subscriber Dashboard");
     }
+    
+    @FXML
+    private void handleCancelReservation(ActionEvent event) {
+        String code = txtCancelCode.getText().trim();
+
+        if (code.isEmpty()) {
+            lblMessage.setText("❌ Please enter the confirmation code.");
+            return;
+        }
+
+        if (client == null || client.getCurrentSubscriber() == null) {
+            lblMessage.setText("❌ Client or subscriber not available.");
+            return;
+        }
+
+        client.sendObjectToServer(
+            new ClientRequest("CancelReservationByCode", new Object[]{code})
+        );
+    }
+
 }
