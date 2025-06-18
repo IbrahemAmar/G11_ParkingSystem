@@ -968,15 +968,14 @@ public class DBController {
 
             try (PreparedStatement userStmt = conn.prepareStatement(insertUser);
                  PreparedStatement subStmt = conn.prepareStatement(insertSub)) {
-
+                String subscriberCode = "SUB" + subscriber.getId();
                 userStmt.setInt(1, subscriber.getId());
-                userStmt.setString(2, subscriber.getUsername());
+                userStmt.setString(2, subscriberCode);
                 userStmt.setString(3, password);
                 userStmt.setString(4, firstName);
                 userStmt.setString(5, lastName);
                 userStmt.executeUpdate();
 
-                String subscriberCode = "SUB" + subscriber.getId();
                 subStmt.setInt(1, subscriber.getId());
                 subStmt.setString(2, subscriber.getEmail());
                 subStmt.setString(3, subscriber.getPhone());

@@ -153,7 +153,6 @@ public class BParkServer extends AbstractServer {
     private void handleCarDeposit(ClientRequest request, ConnectionToClient client) {
         ParkingHistory history = (ParkingHistory) request.getParams()[0];
 
-        // עיגול הזמנים לפני שמירתם
         LocalDateTime roundedEntry = roundToQuarterHour(history.getEntryTime());
         LocalDateTime roundedExit = roundToQuarterHour(history.getExitTime());
         history.setEntryTime(roundedEntry);

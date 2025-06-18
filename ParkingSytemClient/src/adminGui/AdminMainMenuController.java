@@ -1,19 +1,11 @@
 package adminGui;
 
-import java.io.IOException;
 
-import bpark_common.ClientRequest;
 import client.ClientController;
 import client.MainMenuController;
 import javafx.event.ActionEvent;
-//import entities.DisconnectRequest;
-//import entities.GetActiveParkingRequest;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
 import utils.SceneNavigator;
 
 /**
