@@ -104,7 +104,7 @@ public class MainMenuController implements ChatIF {
     private void handleLogin() {
         String mode = getAccessMode();
         if ("none".equals(mode)) {
-            showAlert("❌ Please select an access mode before logging in.");
+            showAlert("Please select an access mode before logging in.");
             return;
         }
 
@@ -115,7 +115,11 @@ public class MainMenuController implements ChatIF {
             showAlert("Please enter both username and password.");
             return;
         }
-
+        else if (!username.matches("[a-zA-Z0-9]+"))
+        {
+            showAlert("Username must contain only letters and numbers");
+            return;
+        }
         // Create a login request with access mode included
         LoginRequest loginRequest = new LoginRequest(username, password, mode);
 
@@ -288,8 +292,8 @@ public class MainMenuController implements ChatIF {
     private void handleScanTag(ActionEvent event) {
         String id = txtAltId.getText();
 
-        if (id == null || id.trim().isEmpty()) {
-            statusLabel.setText("Please enter a valid ID to scan.");
+        if (id == null || id.trim().isEmpty() || !id.matches("\\d+")) {
+            statusLabel.setText("Please enter a valid ID to scan. (only numbers)");
             return;
         }
 

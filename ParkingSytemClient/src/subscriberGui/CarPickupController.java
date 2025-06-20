@@ -63,12 +63,12 @@ public class CarPickupController {
     	String spotId = txtParkingCode.getText(); // what the user types (parking spot)
     	String subCode = client.getCurrentSubscriber().getSubscriberCode(); // from logged-in user
     	if (spotId == null || spotId.isEmpty()) {
-    	    lblConfirmation.setText("❗ Parking code cannot be empty.");
+    	    lblConfirmation.setText("Parking code cannot be empty.");
     	    lblConfirmation.setStyle("-fx-text-fill: red;");
     	    lblConfirmation.setVisible(true);
     	    return;
     	} else if (!spotId.matches("\\d+")) {
-    	    lblConfirmation.setText("❗ Parking code must contain numbers only.");
+    	    lblConfirmation.setText("Parking code must contain numbers only.");
     	    lblConfirmation.setStyle("-fx-text-fill: red;");
     	    lblConfirmation.setVisible(true);
     	    return;

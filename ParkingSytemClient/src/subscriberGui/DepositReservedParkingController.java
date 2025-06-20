@@ -63,10 +63,14 @@ public class DepositReservedParkingController {
         String confirmationCode = txtConfirmationCode.getText().trim();
 
         if (confirmationCode.isEmpty()) {
-            lblMessage.setText("❌ Please enter the confirmation code.");
+            lblMessage.setText("Please enter the confirmation code.");
             return;
         }
-
+        if (!confirmationCode.matches("\\d+"))
+        {
+        	lblMessage.setText("Please enter the confirmation code Only Numbers.");
+            return;
+        }
         if (client == null || client.getCurrentSubscriber() == null) {
             lblMessage.setText("❌ Client or subscriber not available.");
             return;
@@ -114,10 +118,14 @@ public class DepositReservedParkingController {
         String code = txtCancelCode.getText().trim();
 
         if (code.isEmpty()) {
-            lblMessage.setText("❌ Please enter the confirmation code.");
+            lblMessage.setText("Please enter the confirmation code.");
             return;
         }
-
+        if (!code.matches("\\d+"))
+        {
+        	lblMessage.setText("Please enter the confirmation code Only Numbers.");
+            return;
+        }
         if (client == null || client.getCurrentSubscriber() == null) {
             lblMessage.setText("❌ Client or subscriber not available.");
             return;

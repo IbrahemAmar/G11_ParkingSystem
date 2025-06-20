@@ -86,14 +86,31 @@ public class EditSubscriberDetailsController {
      */
     @FXML
     private void handleSave() {
-        String email = txtNewEmail.getText().trim();
-        String confirmEmail = txtConfirmEmail.getText().trim();
-        String phone = txtNewPhone.getText().trim();
+    	String email = txtNewEmail.getText().trim();
+    	String confirmEmail = txtConfirmEmail.getText().trim();
+    	String phone = txtNewPhone.getText().trim();
 
-        if (!email.equals(confirmEmail)) {
-            lblStatus.setText("❌ Email confirmation does not match.");
-            return;
-        }
+    	if (email.isEmpty() || confirmEmail.isEmpty() || phone.isEmpty()) {
+    	    lblStatus.setText("❌ All fields are required.");
+    	    return;
+    	}
+
+    	if (!email.matches("^(?![.])[a-zA-Z0-9._%+-]+(?<![.])@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
+    	    lblStatus.setText("❌ Invalid email format.");
+    	    return;
+    	}
+
+
+    	if (!email.equals(confirmEmail)) {
+    	    lblStatus.setText("❌ Email confirmation does not match.");
+    	    return;
+    	}
+
+    	if (!phone.matches("\\d{10}")) {
+    	    lblStatus.setText("❌ Phone number must be exactly 10 digits.");
+    	    return;
+    	}
+
 
         btnSave.setDisable(true);
         lblStatus.setText("Sending update...");
