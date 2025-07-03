@@ -311,6 +311,12 @@ public class ClientController extends AbstractClient {
         }
 
     }
+    /**
+     * Handles the server response for the monthly parking time report.
+     * Delegates the data to the adminReportsController to display.
+     *
+     * @param response the server response containing a MonthlyParkingTimeReport
+     */
     private void handleMonthlyParkingTimeReport(ServerResponse response) {
         MonthlyParkingTimeReport report = (MonthlyParkingTimeReport) response.getData();
         if (adminReportsController != null) {
@@ -318,6 +324,12 @@ public class ClientController extends AbstractClient {
         }
     }
 
+    /**
+     * Handles the server response for the monthly subscriber report.
+     * Delegates the data to the adminReportsController to display.
+     *
+     * @param response the server response containing a MonthlySubscriberReport
+     */
     private void handleMonthlySubscriberReport(ServerResponse response) {
         MonthlySubscriberReport report = (MonthlySubscriberReport) response.getData();
         if (adminReportsController != null) {

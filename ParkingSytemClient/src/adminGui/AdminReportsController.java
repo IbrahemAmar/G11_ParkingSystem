@@ -74,8 +74,13 @@ public class AdminReportsController {
         );
         if (controller != null) controller.setClient(client);
     }
-
-    // handler for MonthlyParkingTimeReport
+    /**
+     * Loads and displays the monthly parking time report in the admin UI.
+     * Populates the pie chart with normal, extended, and delayed hours,
+     * and updates the total hours label.
+     *
+     * @param report the MonthlyParkingTimeReport received from the server
+     */
     public void loadParkingTimeReport(MonthlyParkingTimeReport report) {
         if (report == null) {
             Platform.runLater(() -> {
@@ -101,8 +106,12 @@ public class AdminReportsController {
         });
     }
 
-
-    // handler for MonthlySubscriberReport
+    /**
+     * Loads and displays the monthly subscriber report in the admin UI.
+     * Populates the bar chart with daily subscriber counts.
+     *
+     * @param report the MonthlySubscriberReport received from the server
+     */
     public void loadSubscriberReport(MonthlySubscriberReport report) {
         if (report == null) {
             Platform.runLater(() -> {
@@ -128,5 +137,6 @@ public class AdminReportsController {
             subscribersBarChart.getData().add(series);
         });
     }
+
 
 }

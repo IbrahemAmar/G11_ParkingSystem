@@ -1155,6 +1155,16 @@ public class DBController {
 			e.printStackTrace();
 		}
 	}
+    /**
+     * Loads a MonthlyParkingTimeReport from the database for the given year and month.
+     * This retrieves the normal, extended, and delayed hours from the aggregated
+     * monthly_parking_time_report table, and returns it as a MonthlyParkingTimeReport entity.
+     *
+     * @param year  the year to load
+     * @param month the month to load
+     * @return a MonthlyParkingTimeReport if found, null otherwise
+     */
+
 
 	public static MonthlyParkingTimeReport loadMonthlyParkingTimeReport(int year, int month) {
 		MonthlyParkingTimeReport report = null;
@@ -1187,6 +1197,16 @@ public class DBController {
 
 		return report;
 	}
+    /**
+     * Loads a MonthlySubscriberReport from the database for the given year and month.
+     * This retrieves the CSV-like daily subscriber counts from the
+     * monthly_subscriber_report table and converts them into a list of integers.
+     *
+     * @param year  the year to load
+     * @param month the month to load
+     * @return a MonthlySubscriberReport if found, null otherwise
+     */
+
 
 	public static MonthlySubscriberReport loadMonthlySubscriberReport(int year, int month) {
 		MonthlySubscriberReport report = null;
@@ -1224,6 +1244,21 @@ public class DBController {
 
 		return report;
 	}
+    /**
+     * Generates and stores the monthly reports for a given year and month.
+     * It aggregates:
+     *  - normal parking hours
+     *  - extended parking hours
+     *  - delayed parking hours
+     *  from the parking_history table, and also
+     *  - daily subscriber parking counts
+     * storing them into the monthly_parking_time_report and
+     * monthly_subscriber_report tables with upsert logic.
+     *
+     * @param year  the year to generate
+     * @param month the month to generate
+     */
+
 
 	public static void generateMonthlyReports(int year, int month) {
 		int normalHours = 0;
