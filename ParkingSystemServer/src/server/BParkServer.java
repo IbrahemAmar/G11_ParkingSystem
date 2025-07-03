@@ -85,8 +85,9 @@ public class BParkServer extends AbstractServer {
                 case "get_subscribers_all_active" -> handleGetAllSubscribers(client);
                 case "add_subscriber" -> handleAddSubscriber(request, client);
                 case "get_all_system_logs" -> handleGetLogs(client);
-                case "get_monthly_parking_time" -> handleMonthlyParkingTime(client);
-                case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(client);
+                case "get_monthly_parking_time_report" -> handleMonthlyParkingTimeReport(request, client);
+                case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(request, client);
+
                 case "get_subscriber_contact" -> handleGetSubscriberContact(request, client);
                 case "CheckAndDepositReservedCar" -> handleDepositReservedCar(request, client);
                 case "CancelReservationByCode" -> handleCancelReservationByCode(request, client);
@@ -100,31 +101,51 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
-    private void handleMonthlySubscriberReport(ConnectionToClient client) {
-        List<Integer> dailyCounts = dbController.getMonthlySubscriberCounts();
-        boolean success = dailyCounts != null;
+    private void handleMonthlyParkingTimeReport(ClientRequest request, ConnectionToClient client) {
+        try {
+            int year = (int) request.getParams()[0];
+            int month = (int) request.getParams()[1];
 
-        sendServerResponse(
-            client,
-            "monthly_subscriber_report_result",
-            success,
-            success ? "Subscriber daily activity retrieved." : "Error retrieving subscriber activity.",
-            dailyCounts
-        );
+            MonthlyParkingTimeReport report = DBController.loadMonthlyParkingTimeReport(year, month);
+
+            boolean success = report != null;
+            sendServerResponse(
+                client,
+                "monthly_parking_time_report_result",
+                success,
+                success ? "Monthly parking time report loaded" : "No report found for that month",
+                report
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendServerResponse(client, "monthly_parking_time_report_result", false, "Error: " + e.getMessage(), null);
+        }
     }
 
-    private void handleMonthlyParkingTime(ConnectionToClient client) {
-        List<Integer> durations = dbController.getMonthlyParkingTimeSummary();
-        boolean success = durations != null;
 
-        sendServerResponse(
-            client,
-            "monthly_parking_time_result",
-            success,
-            success ? "Monthly data retrieved" : "Error retrieving data",
-            durations
-        );
+    private void handleMonthlySubscriberReport(ClientRequest request, ConnectionToClient client) {
+        try {
+            int year = (int) request.getParams()[0];
+            int month = (int) request.getParams()[1];
+
+            MonthlySubscriberReport report = DBController.loadMonthlySubscriberReport(year, month);
+
+            boolean success = report != null;
+            sendServerResponse(
+                client,
+                "monthly_subscriber_report_result",
+                success,
+                success ? "Monthly subscriber report loaded" : "No report found for that month",
+                report
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendServerResponse(client, "monthly_subscriber_report_result", false, "Error: " + e.getMessage(), null);
+        }
     }
+
 
 
     /**

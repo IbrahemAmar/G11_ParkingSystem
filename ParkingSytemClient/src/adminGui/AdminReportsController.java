@@ -2,14 +2,19 @@ package adminGui;
 
 import bpark_common.ClientRequest;
 import client.ClientController;
+import entities.MonthlyParkingTimeReport;
+import entities.MonthlySubscriberReport;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import utils.SceneNavigator;
+
+import java.time.Year;
 import java.util.List;
 
 public class AdminReportsController {
@@ -19,78 +24,109 @@ public class AdminReportsController {
     @FXML private Label labelTotalHours;
     @FXML private PieChart parkingTimePieChart;
     @FXML private BarChart<String, Number> subscribersBarChart;
+    @FXML private ComboBox<Integer> comboYear;
+    @FXML private ComboBox<String> comboMonth;
     @FXML private Button btnBack;
+
+    private int selectedYear;
+    private int selectedMonth;
 
     public void setClient(ClientController client) {
         this.client = client;
         client.setAdminReportsController(this);
 
-        requestMonthlyParkingTime();
-        requestMonthlySubscriberReport();
+        // populate year combo (current year and previous 2)
+        int currentYear = Year.now().getValue();
+        comboYear.setItems(FXCollections.observableArrayList(
+                currentYear, currentYear - 1, currentYear - 2
+        ));
+        comboYear.getSelectionModel().selectFirst();
+
+        // populate months
+        comboMonth.setItems(FXCollections.observableArrayList(
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+        ));
+        comboMonth.getSelectionModel().select(java.time.LocalDate.now().getMonthValue() - 1);
+
+        selectedYear = comboYear.getValue();
+        selectedMonth = comboMonth.getSelectionModel().getSelectedIndex() + 1;
+
+        requestBothReports(selectedYear, selectedMonth);
     }
 
-    private void requestMonthlyParkingTime() {
-        client.sendObjectToServer(new ClientRequest("get_monthly_parking_time", null));
+    private void requestBothReports(int year, int month) {
+        client.sendObjectToServer(new ClientRequest("get_monthly_parking_time_report", new Object[]{year, month}));
+        client.sendObjectToServer(new ClientRequest("get_monthly_subscriber_report", new Object[]{year, month}));
     }
 
-    private void requestMonthlySubscriberReport() {
-        client.sendObjectToServer(new ClientRequest("get_monthly_subscriber_report", null));
+    @FXML
+    private void handleMonthOrYearSelection(ActionEvent event) {
+        selectedYear = comboYear.getValue();
+        selectedMonth = comboMonth.getSelectionModel().getSelectedIndex() + 1;
+        requestBothReports(selectedYear, selectedMonth);
     }
 
     @FXML
     private void handleBack(ActionEvent event) {
         AdminMainMenuController controller = SceneNavigator.navigateToAndGetController(
-            event, "/adminGui/AdminMainMenu.fxml", "Admin Dashboard"
+                event, "/adminGui/AdminMainMenu.fxml", "Admin Dashboard"
         );
         if (controller != null) controller.setClient(client);
     }
 
-    /**
-     * Update the PieChart with parking time data.
-     */
-    public void setParkingTimeData(int normal, int extended, int delayed) {
-        int total = normal + extended + delayed;
+    // handler for MonthlyParkingTimeReport
+    public void loadParkingTimeReport(MonthlyParkingTimeReport report) {
+        if (report == null) {
+            Platform.runLater(() -> {
+                labelTotalHours.setText("⚠️ No parking time report available for this month.");
+                parkingTimePieChart.getData().clear();
+            });
+            return;
+        }
 
         Platform.runLater(() -> {
-            String monthName = java.time.LocalDate.now().getMonth().name();
-            String formattedMonth = monthName.substring(0, 1).toUpperCase() + monthName.substring(1).toLowerCase();
-
+            int total = report.getNormalHours() + report.getExtendedHours() + report.getDelayedHours();
             labelTotalHours.setText(
-                String.format("📅 Monthly Report for %s – Total Parking Time: %d hours", formattedMonth, total)
+                    String.format("📅 Report for %s – Total: %d hours", report.getMonth(), total)
             );
 
             parkingTimePieChart.getData().clear();
 
-            PieChart.Data normalData = new PieChart.Data("Normal (" + normal + "h)", normal);
-            PieChart.Data extendedData = new PieChart.Data("Extended (" + extended + "h)", extended);
-            PieChart.Data delayedData = new PieChart.Data("Delayed (" + delayed + "h)", delayed);
+            PieChart.Data normalData = new PieChart.Data("Normal (" + report.getNormalHours() + "h)", report.getNormalHours());
+            PieChart.Data extendedData = new PieChart.Data("Extended (" + report.getExtendedHours() + "h)", report.getExtendedHours());
+            PieChart.Data delayedData = new PieChart.Data("Delayed (" + report.getDelayedHours() + "h)", report.getDelayedHours());
 
             parkingTimePieChart.getData().addAll(normalData, extendedData, delayedData);
-
-            for (PieChart.Data data : parkingTimePieChart.getData()) {
-                Tooltip tooltip = new Tooltip(data.getName());
-                Tooltip.install(data.getNode(), tooltip);
-            }
         });
     }
 
-    /**
-     * Update the BarChart with daily subscriber counts.
-     */
-    public void setSubscribersPerDayData(List<Integer> dailyCounts) {
+
+    // handler for MonthlySubscriberReport
+    public void loadSubscriberReport(MonthlySubscriberReport report) {
+        if (report == null) {
+            Platform.runLater(() -> {
+                subscribersBarChart.getData().clear();
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                series.setName("No data available");
+                subscribersBarChart.getData().add(series);
+            });
+            return;
+        }
+
         Platform.runLater(() -> {
             subscribersBarChart.getData().clear();
             XYChart.Series<String, Number> series = new XYChart.Series<>();
             series.setName("Subscribers");
 
-            for (int day = 1; day <= 30; day++) {
-                int count = (day <= dailyCounts.size()) ? dailyCounts.get(day - 1) : 0;
+            List<Integer> counts = report.getDailySubscriberCounts();
+            for (int day = 1; day <= 31; day++) {
+                int count = (day <= counts.size()) ? counts.get(day - 1) : 0;
                 series.getData().add(new XYChart.Data<>(String.valueOf(day), count));
             }
 
             subscribersBarChart.getData().add(series);
         });
     }
-
 
 }

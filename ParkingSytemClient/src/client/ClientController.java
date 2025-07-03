@@ -303,56 +303,25 @@ public class ClientController extends AbstractClient {
             case "ADMIN_ACTIVE_SESSIONS" -> handleAdminActiveSessionsResponse(data);
             case "ADMIN_SUBSCRIBERS" -> handleAdminSubscribersResponse(data);
             case "ADMIN_LOGS" -> handleAdminLogsResponse(data);
-            case "monthly_parking_time_result" -> handleAdminReportsResponse(data);
-            case "monthly_subscriber_report_result" -> handleMonthlySubscriberReport(data);
+            case "monthly_parking_time_report_result" -> handleMonthlyParkingTimeReport(response);
+            case "monthly_subscriber_report_result" -> handleMonthlySubscriberReport(response);
             case "get_subscriber_contact" -> handleSubscriberContactResponse(success, message, data);
 
             default -> System.out.println("⚠️ Unknown server response command: " + command);
         }
 
     }
-    /**
-     * Handles the monthly subscriber report data from the server.
-     * Expects a List<Integer> where index+1 is the day and value is the count of subscribers parked.
-     */
-    @SuppressWarnings("unchecked")
-    private void handleMonthlySubscriberReport(Object data) {
-        if (!(data instanceof List<?> rawList && (rawList.isEmpty() || rawList.get(0) instanceof Integer))) {
-            System.err.println("\u274c Invalid format for monthly subscriber report data");
-            return;
+    private void handleMonthlyParkingTimeReport(ServerResponse response) {
+        MonthlyParkingTimeReport report = (MonthlyParkingTimeReport) response.getData();
+        if (adminReportsController != null) {
+            adminReportsController.loadParkingTimeReport(report);
         }
-
-        List<Integer> dailyCounts = (List<Integer>) data;
-
-        Platform.runLater(() -> {
-            AdminReportsController controller = getAdminReportsController();
-            if (controller != null) {
-                controller.setSubscribersPerDayData(dailyCounts);
-            } else {
-                System.err.println("\u26a0\ufe0f AdminReportsController not registered for subscriber chart update.");
-            }
-        });
     }
 
-    private void handleAdminReportsResponse(Object data) {
-        if (data instanceof List<?> list && list.size() == 3 &&
-            list.get(0) instanceof Integer && list.get(1) instanceof Integer && list.get(2) instanceof Integer) {
-
-            int normal = (Integer) list.get(0);
-            int extended = (Integer) list.get(1);
-            int delayed = (Integer) list.get(2);
-
-            Platform.runLater(() -> {
-                AdminReportsController controller = getAdminReportsController();
-                if (controller != null) {
-                    controller.setParkingTimeData(normal, extended, delayed);
-                } else {
-                    System.err.println("⚠️ AdminReportsController not registered.");
-                }
-            });
-
-        } else {
-            System.err.println("❌ Invalid data format for admin reports. Expected List<Integer> of size 3.");
+    private void handleMonthlySubscriberReport(ServerResponse response) {
+        MonthlySubscriberReport report = (MonthlySubscriberReport) response.getData();
+        if (adminReportsController != null) {
+            adminReportsController.loadSubscriberReport(report);
         }
     }
 

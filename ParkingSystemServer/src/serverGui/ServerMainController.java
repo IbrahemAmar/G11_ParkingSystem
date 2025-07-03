@@ -7,10 +7,15 @@ import javafx.collections.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import server.BParkServer;
 import server.ClientInfo;
+import server.DBController;
 
 import java.net.InetAddress;
 import java.sql.Connection;
+import java.util.Date;
 import java.sql.DriverManager;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Controller for the server GUI. Manages server startup, database connection,
@@ -31,6 +36,8 @@ public class ServerMainController {
 
     /** Reference to the main server instance */
     private BParkServer server;
+    private Timer monthlyReportTimer;
+
 
     /** Observable list of connected clients displayed in the table */
     private ObservableList<ClientInfo> clients = FXCollections.observableArrayList();
@@ -87,11 +94,62 @@ public class ServerMainController {
             server.listen();
 
             statusLabel.setText("✅ Server running on port " + serverPort);
+            startMonthlyReportScheduler();
+            testGenerateReportsNow();
+
+
         } catch (Exception e) {
             statusLabel.setText("❌ Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
+    private void startMonthlyReportScheduler() {
+        if (monthlyReportTimer != null) {
+            monthlyReportTimer.cancel();
+        }
+        monthlyReportTimer = new Timer(true); // daemon
+
+        TimerTask reportTask = new TimerTask() {
+            @Override
+            public void run() {
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MONTH, -1); // for the previous month
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH) + 1; // 0-based to 1-based
+
+                System.out.printf("⚙️ Generating monthly reports for %d-%02d...\n", year, month);
+                DBController.generateMonthlyReports(year, month);
+
+                Platform.runLater(() -> statusLabel.setText("✅ Monthly reports generated for " + year + "-" + String.format("%02d", month)));
+                
+                // after running, reschedule for next
+                startMonthlyReportScheduler();
+            }
+        };
+
+        Date nextRun = getNextLastDayOfMonth();
+        monthlyReportTimer.schedule(reportTask, nextRun);
+
+        System.out.println("✅ Monthly report generation scheduled for: " + nextRun);
+    }
+    private Date getNextLastDayOfMonth() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, 1);         // next month
+        cal.set(Calendar.DAY_OF_MONTH, 1);  // first day next month
+        cal.add(Calendar.DATE, -1);         // last day this month
+        cal.set(Calendar.HOUR_OF_DAY, 23);  // 23:59
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return  cal.getTime();
+    }
+    public void testGenerateReportsNow() {
+        int year = 2025;
+        int month = 6;
+        DBController.generateMonthlyReports(year, month);
+        System.out.println("✅ Manual generation done for " + year + "-" + String.format("%02d", month));
+    }
+
 
     /**
      * Stops the server and updates the GUI when disconnect button is clicked.
@@ -107,6 +165,11 @@ public class ServerMainController {
                 for (ClientInfo client : clients) {
                     client.setStatus("Disconnected");
                 }
+                if (monthlyReportTimer != null) {
+                    monthlyReportTimer.cancel();
+                    monthlyReportTimer = null;
+                }
+
                 clientTable.refresh();
             } catch (Exception e) {
                 statusLabel.setText("❌ Failed to stop server.");

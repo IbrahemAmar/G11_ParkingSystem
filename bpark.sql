@@ -195,6 +195,79 @@ INSERT INTO `system_log` VALUES (1,'Add User','Target-1',1,'2025-05-27 12:12:03'
 UNLOCK TABLES;
 
 --
+-- Table structure for table `monthly_parking_time_report`
+--
+
+DROP TABLE IF EXISTS `monthly_parking_time_report`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `monthly_parking_time_report` (
+  `year` INT NOT NULL,
+  `month` INT NOT NULL,
+  `normal_hours` INT DEFAULT 0,
+  `extended_hours` INT DEFAULT 0,
+  `delayed_hours` INT DEFAULT 0,
+  PRIMARY KEY (`year`, `month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `monthly_parking_time_report`
+--
+
+LOCK TABLES `monthly_parking_time_report` WRITE;
+/*!40000 ALTER TABLE `monthly_parking_time_report` DISABLE KEYS */;
+
+INSERT INTO `monthly_parking_time_report` (`year`, `month`, `normal_hours`, `extended_hours`, `delayed_hours`)
+VALUES
+(2025, 6, 320, 45, 30),
+(2025, 7, 410, 60, 20)
+ON DUPLICATE KEY UPDATE
+    normal_hours=VALUES(normal_hours),
+    extended_hours=VALUES(extended_hours),
+    delayed_hours=VALUES(delayed_hours);
+
+/*!40000 ALTER TABLE `monthly_parking_time_report` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `monthly_subscriber_report`
+--
+
+DROP TABLE IF EXISTS `monthly_subscriber_report`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `monthly_subscriber_report` (
+  `year` INT NOT NULL,
+  `month` INT NOT NULL,
+  `daily_subscribers` TEXT,
+  PRIMARY KEY (`year`, `month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `monthly_subscriber_report`
+--
+
+LOCK TABLES `monthly_subscriber_report` WRITE;
+/*!40000 ALTER TABLE `monthly_subscriber_report` DISABLE KEYS */;
+
+INSERT INTO `monthly_subscriber_report` (`year`, `month`, `daily_subscribers`)
+VALUES
+(2025, 6, '5,7,6,5,4,6,7,8,5,6,4,5,5,4,6,7,6,7,8,5,6,4,5,5,6,7,6,5,6,7,8'),
+(2025, 7, '8,9,10,11,9,8,10,12,9,10,8,9,8,9,10,11,10,12,13,9,8,10,9,11,12,10,9,11,12,13,14')
+ON DUPLICATE KEY UPDATE
+    daily_subscribers=VALUES(daily_subscribers);
+
+/*!40000 ALTER TABLE `monthly_subscriber_report` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+--
 -- Table structure for table `users`
 --
 
