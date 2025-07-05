@@ -53,6 +53,7 @@ public class ClientController extends AbstractClient {
     private adminGui.AdminSubscribersController adminSubscribersController;
     private adminGui.AdminReportsController adminReportsController;
     private adminGui.AdminLogsController adminLogsController;
+    private adminGui.AdminParkingHistoryController adminParkingHistoryController;
 
 
 
@@ -220,6 +221,10 @@ public class ClientController extends AbstractClient {
     
     public adminGui.AdminLogsController getAdminLogsController() {
 		return adminLogsController;
+	}
+    
+    public void setAdminParkingHistoryController(adminGui.AdminParkingHistoryController adminParkingHistoryController) {
+		this.adminParkingHistoryController = adminParkingHistoryController;
 	}
  
 
@@ -394,11 +399,16 @@ public class ClientController extends AbstractClient {
             List<ParkingHistory> historyList = (List<ParkingHistory>) list;
             Platform.runLater(() -> {
                 System.out.println("📋 Received parking history: " + historyList.size() + " records");
-                if (subscriberDashboardController != null) {
+                
+                if (ClientController.getClient().getCurrentSubscriber() != null && subscriberDashboardController != null) {
                     subscriberDashboardController.setParkingHistoryData(
                         FXCollections.observableArrayList(historyList)
                     );
-                } else {
+                }
+                else if(adminParkingHistoryController != null) {
+                	adminParkingHistoryController.setParkingHistoryData(FXCollections.observableArrayList(historyList));
+                }
+                else {
                     System.out.println("⚠️ subscriberDashboardController is null.");
                 }
             });

@@ -35,15 +35,16 @@ public class AdminSubscribersController {
 
     @FXML private TextField txtSearchId;
     @FXML private TextField txtID;
-    @FXML private TextField txtUsername;
+    //@FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
     @FXML private TextField txtFirstName;
     @FXML private TextField txtLastName;
     @FXML private TextField txtEmail;
     @FXML private TextField txtPhone;
-
+    
     @FXML private Button btnSearch;
     @FXML private Button btnRefresh;
+    @FXML private Button btnParkingHistory;
     @FXML private Button btnAddSubscriber;
     
     @FXML private Label lblStatus;
@@ -92,26 +93,95 @@ public class AdminSubscribersController {
     	String idText = txtSearchId.getText().trim();
 
         List<Subscriber> filtered = allSubscribers.stream()
-            .filter(s -> (idText.isEmpty() || String.valueOf(s.getId()).contains(idText)))
+            .filter(s -> (idText.isEmpty() || String.valueOf(s.getId()).equals(idText)/*contains(idText)*/))
             .collect(Collectors.toList());
 
         subscriberTable.setItems(FXCollections.observableArrayList(filtered));
         lblStatus.setText("🔍 Showing " + filtered.size() + " filtered result(s).");
     }
     
+    @FXML
+    private void handleParkingHistory(ActionEvent event) {
+    	Subscriber selected = subscriberTable.getSelectionModel().getSelectedItem();
+    	if (selected == null) {
+    	    lblStatus.setText("⚠️ Please select a subscriber to view history.");
+    	    return;
+    	}
+
+    	AdminParkingHistoryController controller = SceneNavigator.navigateToAndGetController(
+    	    event, "/adminGui/AdminParkingHistory.fxml", "Parking History for " + selected.getFullName()
+    	);
+    	if (controller != null) {
+    	    controller.setClient(client);
+    	    controller.setSelectedSubscriber(selected); // pass subscriber here
+    	    controller.refreshParkingHistory();         // now manually trigger it
+    	}
+    }
+    
     private void handleAddSubscriber() {
     	String idText = txtID.getText().trim();
-        String username = txtUsername.getText().trim();
+        String username = "";
         String password = txtPassword.getText().trim();
         String firstName = txtFirstName.getText().trim();
         String lastName = txtLastName.getText().trim();
         String email = txtEmail.getText().trim();
         String phoneTrim = txtPhone.getText().trim();
 
-        if (idText.isEmpty() || username.isEmpty() || password.isEmpty() ||
+        if (idText.isEmpty() || /*username.isEmpty() ||*/ password.isEmpty() ||
             firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneTrim.isEmpty()) {
             lblStatus.setText("⚠️ Please fill in all fields.");
             return;
+        }
+        
+        //Checking ID input
+        int id;
+        try {
+            id = Integer.parseInt(idText);
+        } catch (NumberFormatException e) {
+            lblStatus.setText("⚠️ ID must be a number.");
+            return;
+        }
+        
+        //Checking Phone Number input
+        int phoneNum;
+        try {
+            phoneNum = Integer.parseInt(phoneTrim);
+        } catch (NumberFormatException e) {
+            lblStatus.setText("⚠️ Phone must be a number.");
+            return;
+        }
+        
+        //Checking FirstName input
+        for(int i = 0; i <= 9; i++) {
+        	if(firstName.contains(String.valueOf(i))) {
+        		lblStatus.setText("⚠️ FirstName must be a string.");
+                return;
+        	}
+        }
+        
+        //Checking LastName input
+        for(int i = 0; i <= 9; i++) {
+        	if(lastName.contains(String.valueOf(i))) {
+        		lblStatus.setText("⚠️ LastName must be a string.");
+                return;
+        	}
+        }
+        
+        //Checking Email input
+        Boolean emailForm = false;
+        int atIndex = email.indexOf('@');
+        if (atIndex > 0 && atIndex < email.length() - 1) {
+        	if(email.lastIndexOf('@') == atIndex) { 
+        		// Look for '.' after '@'
+        		int dotIndex = email.indexOf('.', atIndex + 1);
+        		if (dotIndex > atIndex + 1 && dotIndex < email.length() - 1) {
+        			emailForm = true;
+        		}
+        	}	
+        }
+        if(emailForm == false) {
+        	lblStatus.setText("⚠️ Email must be in the form of 'example@example.example'");
+        	return;
         }
         
         //Formating the phone number
@@ -137,13 +207,7 @@ public class AdminSubscribersController {
         	//Phone formating done
         }
         
-        int id;
-        try {
-            id = Integer.parseInt(idText);
-        } catch (NumberFormatException e) {
-            lblStatus.setText("⚠️ ID must be a number.");
-            return;
-        }
+        
 
         Subscriber newSubscriber = new Subscriber(id, firstName + " " + lastName, username, email, phone, null);
         Object[] params = { newSubscriber, password, firstName, lastName };
@@ -154,7 +218,7 @@ public class AdminSubscribersController {
         lblStatus.setText("⏳ Adding subscriber...");
         
         //Clearing text fields after pressing Add Subscriber
-        txtUsername.clear();
+        /*txtUsername.clear();*/
         txtPassword.clear();
         txtFirstName.clear();
         txtLastName.clear();
