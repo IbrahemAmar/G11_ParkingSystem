@@ -67,6 +67,11 @@ public class MainMenuController implements ChatIF {
         this.stage = stage;
     }
 
+    /**
+     * Updates the status label with a given message from server responses or client events.
+     *
+     * @param message the message to be shown on the status label
+     */
     @Override
     public void display(String message) {
         Platform.runLater(() -> statusLabel.setText(message));
@@ -91,15 +96,8 @@ public class MainMenuController implements ChatIF {
     }
 
     /**
-     * Sends a login request to the server with the entered credentials.
-     */
-    /**
-     * Sends a login request to the server with the entered credentials.
-     * Also checks the selected access mode and stores it.
-     */
-    /**
-     * Sends a login request to the server with the entered credentials
-     * and selected access mode.
+     * Sends a login request to the server with the entered username, password, and selected access mode.
+     * Validates input and prevents login if access mode is not selected or fields are empty.
      */
     private void handleLogin() {
         String mode = getAccessMode();
@@ -284,9 +282,10 @@ public class MainMenuController implements ChatIF {
     }
     
     /**
-     * Handles the "Scan Tag" button click. Simulates scanning and gets the user data from the server.
+     * Handles login using a scanned tag (ID input). Sends a request to the server to retrieve login credentials.
+     * If successful, triggers auto-login with those credentials.
      *
-     * @param event The action event triggered by the button click.
+     * @param event the action event from clicking the Scan Tag button
      */
     @FXML
     private void handleScanTag(ActionEvent event) {
@@ -328,10 +327,10 @@ public class MainMenuController implements ChatIF {
 
     
     /**
-     * Automatically logs in the user with the provided credentials.
+     * Automatically fills in login credentials and performs a login, typically used after a successful scan-tag login.
      *
-     * @param username The username of the user.
-     * @param password The password of the user.
+     * @param username the username to auto-fill
+     * @param password the password to auto-fill
      */
     public void autoLogin(String username, String password) {
         // Set the username and password fields

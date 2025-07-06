@@ -17,6 +17,10 @@ import utils.SceneNavigator;
 import java.time.Year;
 import java.util.List;
 
+/**
+ * Controller for AdminReports.fxml.
+ * Displays monthly parking time and subscriber reports using charts.
+ */
 public class AdminReportsController {
 
     private ClientController client;
@@ -31,6 +35,12 @@ public class AdminReportsController {
     private int selectedYear;
     private int selectedMonth;
 
+    /**
+     * Sets the client controller, initializes year and month dropdowns,
+     * and requests the initial reports for the default selected month.
+     *
+     * @param client the client controller used for communication
+     */
     public void setClient(ClientController client) {
         this.client = client;
         client.setAdminReportsController(this);
@@ -55,11 +65,23 @@ public class AdminReportsController {
         requestBothReports(selectedYear, selectedMonth);
     }
 
+    /**
+     * Sends requests to the server for both parking time and subscriber reports.
+     *
+     * @param year  the selected year
+     * @param month the selected month (1-based)
+     */
     private void requestBothReports(int year, int month) {
         client.sendObjectToServer(new ClientRequest("get_monthly_parking_time_report", new Object[]{year, month}));
         client.sendObjectToServer(new ClientRequest("get_monthly_subscriber_report", new Object[]{year, month}));
     }
 
+    /**
+     * Handles changes in the selected year or month from the combo boxes.
+     * Triggers a request for updated reports.
+     *
+     * @param event the action event triggered by the selection
+     */
     @FXML
     private void handleMonthOrYearSelection(ActionEvent event) {
         selectedYear = comboYear.getValue();
@@ -67,6 +89,12 @@ public class AdminReportsController {
         requestBothReports(selectedYear, selectedMonth);
     }
 
+    /**
+     * Handles the Back button click.
+     * Navigates back to the Admin Main Menu screen.
+     *
+     * @param event the action event triggered by the button click
+     */
     @FXML
     private void handleBack(ActionEvent event) {
         AdminMainMenuController controller = SceneNavigator.navigateToAndGetController(
@@ -74,6 +102,7 @@ public class AdminReportsController {
         );
         if (controller != null) controller.setClient(client);
     }
+
     /**
      * Loads and displays the monthly parking time report in the admin UI.
      * Populates the pie chart with normal, extended, and delayed hours,
@@ -137,6 +166,4 @@ public class AdminReportsController {
             subscribersBarChart.getData().add(series);
         });
     }
-
-
 }

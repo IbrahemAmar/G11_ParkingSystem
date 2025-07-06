@@ -16,6 +16,11 @@ public class AdminMainMenuController {
 
     private ClientController client;
 
+    /**
+     * Sets the client controller and adjusts UI visibility based on user role.
+     *
+     * @param client the client controller used to communicate with the server
+     */
     public void setClient(ClientController client) {
         this.client = client;
         if ("supervisor".equalsIgnoreCase(client.getUserRole())) {
@@ -78,6 +83,10 @@ public class AdminMainMenuController {
         if (controller != null) controller.setClient(client);
     }
     
+    /**
+     * Handles the "View Reports" button click.
+     * Loads AdminReports.fxml and transfers the client controller.
+     */
     @FXML
     private void handleViewReports(ActionEvent event) {
         AdminReportsController controller = SceneNavigator.navigateToAndGetController(

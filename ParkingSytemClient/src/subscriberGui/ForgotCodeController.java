@@ -173,10 +173,20 @@ public class ForgotCodeController {
         });
     }
 
+    /**
+     * Returns the actual email address (unmasked) of the subscriber.
+     *
+     * @return the full email address
+     */
     public String getActualEmail() {
         return actualEmail;
     }
 
+    /**
+     * Returns the actual phone number (unmasked) of the subscriber.
+     *
+     * @return the full phone number
+     */
     public String getActualPhone() {
         return actualPhone;
     }

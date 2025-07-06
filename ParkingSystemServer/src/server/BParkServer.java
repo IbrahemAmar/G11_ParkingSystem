@@ -67,7 +67,10 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Handles a unified ClientRequest command.
+     * Routes the incoming client request to the appropriate handler based on its command.
+     *
+     * @param request the client request containing the command and optional parameters
+     * @param client  the client connection to respond to
      */
     private void handleClientRequest(ClientRequest request, ConnectionToClient client) {
         try {
@@ -104,6 +107,14 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Processes a client request for a monthly parking time report and sends the result.
+     *
+     * @param request the client request containing year and month
+     * @param client  the requesting client connection
+     */
+
     private void handleMonthlyParkingTimeReport(ClientRequest request, ConnectionToClient client) {
         try {
             int year = (int) request.getParams()[0];
@@ -126,7 +137,12 @@ public class BParkServer extends AbstractServer {
         }
     }
 
-
+    /**
+     * Handles a client request to load the monthly subscriber report and sends the result.
+     *
+     * @param request the client request containing year and month parameters
+     * @param client  the client connection to respond to
+     */
     private void handleMonthlySubscriberReport(ClientRequest request, ConnectionToClient client) {
         try {
             int year = (int) request.getParams()[0];
@@ -567,6 +583,12 @@ public class BParkServer extends AbstractServer {
         }
     }
 
+    /**
+     * Handles a client request to log in using a scanned tag ID.
+     *
+     * @param request the client request containing the scanned user ID
+     * @param client  the client connection to respond to
+     */
     private void handleScanTagLogin(ClientRequest request, ConnectionToClient client) {
         try {
             String scannedId = (String) request.getParams()[0];
@@ -605,18 +627,31 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Sends all currently active parking sessions to the admin GUI.
+     * Sends all currently active parking sessions to the admin interface.
+     *
+     * @param client the client connection to respond to
      */
     private void handleGetAllActiveParkings(ConnectionToClient client) {
         List<ParkingHistory> activeList = dbController.getAllActiveParkings();
         sendServerResponse(client, "ADMIN_ACTIVE_SESSIONS", true, "All active parkings fetched.", activeList);
     }
     
+    /**
+     * Sends a list of all subscribers to the admin interface.
+     *
+     * @param client the client connection to respond to
+     */
     private void handleGetAllSubscribers(ConnectionToClient client) {
         List<Subscriber> activeList = dbController.getAllSubscribers();
         sendServerResponse(client, "ADMIN_SUBSCRIBERS", true, "All Subscribers fetched.", activeList);
     }
     
+    /**
+     * Handles adding a new subscriber and logs the action if successful.
+     *
+     * @param request the client request containing subscriber details and credentials
+     * @param client  the client connection to respond to
+     */
     private void handleAddSubscriber(ClientRequest request, ConnectionToClient client) {
         try {
             Subscriber subscriber = (Subscriber) request.getParams()[0];
@@ -641,7 +676,9 @@ public class BParkServer extends AbstractServer {
     }
     
     /**
-     * Handles request to fetch all system logs for the admin.
+     * Handles a request to fetch all system logs and sends them to the admin client.
+     *
+     * @param client the client connection to respond to
      */
     private void handleGetLogs(ConnectionToClient client) {
         try {
@@ -702,6 +739,12 @@ public class BParkServer extends AbstractServer {
         }
     }
 
+    /**
+     * Handles the deposit of a reserved car by verifying the confirmation code and time window.
+     *
+     * @param request the client request containing the confirmation code
+     * @param client  the client connection to respond to
+     */
     private void handleDepositReservedCar(ClientRequest request, ConnectionToClient client) {
         try {
             String confirmationCode = (String) request.getParams()[0];
@@ -752,6 +795,13 @@ public class BParkServer extends AbstractServer {
         }
     }
 
+    
+    /**
+     * Formats a LocalDateTime to a string showing only hours and minutes.
+     *
+     * @param time the time to format
+     * @return formatted time string (HH:mm)
+     */
     private String formatTime(LocalDateTime time) {
         return time.toLocalTime().withSecond(0).withNano(0).toString();
     }

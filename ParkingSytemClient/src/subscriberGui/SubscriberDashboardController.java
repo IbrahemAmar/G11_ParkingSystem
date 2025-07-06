@@ -244,16 +244,30 @@ public class SubscriberDashboardController {
         });
     }
 
+    /**
+     * Returns the last ActionEvent that triggered a reservation or deposit request.
+     *
+     * @return the last ActionEvent
+     */
 	public ActionEvent getLastEvent() {
 		return lastEvent;
 	}
 
+	/**
+	 * Stores the ActionEvent that triggered a reservation or deposit request.
+	 *
+	 * @param lastEvent the triggering ActionEvent
+	 */
 	public void setLastEvent(ActionEvent lastEvent) {
 		this.lastEvent = lastEvent;
 	}
 	
 	
-	
+	/**
+	 * Opens the screen to deposit a reserved car using a confirmation code.
+	 *
+	 * @param event the ActionEvent triggered by clicking the deposit reserved button
+	 */
 	@FXML
 	private void handleDepositReservedCar(ActionEvent event) {
 	    subscriberGui.DepositReservedParkingController controller =

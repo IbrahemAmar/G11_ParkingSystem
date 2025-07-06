@@ -74,6 +74,12 @@ public class ClientController extends AbstractClient {
     public static ClientController getClient() {
         return clientInstance;
     }
+    
+    /**
+     * Sets the controller responsible for handling forgot code UI logic.
+     *
+     * @param controller The {@link ForgotCodeController} instance.
+     */
     public void setForgotCodeController(subscriberGui.ForgotCodeController controller) {
         this.forgotCodeController = controller;
     }
@@ -191,38 +197,83 @@ public class ClientController extends AbstractClient {
         this.currentSubscriber = subscriber;
     }
     
+    /**
+     * Sets the controller used for managing subscribers in the admin panel.
+     *
+     * @param adminSubscribersController The {@link AdminSubscribersController} instance.
+     */
     public void setAdminSubscribersController(adminGui.AdminSubscribersController adminSubscribersController) {
 		this.adminSubscribersController = adminSubscribersController;
 	}
     
+    /**
+     * Gets the AdminSubscribersController currently set for managing subscribers.
+     *
+     * @return The {@link AdminSubscribersController} instance.
+     */
     public adminGui.AdminSubscribersController getAdminSubscribersController() {
 		return adminSubscribersController;
 	}
     
+    /**
+     * Sets the controller used for displaying and managing active parking sessions in the admin UI.
+     *
+     * @param adminOrdersController The {@link AdminOrdersController} instance.
+     */
     public void setAdminOrdersController(adminGui.AdminOrdersController adminOrdersController) {
 		this.adminOrdersController = adminOrdersController;
 	}
     
+    /**
+     * Gets the controller responsible for managing active parking sessions.
+     *
+     * @return The {@link AdminOrdersController} instance.
+     */
     public adminGui.AdminOrdersController getAdminOrdersController() {
 		return adminOrdersController;
 	}
     
+    /**
+     * Sets the controller used for handling admin reports such as parking time and subscriber data.
+     *
+     * @param adminReportsController The {@link AdminReportsController} instance.
+     */
     public void setAdminReportsController(adminGui.AdminReportsController adminReportsController) {
 		this.adminReportsController = adminReportsController;
 	}
     
+    /**
+     * Gets the controller responsible for managing and displaying admin reports.
+     *
+     * @return The {@link AdminReportsController} instance.
+     */
     public adminGui.AdminReportsController getAdminReportsController() {
 		return adminReportsController;
 	}
     
+    /**
+     * Sets the controller used to display system logs to the admin.
+     *
+     * @param adminLogsController The {@link AdminLogsController} instance.
+     */
     public void setAdminLogsController(adminGui.AdminLogsController adminLogsController) {
 		this.adminLogsController = adminLogsController;
 	}
     
+    /**
+     * Gets the controller responsible for displaying system logs to the admin.
+     *
+     * @return The {@link AdminLogsController} instance.
+     */
     public adminGui.AdminLogsController getAdminLogsController() {
 		return adminLogsController;
 	}
     
+    /**
+     * Sets the controller used to display parking history for a specific subscriber in the admin panel.
+     *
+     * @param adminParkingHistoryController The {@link AdminParkingHistoryController} instance.
+     */
     public void setAdminParkingHistoryController(adminGui.AdminParkingHistoryController adminParkingHistoryController) {
 		this.adminParkingHistoryController = adminParkingHistoryController;
 	}
@@ -683,7 +734,12 @@ public class ClientController extends AbstractClient {
         });
     }
     
-    //////
+    /**
+     * Handles the server response containing all active parking sessions.
+     * Passes the list to the {@link AdminOrdersController} for display.
+     *
+     * @param data The data object from the server, expected to be a list of {@link ParkingHistory}.
+     */
     @SuppressWarnings("unchecked")
 	private void handleAdminActiveSessionsResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof ParkingHistory))) {
@@ -701,6 +757,12 @@ public class ClientController extends AbstractClient {
         }
     }
     
+    /**
+     * Handles the server response containing a list of all subscribers.
+     * Passes the list to the {@link AdminSubscribersController} for display.
+     *
+     * @param data The data object from the server, expected to be a list of {@link Subscriber}.
+     */
     @SuppressWarnings("unchecked")
 	private void handleAdminSubscribersResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber))) {

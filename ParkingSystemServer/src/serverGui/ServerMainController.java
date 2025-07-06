@@ -103,6 +103,11 @@ public class ServerMainController {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Starts a background timer that generates monthly reports on the last day of each month.
+     * If a timer is already running, it cancels and replaces it.
+     */
     private void startMonthlyReportScheduler() {
         if (monthlyReportTimer != null) {
             monthlyReportTimer.cancel();
@@ -132,6 +137,13 @@ public class ServerMainController {
 
         System.out.println("✅ Monthly report generation scheduled for: " + nextRun);
     }
+    
+    /**
+     * Calculates the next scheduled time for monthly report generation,
+     * set to the last day of the current month at 23:59.
+     *
+     * @return the Date representing the next scheduled run time
+     */
     private Date getNextLastDayOfMonth() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MONTH, 1);         // next month
@@ -143,6 +155,11 @@ public class ServerMainController {
         cal.set(Calendar.MILLISECOND, 0);
         return  cal.getTime();
     }
+    
+    /**
+     * Manually triggers generation of reports for June 2025 (for testing).
+     * Output is printed to the console.
+     */
     public void testGenerateReportsNow() {
         int year = 2025;
         int month = 6;

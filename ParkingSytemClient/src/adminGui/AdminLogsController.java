@@ -44,6 +44,11 @@ public class AdminLogsController{
 	
 	private ObservableList<SystemLog> allLogs = FXCollections.observableArrayList();
 
+	/**
+	 * Sets the client controller and triggers the initial loading of all logs.
+	 *
+	 * @param client the client controller used to communicate with the server
+	 */
     public void setClient(ClientController client) {
         this.client = client;
         client.setAdminLogsController(this);
@@ -67,6 +72,10 @@ public class AdminLogsController{
         
     }
     
+    /**
+     * Sends a request to the server to fetch all system logs.
+     * Updates the UI status label and clears the current table before loading.
+     */
     private void loadAllLogs() {
     	allLogs.clear();
     	tableLogs.getItems().clear();
@@ -76,6 +85,11 @@ public class AdminLogsController{
         ClientController.getClient().sendObjectToServer(request);
     }
     
+    /**
+     * Populates the log table with the system logs received from the server.
+     *
+     * @param logs the list of system logs to display
+     */
     public void setLogs(List<SystemLog> logs) {
     	javafx.application.Platform.runLater(() -> {
         	allLogs.setAll(logs);

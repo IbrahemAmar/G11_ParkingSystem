@@ -19,11 +19,15 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import utils.SceneNavigator;
 
+/**
+ * Controller for AdminParkingHistory.fxml.
+ * Displays a subscriber's parking history in a table and highlights active and late sessions.
+ */
 public class AdminParkingHistoryController {
-	
-	private ClientController client;
-	
-	@FXML private TableView<ParkingHistory> tableHistory;
+    
+    private ClientController client;
+    
+    @FXML private TableView<ParkingHistory> tableHistory;
     @FXML private TableColumn<ParkingHistory, String> colEntryTime;
     @FXML private TableColumn<ParkingHistory, String> colExitTime;
     @FXML private TableColumn<ParkingHistory, String> colHistorySpot;
@@ -37,18 +41,34 @@ public class AdminParkingHistoryController {
     private Subscriber selectedSubscriber;
     
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    
+
+    /**
+     * Sets the client controller and registers this controller in it.
+     *
+     * @param client the client controller used for communication
+     */
     public void setClient(ClientController client) {
         this.client = client;
         if (client != null) {
             client.setAdminParkingHistoryController(this);
         }
     }
-    
+
+    /**
+     * Sets the subscriber whose parking history is being viewed.
+     *
+     * @param subscriber the selected subscriber
+     */
     public void setSelectedSubscriber(Subscriber subscriber) {
         this.selectedSubscriber = subscriber;
     }
-    
+
+    /**
+     * Populates the table with parking history data, highlights late sessions,
+     * and displays details for the current active parking session if any.
+     *
+     * @param history the observable list of parking history records
+     */
     public void setParkingHistoryData(ObservableList<ParkingHistory> history) {
         // Configure table columns
         colEntryTime.setCellValueFactory(cell ->
@@ -61,11 +81,9 @@ public class AdminParkingHistoryController {
             new SimpleStringProperty(String.valueOf(cell.getValue().getParkingSpaceId()))
         );
         colWasExtended.setCellValueFactory(cell ->
-            new SimpleStringProperty(cell.getValue().isExtended() ? "Yes" : "No"))
-        ;
+            new SimpleStringProperty(cell.getValue().isExtended() ? "Yes" : "No"));
         colWasLate.setCellValueFactory(cell ->
-            new SimpleStringProperty(cell.getValue().isWasLate() ? "Yes" : "No"))
-        ;
+            new SimpleStringProperty(cell.getValue().isWasLate() ? "Yes" : "No"));
 
         // Highlight late sessions
         tableHistory.setRowFactory(tv -> new TableRow<>() {
@@ -101,7 +119,11 @@ public class AdminParkingHistoryController {
                 labelTimeRemaining.setText("---");
             });
     }
-    
+
+    /**
+     * Sends a request to the server to refresh the parking history of the selected subscriber.
+     * Does nothing if no subscriber is selected.
+     */
     public void refreshParkingHistory() {
         Platform.runLater(() -> {
             if (selectedSubscriber != null) {
@@ -114,7 +136,10 @@ public class AdminParkingHistoryController {
             }
         });
     }
-    
+
+    /**
+     * Initializes the controller and sets up automatic refresh when the window gains focus.
+     */
     public void initialize() {
         refreshParkingHistory();
 
@@ -132,10 +157,16 @@ public class AdminParkingHistoryController {
             }
         });
     }
-    
+
+    /**
+     * Handles the Back button click.
+     * Returns to the AdminSubscriberManagement screen.
+     *
+     * @param event the action event triggered by the button click
+     */
     @FXML
     private void handleBack(ActionEvent event) {
-    	AdminSubscribersController controller = SceneNavigator.navigateToAndGetController(
+        AdminSubscribersController controller = SceneNavigator.navigateToAndGetController(
             event, "/adminGui/AdminSubscriberManagement.fxml", "Admin Dashboard"
         );
         if (controller != null) controller.setClient(client);

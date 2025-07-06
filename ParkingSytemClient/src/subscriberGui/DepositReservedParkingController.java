@@ -113,6 +113,12 @@ public class DepositReservedParkingController {
             "BPARK - Subscriber Dashboard");
     }
     
+    /**
+     * Handles the cancel reservation action when the user clicks "Cancel".
+     * Validates the confirmation code and sends a cancellation request to the server.
+     *
+     * @param event the action event triggered by the cancel button
+     */
     @FXML
     private void handleCancelReservation(ActionEvent event) {
         String code = txtCancelCode.getText().trim();
