@@ -3,7 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.MainMenuController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.MainMenuController" stylesheets="@MainMenu.css">
+
     <HBox spacing="20" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" style="-fx-padding: 50; -fx-background-color: #ffffff;">
 
         <!-- Left Half: Existing Login UI -->
@@ -54,6 +55,9 @@
 
         <!-- Right Half: Alternative Login (ID/Scan) -->
 		<VBox alignment="CENTER" prefWidth="280" spacing="20">
+			<!-- Fake logo using emoji -->
+    		<Label text="💳" styleClass="scan-logo" />
+    
     		<Label style="-fx-font-size: 14px; -fx-text-fill: #444;" text="Or log in using your ID or scan your tag:" />
     		<TextField fx:id="txtAltId" prefWidth="200" promptText="Enter your ID here" />
     		<Button fx:id="btnScanTag" text="📷 Scan Tag" style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-pref-width: 200;" onAction="#handleScanTag"/>
