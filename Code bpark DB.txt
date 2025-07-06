@@ -24,21 +24,24 @@ USE `bpark`;
 DROP TABLE IF EXISTS `parking_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `parking_history` (
-  `history_id` int NOT NULL AUTO_INCREMENT,
-  `subscriber_code` varchar(20) NOT NULL,
-  `parking_space_id` int NOT NULL,
-  `entry_time` datetime NOT NULL,
-  `exit_time` datetime DEFAULT NULL,
-  `extended` tinyint(1) DEFAULT '0',
-  `was_late` tinyint(1) DEFAULT '0',
-  `picked_up` tinyint(1) DEFAULT '0',
+  `history_id` INT NOT NULL AUTO_INCREMENT,
+  `subscriber_code` VARCHAR(20) NOT NULL,
+  `parking_space_id` INT NOT NULL,
+  `entry_time` DATETIME NOT NULL,
+  `exit_time` DATETIME DEFAULT NULL,
+  `extended` TINYINT(1) DEFAULT '0',           -- 1 if extended at least once
+  `extended_hours` INT DEFAULT 0,              -- total hours of extension (e.g., 4, 8, etc.)
+  `was_late` TINYINT(1) DEFAULT '0',           -- 1 if picked up after exit_time
+  `picked_up` TINYINT(1) DEFAULT '0',          -- 1 if user picked up the car
   PRIMARY KEY (`history_id`),
   KEY `subscriber_code` (`subscriber_code`),
   KEY `parking_space_id` (`parking_space_id`),
   CONSTRAINT `parking_history_ibfk_1` FOREIGN KEY (`subscriber_code`) REFERENCES `subscriber` (`subscriber_code`),
   CONSTRAINT `parking_history_ibfk_2` FOREIGN KEY (`parking_space_id`) REFERENCES `parking_space` (`parking_space_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,10 +50,36 @@ CREATE TABLE `parking_history` (
 
 LOCK TABLES `parking_history` WRITE;
 /*!40000 ALTER TABLE `parking_history` DISABLE KEYS */;
-INSERT INTO `parking_history` VALUES (13,'SUB0005',6,'2025-05-30 22:27:38','2025-05-31 02:27:38',0,0,0),(14,'SUB0005',5,'2025-05-30 18:27:38','2025-05-30 21:27:38',0,0,0),(15,'SUB0005',7,'2025-05-30 15:27:38','2025-05-30 19:27:38',0,0,0),(16,'SUB0005',9,'2025-05-31 01:27:38','2025-05-31 05:27:38',0,0,0),(17,'SUB0006',7,'2025-05-30 23:50:20','2025-05-31 03:50:20',0,0,0),(18,'SUB0003',5,'2025-05-30 23:50:48','2025-05-31 03:50:48',0,0,0),(19,'SUB0007',1,'2025-05-31 00:06:50','2025-06-01 15:24:44',1,1,1),(20,'SUB0003',2,'2025-06-01 00:36:34','2025-06-01 12:36:34',1,0,0),(21,'SUB0005',3,'2025-06-01 12:32:33','2025-06-01 15:20:19',1,1,1),(22,'SUB0003',10,'2025-06-01 14:06:15','2025-06-01 15:22:56',0,0,1),(23,'SUB0007',1,'2025-06-01 14:32:16','2025-06-01 15:23:20',1,1,1),(24,'SUB0007',4,'2025-06-01 15:24:29','2025-06-01 15:24:35',0,1,1),(25,'SUB0005',8,'2025-06-01 15:28:02','2025-06-01 15:28:05',0,0,1),(26,'SUB0005',1,'2025-06-01 15:28:23','2025-06-01 15:28:37',0,0,1),(27,'SUB0007',1,'2025-06-01 11:16:29','2025-06-01 16:17:30',1,0,1),(29,'SUB0003',1,'2025-06-01 16:32:37','2025-06-01 16:33:08',0,0,1);
+
+INSERT INTO `parking_history` 
+(`history_id`, `subscriber_code`, `parking_space_id`, `entry_time`, `exit_time`, `extended`, `extended_hours`, `was_late`, `picked_up`) VALUES
+(13, 'SUB0005', 6, '2025-05-30 22:27:38', '2025-05-31 02:27:38', 0, 0, 0, 0),
+(14, 'SUB0005', 5, '2025-05-30 18:27:38', '2025-05-30 21:27:38', 0, 0, 0, 0),
+(15, 'SUB0005', 7, '2025-05-30 15:27:38', '2025-05-30 19:27:38', 0, 0, 1, 0), -- 4h stay, not late
+(16, 'SUB0005', 9, '2025-05-31 01:27:38', '2025-05-31 05:27:38', 0, 0, 1, 0), -- 4h stay, no extension
+(17, 'SUB0006', 7, '2025-05-30 23:50:20', '2025-05-31 03:50:20', 0, 0, 1, 0), -- 4h stay, no extension
+(18, 'SUB0003', 5, '2025-05-30 23:50:48', '2025-05-31 03:50:48', 0, 0, 1, 0),
+(19, 'SUB0007', 1, '2025-05-31 00:06:50', '2025-06-01 15:24:44', 1, 4, 1, 1), -- ~39h stay, extended only 4h → late
+(20, 'SUB0003', 2, '2025-06-01 00:36:34', '2025-06-01 12:36:34', 1, 4, 1, 0), -- 12h > 8h allowed → late
+(21, 'SUB0005', 3, '2025-06-01 12:32:33', '2025-06-01 15:20:19', 1, 4, 0, 1), -- ~3h, within limit → not late
+(22, 'SUB0003', 10, '2025-06-01 14:06:15', '2025-06-01 15:22:56', 0, 0, 0, 1), -- ~1h stay → OK
+(23, 'SUB0007', 1, '2025-06-01 14:32:16', '2025-06-01 15:23:20', 1, 4, 0, 1), -- ~1h, well within → OK
+(24, 'SUB0007', 4, '2025-06-01 15:24:29', '2025-06-01 15:24:35', 0, 0, 0, 1), -- ~6s, OK
+(25, 'SUB0005', 8, '2025-06-01 15:28:02', '2025-06-01 15:28:05', 0, 0, 0, 1),
+(26, 'SUB0005', 1, '2025-06-01 15:28:23', '2025-06-01 15:28:37', 0, 0, 0, 1),
+(27, 'SUB0007', 1, '2025-06-01 11:16:29', '2025-06-01 16:17:30', 1, 4, 0, 1), -- 5h → OK
+(29, 'SUB0003', 1, '2025-06-01 16:32:37', '2025-06-01 16:33:08', 0, 0, 0, 1);
+
+INSERT INTO `parking_history` 
+(subscriber_code, parking_space_id, entry_time, exit_time, extended, extended_hours, was_late, picked_up) VALUES 
+('SUB0001', 1, '2025-06-10 08:00:00', '2025-06-10 14:45:00', 1, 4, 1, 1),  -- stayed 6h45m → late
+('SUB0002', 2, '2025-06-10 09:00:00', '2025-06-10 14:30:00', 1, 4, 1, 1),  -- stayed 5.5h > 4+4 = 8h → NOT late
+('SUB0003', 3, '2025-06-10 10:00:00', '2025-06-10 15:30:00', 0, 0, 1, 1),  -- 5.5h > 4 → late
+('SUB0004', 4, '2025-06-10 07:30:00', '2025-06-10 13:50:00', 1, 4, 1, 1),  -- stayed 6h20m > 8h → NOT late
+('SUB0005', 5, '2025-06-10 06:00:00', '2025-06-10 12:30:00', 1, 4, 1, 1);  -- 6.5h > 8h → NOT late
+
 /*!40000 ALTER TABLE `parking_history` ENABLE KEYS */;
 UNLOCK TABLES;
-
 --
 -- Table structure for table `parking_space`
 --
@@ -164,6 +193,79 @@ LOCK TABLES `system_log` WRITE;
 INSERT INTO `system_log` VALUES (1,'Add User','Target-1',1,'2025-05-27 12:12:03','Head color international artist situation.'),(2,'Add User','Target-2',2,'2025-05-27 12:12:03','And off travel move quite.'),(3,'Deposit','Spot 6',5,'2025-05-30 20:15:09','Car Deposit'),(4,'Deposit','Spot 10',5,'2025-05-30 20:16:15','Car Deposit'),(5,'Deposit','Spot 8',5,'2025-05-30 20:23:37','Car Deposit'),(6,'Deposit','Spot 7',5,'2025-05-30 20:23:49','Car Deposit'),(7,'Deposit','Spot 3',5,'2025-05-30 20:23:52','Car Deposit'),(8,'Deposit','Spot 7',6,'2025-05-30 20:50:19','Car Deposit'),(9,'Deposit','Spot 5',3,'2025-05-30 20:50:48','Car Deposit'),(10,'Deposit','Spot 1',7,'2025-05-30 21:06:49','Car Deposit'),(11,'Deposit','Spot 2',3,'2025-05-31 21:36:34','Car Deposit'),(12,'Deposit','Spot 3',5,'2025-06-01 09:32:32','Car Deposit'),(13,'Deposit','Spot 10',3,'2025-06-01 11:06:15','Car Deposit'),(14,'Pickup','Spot 3',5,'2025-06-01 11:17:05','Car Deposit'),(15,'Pickup (Late)','Spot 3',5,'2025-06-01 12:20:18','Car Deposit'),(16,'Deposit','Spot 3',5,'2025-06-01 12:20:35','Car Deposit'),(17,'Pickup','Spot 10',3,'2025-06-01 12:22:56','Car Deposit'),(18,'Pickup (Late)','Spot 1',7,'2025-06-01 12:23:20','Car Deposit'),(19,'Deposit','Spot 10',7,'2025-06-01 12:23:31','Car Deposit'),(20,'Deposit','Spot 4',7,'2025-06-01 12:24:28','Car Deposit'),(21,'Pickup','Spot 4',7,'2025-06-01 12:24:35','Car Deposit'),(22,'Pickup (Late)','Spot 1',7,'2025-06-01 12:24:43','Car Deposit'),(23,'Deposit','Spot 8',5,'2025-06-01 12:28:01','Car Deposit'),(24,'Pickup','Spot 8',5,'2025-06-01 12:28:05','Car Deposit'),(25,'Deposit','Spot 1',5,'2025-06-01 12:28:23','Car Deposit'),(26,'Pickup','Spot 1',5,'2025-06-01 12:28:37','Car Deposit'),(27,'Pickup','Spot 1',7,'2025-06-01 12:32:09','Car Deposit'),(28,'Pickup','Spot 1',7,'2025-06-01 13:17:29','Car Deposit'),(29,'Deposit','Spot 1',3,'2025-06-01 13:32:36','Car Deposit'),(30,'Pickup','Spot 1',3,'2025-06-01 13:33:08','Car Deposit');
 /*!40000 ALTER TABLE `system_log` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `monthly_parking_time_report`
+--
+
+DROP TABLE IF EXISTS `monthly_parking_time_report`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `monthly_parking_time_report` (
+  `year` INT NOT NULL,
+  `month` INT NOT NULL,
+  `normal_hours` INT DEFAULT 0,
+  `extended_hours` INT DEFAULT 0,
+  `delayed_hours` INT DEFAULT 0,
+  PRIMARY KEY (`year`, `month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `monthly_parking_time_report`
+--
+
+LOCK TABLES `monthly_parking_time_report` WRITE;
+/*!40000 ALTER TABLE `monthly_parking_time_report` DISABLE KEYS */;
+
+INSERT INTO `monthly_parking_time_report` (`year`, `month`, `normal_hours`, `extended_hours`, `delayed_hours`)
+VALUES
+(2025, 6, 320, 45, 30),
+(2025, 7, 410, 60, 20)
+ON DUPLICATE KEY UPDATE
+    normal_hours=VALUES(normal_hours),
+    extended_hours=VALUES(extended_hours),
+    delayed_hours=VALUES(delayed_hours);
+
+/*!40000 ALTER TABLE `monthly_parking_time_report` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `monthly_subscriber_report`
+--
+
+DROP TABLE IF EXISTS `monthly_subscriber_report`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `monthly_subscriber_report` (
+  `year` INT NOT NULL,
+  `month` INT NOT NULL,
+  `daily_subscribers` TEXT,
+  PRIMARY KEY (`year`, `month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `monthly_subscriber_report`
+--
+
+LOCK TABLES `monthly_subscriber_report` WRITE;
+/*!40000 ALTER TABLE `monthly_subscriber_report` DISABLE KEYS */;
+
+INSERT INTO `monthly_subscriber_report` (`year`, `month`, `daily_subscribers`)
+VALUES
+(2025, 6, '5,7,6,5,4,6,7,8,5,6,4,5,5,4,6,7,6,7,8,5,6,4,5,5,6,7,6,5,6,7,8'),
+(2025, 7, '8,9,10,11,9,8,10,12,9,10,8,9,8,9,10,11,10,12,13,9,8,10,9,11,12,10,9,11,12,13,14')
+ON DUPLICATE KEY UPDATE
+    daily_subscribers=VALUES(daily_subscribers);
+
+/*!40000 ALTER TABLE `monthly_subscriber_report` ENABLE KEYS */;
+UNLOCK TABLES;
+
 
 --
 -- Table structure for table `users`
