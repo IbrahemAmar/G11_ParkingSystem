@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="adminGui.AdminParkingHistoryController"
+      prefHeight="400.0" prefWidth="600.0">
+
+   <children>
+
+      <!-- Parking History Table -->
+      <TableView fx:id="tableHistory" layoutX="39.0" layoutY="100.0" prefHeight="200.0" prefWidth="521.0">
+        <columns>
+          <TableColumn fx:id="colEntryTime" prefWidth="122.4" text="Entry Time" />
+          <TableColumn fx:id="colExitTime" prefWidth="121.6" text="Exit Time" />
+          <TableColumn fx:id="colHistorySpot" prefWidth="111.2" text="Spot" />
+          <TableColumn fx:id="colWasExtended" prefWidth="83.2" text="Extended?" />
+          <TableColumn fx:id="colWasLate" prefWidth="83.2" text="Was Late?" />
+        </columns>
+      </TableView>
+
+      <!-- Labels for Active Session -->
+      <Label layoutX="40.0" layoutY="20.0" text="Current Spot:" />
+      <Label fx:id="labelSpot" layoutX="130.0" layoutY="20.0" text="---" />
+
+      <Label layoutX="40.0" layoutY="40.0" text="Entry Time:" />
+      <Label fx:id="labelEntryTime" layoutX="130.0" layoutY="40.0" text="---" />
+
+      <Label layoutX="40.0" layoutY="60.0" text="Time Remaining:" />
+      <Label fx:id="labelTimeRemaining" layoutX="130.0" layoutY="60.0" text="---" />
+
+      <!-- Back Button -->
+      <Button fx:id="btnBack" layoutX="519.0" layoutY="43.0" mnemonicParsing="false"
+              text="Back" onAction="#handleBack" />
+
+   </children>
+</Pane>
+
