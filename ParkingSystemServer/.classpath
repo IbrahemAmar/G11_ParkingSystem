@@ -11,6 +11,7 @@
 	<classpathentry kind="lib" path="/G11_ParkingSystem/external-libraries/javax.activation-1.2.0.jar"/>
 	<classpathentry kind="lib" path="/G11_ParkingSystem/external-libraries/javax.mail.jar"/>
 	<classpathentry kind="lib" path="/G11_ParkingSystem/external-libraries/mysql-connector-java-8.0.13.jar"/>
+
 	<classpathentry kind="lib" path="C:/javafx-sdk-21.0.7/lib/javafx.graphics.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -31,5 +32,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+
 	<classpathentry kind="output" path="bin"/>
 </classpath>

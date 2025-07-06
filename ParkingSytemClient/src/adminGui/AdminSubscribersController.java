@@ -171,6 +171,7 @@ public class AdminSubscribersController {
         Boolean emailForm = false;
         int atIndex = email.indexOf('@');
         if (atIndex > 0 && atIndex < email.length() - 1) {
+
         	if(email.lastIndexOf('@') == atIndex) { 
         		// Look for '.' after '@'
         		int dotIndex = email.indexOf('.', atIndex + 1);
@@ -181,6 +182,7 @@ public class AdminSubscribersController {
         }
         if(emailForm == false) {
         	lblStatus.setText("⚠️ Email must be in the form of 'example@example.example'");
+
         	return;
         }
         
