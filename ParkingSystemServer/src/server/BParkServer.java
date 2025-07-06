@@ -6,11 +6,15 @@ import ocsf.server.ConnectionToClient;
 import serverGui.ServerMainController;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+
+import javax.mail.MessagingException;
 
 import bpark_common.ClientRequest;
 import bpark_common.ServerResponse;
@@ -87,7 +91,6 @@ public class BParkServer extends AbstractServer {
                 case "get_all_system_logs" -> handleGetLogs(client);
                 case "get_monthly_parking_time_report" -> handleMonthlyParkingTimeReport(request, client);
                 case "get_monthly_subscriber_report" -> handleMonthlySubscriberReport(request, client);
-
                 case "get_subscriber_contact" -> handleGetSubscriberContact(request, client);
                 case "CheckAndDepositReservedCar" -> handleDepositReservedCar(request, client);
                 case "CancelReservationByCode" -> handleCancelReservationByCode(request, client);
@@ -270,6 +273,28 @@ public class BParkServer extends AbstractServer {
                 "Spot " + parkingSpaceId,
                 subscriberCode
             );
+
+            //Send email if late
+            if (wasLate) {
+                try (Connection conn = DBController.getConnection()) {
+                    String email = dbController.getSubscriberEmail(conn, subscriberCode);
+                    if (email != null && !email.isEmpty()) {
+                        try {
+                            utils.EmailUtil.sendEmail(email,
+                                "Late Pickup Notification - BPARK",
+                                "You picked up your car late and the parking was automatically extended.\n\n"
+                                + "If you believe this was a mistake, please contact BPARK support.\n\n"
+                                + "Thank you,\nBPARK System"
+                            );
+                        } catch (MessagingException e) {
+                            System.err.println("Failed to send late email to " + email + ": " + e.getMessage());
+                        }
+                    }
+                } catch (SQLException e) {
+                    System.err.println("Failed to retrieve email from DB: " + e.getMessage());
+                }
+            }
+
             sendServerResponse(client, "CAR_PICKUP", true,
                 wasLate
                     ? "Pickup successful, but you were late. Parking was automatically extended."

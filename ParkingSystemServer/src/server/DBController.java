@@ -822,7 +822,7 @@ public class DBController {
 	 * @return Email address if found, or null if not found
 	 * @throws SQLException If a database access error occurs
 	 */
-	private String getSubscriberEmail(Connection conn, String subscriberCode) throws SQLException {
+	public String getSubscriberEmail(Connection conn, String subscriberCode) throws SQLException {
 		String sql = "SELECT email FROM subscriber WHERE subscriber_code = ?";
 
 		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
