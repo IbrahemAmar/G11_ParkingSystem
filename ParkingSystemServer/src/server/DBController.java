@@ -1708,7 +1708,7 @@ public class DBController {
 	            ps.setInt(4, extendedHours);
 	            ps.setInt(5, delayedHours);
 	            ps.executeUpdate();
-	        }
+	        } 
 
 	        // 4️⃣ Store into monthly_subscriber_report
 	        String csvCounts = dailyCounts.stream()
