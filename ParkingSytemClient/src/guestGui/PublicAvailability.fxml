@@ -7,43 +7,20 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="guestGui.PublicAvailabilityController">
+<AnchorPane stylesheets="@guestcss.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="guestGui.PublicAvailabilityController">
 
-    <VBox alignment="CENTER" spacing="20"
-          style="-fx-padding: 40; -fx-background-color: #ffffff;"
-          AnchorPane.topAnchor="0.0"
-          AnchorPane.bottomAnchor="0.0"
-          AnchorPane.leftAnchor="0.0"
-          AnchorPane.rightAnchor="0.0">
+    <VBox alignment="CENTER" spacing="20" styleClass="background-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
-        <!-- Title -->
-        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;"
-               text="🅿️ Parking Spot Availability" />
+        <Label styleClass="section-title" text="🅿 Parking Spot Availability 🅿" />
+        <Label fx:id="lblAvailable" styleClass="available-label" text="✔ Spots available" />
 
-        <!-- Availability status -->
-        <Label fx:id="lblAvailable"
-               style="-fx-font-size: 16px; -fx-text-fill: green;"
-               text="✔ Spots available" />
-
-        <!-- Parking table -->
-        <TableView fx:id="tableAvailability"
-                   prefHeight="300" prefWidth="600">
+        <TableView fx:id="tableAvailability" prefHeight="300" prefWidth="600" styleClass="table-style">
             <columns>
-                <TableColumn fx:id="colSpotNumber"
-                             prefWidth="294.4"
-                             text="Parking Spot" />
-                <TableColumn fx:id="colStatus"
-                             prefWidth="305.6"
-                             text="Status" />
+                <TableColumn fx:id="colSpotNumber" prefWidth="294.4" text="Parking Spot" />
+                <TableColumn fx:id="colStatus" prefWidth="305.6" text="Status" />
             </columns>
         </TableView>
 
-        <!-- Back button -->
-        <Button fx:id="btnBack"
-                onAction="#handleBackToMenu"
-                style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-pref-width: 200;"
-                text="🔙 Back to Menu" />
+        <Button fx:id="btnBack" onAction="#handleBackToMenu" styleClass="btn-danger" text="🔙 Back to Menu" />
     </VBox>
 </AnchorPane>

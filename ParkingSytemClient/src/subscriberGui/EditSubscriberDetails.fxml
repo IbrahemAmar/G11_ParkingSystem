@@ -1,57 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.EditSubscriberDetailsController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="subscriberGui.EditSubscriberDetailsController"
+            stylesheets="@theme.css">
 
-    <VBox alignment="CENTER" spacing="25" style="-fx-padding: 40; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+    <VBox alignment="CENTER" spacing="25"
+          styleClass="background-pane"
+          AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0"
+          AnchorPane.topAnchor="0">
 
         <!-- Back Button -->
         <HBox alignment="TOP_LEFT">
-            <Button fx:id="btnBack" text="🔙 Back" onAction="#handleBack" />
+            <Button fx:id="btnBack" text="🔙 Back" onAction="#handleBack" styleClass="btn-secondary"/>
         </HBox>
 
-        <!-- Edit Info Title -->
-        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="✏️ Edit Your Information" />
+        <!-- Title -->
+        <Label text="✏️ Edit Your Information" styleClass="section-title"/>
 
-        <!-- Edit Info Grid -->
+        <!-- Input Grid -->
         <GridPane alignment="CENTER" hgap="15" vgap="15">
-            <Label text="New Email:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <TextField fx:id="txtNewEmail" promptText="Enter new email" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Confirm Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="txtConfirmEmail" promptText="Confirm new email" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="New Email:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-label"/>
+            <TextField fx:id="txtNewEmail" promptText="Enter new email" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-            <Label text="New Phone:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField fx:id="txtNewPhone" promptText="Enter new phone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Confirm Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="form-label"/>
+            <TextField fx:id="txtConfirmEmail" promptText="Confirm new email" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-            <!-- Status label for feedback -->
-            <Label fx:id="lblStatus" style="-fx-text-fill: red;" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2" />
+            <Label text="New Phone:" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="form-label"/>
+            <TextField fx:id="txtNewPhone" promptText="Enter new phone" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label fx:id="lblStatus" text="" styleClass="error-text"
+                   GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
 
             <columnConstraints>
-                <ColumnConstraints />
-                <ColumnConstraints />
+                <ColumnConstraints/>
+                <ColumnConstraints/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
-                <RowConstraints />
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
             </rowConstraints>
         </GridPane>
 
-        <!-- Action Buttons -->
+        <!-- Buttons -->
         <HBox alignment="CENTER" spacing="20">
-            <Button fx:id="btnSave" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="💾 Save" onAction="#handleSave" />
-            <Button fx:id="btnCancel" text="❌ Cancel" onAction="#handleCancel" />
+            <Button fx:id="btnSave" text="💾 Save" onAction="#handleSave" styleClass="btn-action"/>
+            <Button fx:id="btnCancel" text="❌ Cancel" onAction="#handleCancel" styleClass="btn-secondary"/>
         </HBox>
     </VBox>
 </AnchorPane>

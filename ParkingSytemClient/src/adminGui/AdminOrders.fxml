@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="adminGui.AdminOrdersController"
-      spacing="25" style="-fx-padding: 20;">
+      spacing="25"
+      stylesheets="@admincss.css"
+      styleClass="admin-background">
 
     <!-- Title -->
-    <Label text="🚗 Active Parking Details" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+    <Label text="🚗 Active Parking Details" styleClass="admin-subtitle"/>
 
     <!-- Search Section -->
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="🔍 Search:" style="-fx-font-weight: bold; -fx-text-fill: #555;" />
-        <TextField fx:id="txtSearchSubId" promptText="Subscriber ID" style="-fx-pref-width: 150; -fx-background-radius: 6;" />
-        <TextField fx:id="txtSearchSpot" promptText="Parking Spot" style="-fx-pref-width: 150; -fx-background-radius: 6;" />
-        <Button text="Search" fx:id="btnSearch" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 6;" />
-        <Button text="Clear" fx:id="btnClear" style="-fx-background-color: #f57c00; -fx-text-fill: white; -fx-background-radius: 6;" />
+        <Label text="🔍 Search:" styleClass="form-label"/>
+        <TextField fx:id="txtSearchSubId" promptText="Subscriber ID" styleClass="search-field"/>
+        <TextField fx:id="txtSearchSpot" promptText="Parking Spot" styleClass="search-field"/>
+        <Button fx:id="btnSearch" text="Search" styleClass="btn-action"/>
+        <Button fx:id="btnClear" text="Clear" styleClass="btn-secondary"/>
     </HBox>
 
     <!-- Active Parking Table -->
-    <TableView fx:id="tableActiveParking" prefHeight="300" prefWidth="900" style="-fx-border-color: #ccc; -fx-border-radius: 8;">
+    <TableView fx:id="tableActiveParking" prefHeight="300" prefWidth="900" styleClass="admin-table">
         <columns>
             <TableColumn fx:id="colActiveSubId" text="Subscriber ID" prefWidth="120"/>
             <TableColumn fx:id="colActiveSpotId" text="Spot ID" prefWidth="120"/>
@@ -29,14 +32,13 @@
             <TableColumn fx:id="colActiveCode" text="Parking Code" prefWidth="140"/>
         </columns>
     </TableView>
-    <Label fx:id="lblStatus" textFill="red" style="-fx-font-size: 12px;" />
 
+    <!-- Status -->
+    <Label fx:id="lblStatus" text="No results found" styleClass="admin-status"/>
 
     <!-- Footer Buttons -->
-    <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
-        <Button text="🔄 Refresh" fx:id="btnRefresh" style="-fx-background-color: #03A9F4; -fx-text-fill: white; -fx-background-radius: 6;" />
-		<Button text="🔙 Back to Menu" fx:id="btnBack"
-        onAction="#handleBack"
-        style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 6;" />
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button fx:id="btnRefresh" text="🔄 Refresh" styleClass="btn-refresh"/>
+        <Button fx:id="btnBack" text="🔙 Back to Menu" onAction="#handleBack" styleClass="btn-danger"/>
     </HBox>
 </VBox>

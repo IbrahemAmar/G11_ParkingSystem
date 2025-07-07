@@ -9,54 +9,56 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.SubscriberSettingsController">
+<AnchorPane stylesheets="@theme.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.SubscriberSettingsController">
 
-    <VBox alignment="CENTER" prefHeight="430.0" prefWidth="395.0" spacing="25" style="-fx-padding: 40; -fx-background-color: #ffffff;" AnchorPane.bottomAnchor="-8.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-8.0" AnchorPane.topAnchor="0.0">
+    <VBox alignment="CENTER" prefHeight="430.0" prefWidth="395.0" spacing="25" styleClass="background-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
         <!-- Back Button -->
         <HBox alignment="TOP_LEFT">
-            <Button fx:id="btnBack" onAction="#handleBackButton" text="🔙 Back" />
+            <Button fx:id="btnBack" onAction="#handleBackButton" styleClass="btn-secondary" text="🔙 Back" />
         </HBox>
 
         <!-- My Details Title -->
-        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="👤 My Details:" />
+        <Label styleClass="section-title" text="👤 My Details:" />
 
-        <!-- My Details Grid (Labels instead of TextFields) -->
+        <!-- My Details Grid -->
         <GridPane alignment="CENTER" hgap="15" vgap="15">
-            <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <Label fx:id="lblFullName" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Subscriber ID:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <Label fx:id="lblSubscriberId" text="—" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            
-            <Label text="Subscriber Code:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <Label fx:id="lblSubscriberCode" text="—" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label styleClass="form-label" text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <Label fx:id="lblFullName" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <Label fx:id="lblUsername" text="—" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label styleClass="form-label" text="Subscriber ID:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Label fx:id="lblSubscriberId" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-            <Label text="Current Email:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-            <Label fx:id="lblCurrentEmail" text="—" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label styleClass="form-label" text="Subscriber Code:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <Label fx:id="lblSubscriberCode" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-            <Label text="Current Phone:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-            <Label fx:id="lblCurrentPhone" text="—" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-         <columnConstraints>
-            <ColumnConstraints />
-            <ColumnConstraints />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-         </rowConstraints>
+            <Label styleClass="form-label" text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <Label fx:id="lblUsername" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+            <Label styleClass="form-label" text="Current Email:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+            <Label fx:id="lblCurrentEmail" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+            <Label styleClass="form-label" text="Current Phone:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+            <Label fx:id="lblCurrentPhone" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+            <columnConstraints>
+                <ColumnConstraints />
+                <ColumnConstraints />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+            </rowConstraints>
         </GridPane>
 
-        <!-- Buttons -->
+        <!-- Edit Button -->
         <HBox alignment="CENTER" spacing="20">
-            <Button fx:id="btnEdit" onAction="#handleEditButton" text="✏️ Edit" />
+            <Button fx:id="btnEdit" onAction="#handleEditButton" styleClass="btn-action" text="✏ Edit" />
         </HBox>
     </VBox>
 </AnchorPane>

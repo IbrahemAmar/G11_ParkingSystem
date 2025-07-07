@@ -5,31 +5,36 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="subscriberGui.ForgotCodeController">
+            fx:controller="subscriberGui.ForgotCodeController"
+            stylesheets="@theme.css">
 
     <VBox spacing="25" alignment="CENTER"
-          AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-          style="-fx-padding: 50; -fx-background-color: #ffffff;">
+          styleClass="background-pane"
+          AnchorPane.topAnchor="0.0"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0">
 
-        <Label text="❓ Forgot Your Parking Code"
-               style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <!-- Title -->
+        <Label text="❓ Forgot Your Parking Code" styleClass="section-title" />
 
-        <Label text="Choose how to receive your code:" style="-fx-font-size: 14px; -fx-text-fill: #555;" />
+        <!-- Subtitle -->
+        <Label text="Choose how to receive your code:" styleClass="form-label" />
 
+        <!-- Radio buttons -->
         <VBox spacing="15">
-            <RadioButton fx:id="radioEmail" toggleGroup="$toggleMethod"
-                         text="" />
-            <RadioButton fx:id="radioPhone" toggleGroup="$toggleMethod"
-                         text="" />
+            <RadioButton fx:id="radioEmail" toggleGroup="$toggleMethod" text="" />
+            <RadioButton fx:id="radioPhone" toggleGroup="$toggleMethod" text="" />
         </VBox>
 
-        <Button text="📨 Send Code" fx:id="btnSendCode"
-                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-pref-width: 180;" />
+        <!-- Send Button -->
+        <Button text="📨 Send Code" fx:id="btnSendCode" styleClass="btn-action" />
 
-        <Label fx:id="lblResult" text="" style="-fx-text-fill: green;" />
+        <!-- Result Message -->
+        <Label fx:id="lblResult" text="" styleClass="available-label" />
 
-        <Button text="🔙 Back" fx:id="btnBack"
-                style="-fx-background-color: #e0e0e0; -fx-pref-width: 180;" />
+        <!-- Back Button -->
+        <Button text="🔙 Back" fx:id="btnBack" styleClass="btn-secondary" />
+
     </VBox>
 </AnchorPane>

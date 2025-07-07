@@ -1,40 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1"
-            fx:controller="subscriberGui.DepositReservedParkingController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="subscriberGui.DepositReservedParkingController"
+            stylesheets="@theme.css">
 
     <VBox alignment="CENTER" spacing="20" prefWidth="400" prefHeight="400"
+          styleClass="background-pane"
           AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
-          style="-fx-padding: 40; -fx-background-color: #ffffff;">
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-        <Label text="🚗 Deposit Reserved Car" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+        <!-- Title -->
+        <Label text="🚗 Deposit Reserved Car" styleClass="section-title" />
 
-        <Label text="Enter your confirmation code:" style="-fx-font-size: 14px;" />
+        <!-- Input Label -->
+        <Label text="Enter your confirmation code:" styleClass="form-label" />
 
-        <TextField fx:id="txtConfirmationCode" promptText="e.g., 123456" prefWidth="250"/>
+        <!-- Input Field -->
+        <TextField fx:id="txtConfirmationCode" promptText="e.g., 123456" prefWidth="250" styleClass="text-field"/>
 
+        <!-- Action Buttons -->
         <HBox spacing="20" alignment="CENTER">
-            <Button fx:id="btnDeposit" text="✅ Deposit" onAction="#handleDepositReserved"/>
-            <Button fx:id="btnBack" text="🔙 Back" onAction="#handleBack"/>
+            <Button fx:id="btnDeposit" text="✅ Deposit"
+                    onAction="#handleDepositReserved" styleClass="btn-action"/>
+            <Button fx:id="btnBack" text="🔙 Back"
+                    onAction="#handleBack" styleClass="btn-secondary"/>
         </HBox>
 
-        <Label fx:id="lblMessage" text="" style="-fx-text-fill: red;" />
+        <!-- Feedback -->
+        <Label fx:id="lblMessage" text="" styleClass="error-text" />
 
-        <!-- 🔻 New Section: Cancel Reservation -->
-        <Label text="❌ Cancel a Reservation" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 20 0 0 0;" />
+        <!-- Cancel Section -->
+        <Label text="❌ Cancel a Reservation" styleClass="section-title" />
+        <Label text="Enter confirmation code to cancel:" styleClass="form-label" />
 
-        <Label text="Enter confirmation code to cancel:" />
-        <TextField fx:id="txtCancelCode" promptText="e.g., 123456" prefWidth="250"/>
+        <TextField fx:id="txtCancelCode" promptText="e.g., 123456" prefWidth="250" styleClass="text-field"/>
 
-        <Button fx:id="btnCancelReservation" text="Cancel Reservation" onAction="#handleCancelReservation" style="-fx-background-color: #f44336; -fx-text-fill: white;" />
+        <Button fx:id="btnCancelReservation"
+                text="Cancel Reservation"
+                onAction="#handleCancelReservation"
+                styleClass="btn-danger"/>
+
     </VBox>
 </AnchorPane>

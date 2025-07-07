@@ -7,27 +7,31 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane style="-fx-background-color: #f0f0f0;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="adminGui.AdminMainMenuController">
+<BorderPane styleClass="admin-background" stylesheets="@admincss.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="adminGui.AdminMainMenuController">
 
     <!-- Top Toolbar -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20; -fx-background-color: #1565C0;">
-            <Label style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;" text="⚙ Admin Dashboard Menu" />
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="admin-toolbar">
+            <Label styleClass="admin-toolbar-title" text="⚙ Admin Dashboard Menu" />
             <Pane HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnExit" onAction="#handleExit" style="-fx-background-color: #D32F2F; -fx-text-fill: white;" text="Exit" />
+            <Button fx:id="btnExit" onAction="#handleExit" styleClass="btn-danger" text="Exit" />
         </HBox>
     </top>
 
     <!-- Center Menu -->
     <center>
-        <VBox alignment="CENTER" prefHeight="355.0" prefWidth="394.0" spacing="40" style="-fx-padding: 40;">
-            <Label style="-fx-font-size: 20px; -fx-text-fill: #333;" text="Select Section to Manage" />
+        <VBox alignment="CENTER" spacing="40" styleClass="admin-main-center">
+
+            <Label styleClass="admin-subtitle" text="Select Section to Manage" />
 
             <VBox alignment="CENTER" spacing="20">
-                <Button fx:id="btnOrders" onAction="#handleViewActiveParking" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="📋 Active Parking Details" />
-                <Button fx:id="btnSubscribers" onAction="#handleManageSubscribers" prefHeight="40.0" style="-fx-pref-width: 260; -fx-font-size: 16px;" text="👤 Manage Subscribers" />
-                <Button fx:id="btnLogs" onAction="#handleViewLogs" prefHeight="40.0" prefWidth="262.0" style="-fx-pref-width: 260; -fx-font-size: 16;" text="🪵 View System Logs" />
-                <Button fx:id="btnReports" onAction="#handleViewReports" prefHeight="40.0" prefWidth="262.0" style="-fx-pref-width: 260; -fx-font-size: 16;" text="📊 View System Reports" />
+                <Button fx:id="btnOrders" onAction="#handleViewActiveParking" styleClass="admin-menu-button" text="📋 Active Parking Details" />
+
+                <Button fx:id="btnSubscribers" onAction="#handleManageSubscribers" styleClass="admin-menu-button" text="👤 Manage Subscribers" />
+
+                <Button fx:id="btnLogs" onAction="#handleViewLogs" styleClass="admin-menu-button" text="📊 View System Logs" />
+
+                <Button fx:id="btnReports" onAction="#handleViewReports" styleClass="admin-menu-button" text="📊 View System Reports" />
             </VBox>
         </VBox>
     </center>

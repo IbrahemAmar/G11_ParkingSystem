@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
@@ -7,33 +8,31 @@
 <StackPane xmlns="http://javafx.com/javafx/8"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="subscriberGui.CarDepositController"
-           style="-fx-background-color: #f4f4f4;">
+           styleClass="background-pane"
+           stylesheets="@theme.css">
+
 
     <VBox alignment="CENTER" spacing="30">
+
         <VBox alignment="CENTER" spacing="20"
-              style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0.5, 0, 4);"
-              maxWidth="400">
+              styleClass="card-pane" maxWidth="400">
 
             <!-- Title -->
-            <Label text="🚗 Vehicle Deposit"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+            <Label text="🚗 Vehicle Deposit" styleClass="section-title-large"/>
 
             <!-- Spot Info -->
-            <Label text="Your assigned parking spot is:"
-                   style="-fx-font-size: 14px; -fx-text-fill: #666;" />
+            <Label text="Your assigned parking spot is:" styleClass="form-note"/>
 
-            <Label fx:id="labelSpotNumber" text="---"
-                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" />
+            <Label fx:id="labelSpotNumber" text="---" styleClass="highlighted-label"/>
 
             <!-- Description -->
             <Label text="Your vehicle is now being safely transported to its designated parking spot by our automated system. Please ensure your vehicle is positioned correctly on the drop-off platform and step away from the area for your safety."
                    wrapText="true" textAlignment="CENTER"
-                   style="-fx-font-size: 13px; -fx-text-fill: #444;" maxWidth="340"/>
+                   maxWidth="340"
+                   styleClass="description-text"/>
 
             <!-- Finish button -->
-            <Button text="✔ Finish"
-        onAction="#confirmDeposit"
-        style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 24; -fx-background-radius: 6;" />
+            <Button text="✔ Finish" onAction="#confirmDeposit" styleClass="btn-action"/>
 
         </VBox>
     </VBox>

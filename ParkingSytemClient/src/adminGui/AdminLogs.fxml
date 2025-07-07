@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="25" style="-fx-padding: 30; -fx-background-color: #fdfdfd;" 
-      xmlns="http://javafx.com/javafx/8" 
+<VBox spacing="25"
+      xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="adminGui.AdminLogsController">
+      fx:controller="adminGui.AdminLogsController"
+      stylesheets="@admincss.css"
+      styleClass="admin-background">
 
-    <Label text="🧾 System Logs"
-           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+    <!-- Title -->
+    <Label text="🧾 System Logs" styleClass="admin-title"/>
 
     <!-- Logs Table -->
-    <TableView fx:id="tableLogs" prefHeight="350" prefWidth="900"
-               style="-fx-border-color: #ccc; -fx-border-radius: 8;">
+    <TableView fx:id="tableLogs" prefHeight="350" prefWidth="900" styleClass="admin-table">
         <columns>
             <TableColumn fx:id="colLogId" text="Log ID" prefWidth="80" />
             <TableColumn fx:id="colAction" text="Action" prefWidth="150" />
@@ -22,17 +24,13 @@
             <TableColumn fx:id="colNote" text="Note" prefWidth="200" />
         </columns>
     </TableView>
-    
-    <Label fx:id="lblStatus"
-       text="Logs not loaded"
-       style="-fx-font-style: italic; -fx-text-fill: gray;" />
 
+    <!-- Status Label -->
+    <Label fx:id="lblStatus" text="Logs not loaded" styleClass="admin-status" />
 
     <!-- Action Buttons -->
     <HBox spacing="15" alignment="CENTER_RIGHT">
-        <Button fx:id="btnRefreshLogs" text="🔄 Refresh"
-                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 6;" />
-        <Button text="🔙 Back to Menu" fx:id="btnBack" onAction="#handleBack" 
-                style="-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-background-radius: 6;" />
+        <Button fx:id="btnRefreshLogs" text="🔄 Refresh" styleClass="btn-refresh"/>
+        <Button fx:id="btnBack" text="🔙 Back to Menu" onAction="#handleBack" styleClass="btn-danger"/>
     </HBox>
 </VBox>
