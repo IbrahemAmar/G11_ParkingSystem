@@ -150,6 +150,11 @@ public class AdminSubscribersController {
             lblStatus.setText("⚠️ Phone must be a number.");
             return;
         }
+        if (phoneTrim.length() != 10) {
+            lblStatus.setText("⚠️ Phone number must be exactly 10 digits.");
+            return;
+        }
+
         
         //Checking FirstName input
         for(int i = 0; i <= 9; i++) {
@@ -183,6 +188,16 @@ public class AdminSubscribersController {
         	lblStatus.setText("⚠️ Email must be in the form of 'example@example.example'");
         	return;
         }
+        
+     // Check if subscriber ID already exists in the table
+        boolean idExists = subscriberTable.getItems().stream()
+            .anyMatch(sub -> sub.getId() == id);
+
+        if (idExists) {
+            lblStatus.setText("❌ A subscriber with this ID already exists.");
+            return;
+        }
+
         
         //Formating the phone number
         int len = phoneTrim.length();
