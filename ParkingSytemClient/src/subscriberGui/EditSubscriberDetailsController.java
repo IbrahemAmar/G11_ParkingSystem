@@ -40,6 +40,8 @@ public class EditSubscriberDetailsController {
 
     /** Holds the current subscriber loaded from ClientController */
     private Subscriber currentSubscriber;
+    
+    
 
     /**
      * Initializes the controller by loading subscriber data into fields.
@@ -52,7 +54,7 @@ public class EditSubscriberDetailsController {
             System.out.println("✅ Populating fields for: " + currentSubscriber.getFullName());
             txtNewEmail.setText(currentSubscriber.getEmail());
             txtConfirmEmail.setText(currentSubscriber.getEmail());
-            txtNewPhone.setText(currentSubscriber.getPhone());
+            txtNewPhone.setText(currentSubscriber.getPhone().replaceAll("-", ""));
         } else {
             System.out.println("⚠️ currentSubscriber is null - cannot populate fields");
         }
@@ -110,6 +112,8 @@ public class EditSubscriberDetailsController {
     	    lblStatus.setText("❌ Phone number must be exactly 10 digits.");
     	    return;
     	}
+    	
+    	String formattedPhone = formatPhoneNumber(phone);
 
 
         btnSave.setDisable(true);
@@ -120,7 +124,7 @@ public class EditSubscriberDetailsController {
                 currentSubscriber.getFullName(),
                 currentSubscriber.getUsername(),
                 email,
-                phone,
+                formattedPhone,
                 currentSubscriber.getSubscriberCode()
         );
 
@@ -142,15 +146,12 @@ public class EditSubscriberDetailsController {
             btnSave.setDisable(false);
 
             if (success) {
-                // Update local subscriber data
-                currentSubscriber = new Subscriber(
-                        currentSubscriber.getId(),
-                        currentSubscriber.getFullName(),
-                        currentSubscriber.getUsername(),
-                        txtNewEmail.getText().trim(),
-                        txtNewPhone.getText().trim(),
-                        currentSubscriber.getSubscriberCode()
-                );
+            	
+            	// Request fresh subscriber object from DB by ID
+            	ClientController.getClient().sendObjectToServer(
+            	    new ClientRequest("get_subscriber_by_id", new Object[]{currentSubscriber.getId()})
+            	);
+
                 ClientController.getClient().setCurrentSubscriber(currentSubscriber);
 
                 // Show success popup
@@ -165,4 +166,15 @@ public class EditSubscriberDetailsController {
             }
         });
     }
+    
+    /**
+     * Formats a 10-digit phone number to XXX-XXX-XXXX format.
+     *
+     * @param rawPhone The phone number as a 10-digit string
+     * @return Formatted phone number with dashes
+     */
+    private String formatPhoneNumber(String rawPhone) {
+        return rawPhone.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3");
+    }
+
 }
