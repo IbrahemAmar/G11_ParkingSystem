@@ -147,9 +147,16 @@ public class EditSubscriberDetailsController {
 
             if (success) {
             	
-            	// Request fresh subscriber object from DB by ID
-            	ClientController.getClient().sendObjectToServer(
-            	    new ClientRequest("get_subscriber_by_id", new Object[]{currentSubscriber.getId()})
+            	String formattedPhone = formatPhoneNumber(txtNewPhone.getText().trim());
+
+            	//Immediately updates the local in-memory Subscriber object
+            	currentSubscriber = new Subscriber(
+            	        currentSubscriber.getId(),
+            	        currentSubscriber.getFullName(),
+            	        currentSubscriber.getUsername(),
+            	        txtNewEmail.getText().trim(),
+            	        formattedPhone, 
+            	        currentSubscriber.getSubscriberCode()
             	);
 
                 ClientController.getClient().setCurrentSubscriber(currentSubscriber);
@@ -160,7 +167,7 @@ public class EditSubscriberDetailsController {
                 alert.setHeaderText(null);
                 alert.setContentText("Successfully updated subscriber details.");
                 alert.showAndWait();
-
+        
                 // Switch to settings screen after popup closes
                 SceneNavigator.navigateTo(new javafx.event.ActionEvent(), "/subscriberGui/SubscriberSettings.fxml", "Subscriber Settings");
             }
