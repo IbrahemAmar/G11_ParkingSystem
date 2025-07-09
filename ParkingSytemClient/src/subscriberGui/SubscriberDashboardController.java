@@ -10,7 +10,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -193,6 +196,14 @@ public class SubscriberDashboardController {
                 labelEntryTime.setText("---");
                 labelTimeRemaining.setText("---");
             });
+
+        centerColumn(colEntryTime);
+        centerColumn(colExitTime);
+        centerColumn(colHistorySpot);
+        centerColumn(colWasExtended);
+        centerColumn(colWasLate);
+
+
     }
 
     /**
@@ -280,5 +291,35 @@ public class SubscriberDashboardController {
 	    }
 	}
 
-	
+	@SuppressWarnings("unused")
+	private <T> void centerColumn(TableColumn<T, String> column) {
+	    column.setCellFactory(col -> new TableCell<T, String>() {
+	        private final Label label = new Label();
+
+	        {
+	            label.setAlignment(Pos.CENTER);
+	            label.setMaxWidth(Double.MAX_VALUE);
+	            label.setMaxHeight(Double.MAX_VALUE);
+	            setContentDisplay(ContentDisplay.GRAPHIC_ONLY); // רק הגרפיקה (בלי טקסט רגיל)
+	            setStyle("-fx-padding: 0;"); // ביטול רווחים פנימיים בתא
+	        }
+
+	        @Override
+	        protected void updateItem(String item, boolean empty) {
+	            super.updateItem(item, empty);
+
+	            if (empty || item == null) {
+	                setGraphic(null);
+	            } else {
+	                label.setText(item);
+	                setGraphic(label);
+	            }
+	        }
+	    });
+	}
+
+
+
+
+
 }

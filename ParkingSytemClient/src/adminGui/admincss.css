@@ -277,4 +277,15 @@
     -fx-font-size: 13px;
 }
 
+.admin-table .table-row-cell {
+    -fx-padding: 0;
+    -fx-cell-size: 36px;
+}
+
+.admin-table .table-cell {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+}
 

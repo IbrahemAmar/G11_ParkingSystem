@@ -77,6 +77,8 @@
     -fx-text-fill: #5D4037;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 .table-view .table-row-cell {
@@ -293,4 +295,25 @@
 }
 .btn-danger:hover {
     -fx-background-color: #B71C1C;
+}
+
+.table-view .table-cell {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+.table-view .table-row-cell {
+    -fx-padding: 0;
+    -fx-cell-size: 36px;
+}
+
+.table-view .table-cell {
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-font-size: 14px;
+}
+
+.table-view .label {
+    -fx-alignment: center;
+    -fx-padding: 0;
 }
