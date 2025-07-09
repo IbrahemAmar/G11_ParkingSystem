@@ -11,19 +11,9 @@ import server.DBController;
 
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.util.Date;
 import java.sql.DriverManager;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
 
-/**
- * Controller for the server GUI. Manages server startup, database connection,
- * and displays connected clients in a table.
- */
 public class ServerMainController {
-
-    // ─────────────── UI Components ───────────────
 
     @FXML private TextField serverIpField, serverPortField, dbIpField, dbPortField, dbUserField;
     @FXML private PasswordField dbPassField;
@@ -32,18 +22,18 @@ public class ServerMainController {
     @FXML private TableView<ClientInfo> clientTable;
     @FXML private TableColumn<ClientInfo, String> ipColumn, hostColumn, statusColumn;
 
-    // ─────────────── Server & Client List ───────────────
-
-    /** Reference to the main server instance */
     private BParkServer server;
-    private Timer monthlyReportTimer;
-
-
-    /** Observable list of connected clients displayed in the table */
     private ObservableList<ClientInfo> clients = FXCollections.observableArrayList();
+    private MonthlyReportScheduler reportScheduler;
 
+    
+    
     /**
-     * Initializes the server GUI. Sets default values for input fields and configures the table.
+     * Initializes the server GUI.
+     * 
+     * Sets default values for input fields (server/db IPs and credentials),
+     * and configures the client connection table.
+     * This method runs automatically when the FXML view is loaded.
      */
     @FXML
     public void initialize() {
@@ -65,8 +55,14 @@ public class ServerMainController {
         clientTable.setItems(clients);
     }
 
+    
+    
     /**
-     * Handles the connect button click. Tries to connect to the database and starts the server.
+     * Handles the server startup process.
+     * 
+     * Connects to the MySQL database using the provided credentials,
+     * starts the server on the selected port, and launches the background 
+     * monthly report scheduler. Also tests manual report generation.
      */
     @FXML
     void handleConnect() {
@@ -89,87 +85,30 @@ public class ServerMainController {
 
             statusLabel.setText("✅ DB connected. Starting server...");
 
-            // ✅ Pass controller reference to the server
             server = new BParkServer(serverPort, this);
             server.listen();
 
             statusLabel.setText("✅ Server running on port " + serverPort);
-            startMonthlyReportScheduler();
-            testGenerateReportsNow();
 
+            reportScheduler = new MonthlyReportScheduler(() ->
+                    statusLabel.setText("✅ Monthly reports generated and saved."));
+            reportScheduler.start();
+
+            testGenerateReportsNow(); // Optional: for development
 
         } catch (Exception e) {
             statusLabel.setText("❌ Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    
     
     /**
-     * Starts a background timer that generates monthly reports on the last day of each month.
-     * If a timer is already running, it cancels and replaces it.
-     */
-    private void startMonthlyReportScheduler() {
-        if (monthlyReportTimer != null) {
-            monthlyReportTimer.cancel();
-        }
-        monthlyReportTimer = new Timer(true); // daemon
-
-        TimerTask reportTask = new TimerTask() {
-            @Override
-            public void run() {
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.MONTH, -1); // for the previous month
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH) + 1; // 0-based to 1-based
-
-                System.out.printf("⚙️ Generating monthly reports for %d-%02d...\n", year, month);
-                DBController.generateMonthlyReports(year, month);
-
-                Platform.runLater(() -> statusLabel.setText("✅ Monthly reports generated for " + year + "-" + String.format("%02d", month)));
-                
-                // after running, reschedule for next
-                startMonthlyReportScheduler();
-            }
-        };
-
-        Date nextRun = getNextLastDayOfMonth();
-        monthlyReportTimer.schedule(reportTask, nextRun);
-
-        System.out.println("✅ Monthly report generation scheduled for: " + nextRun);
-    }
-    
-    /**
-     * Calculates the next scheduled time for monthly report generation,
-     * set to the last day of the current month at 23:59.
-     *
-     * @return the Date representing the next scheduled run time
-     */
-    private Date getNextLastDayOfMonth() {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MONTH, 1);         // next month
-        cal.set(Calendar.DAY_OF_MONTH, 1);  // first day next month
-        cal.add(Calendar.DATE, -1);         // last day this month
-        cal.set(Calendar.HOUR_OF_DAY, 23);  // 23:59
-        cal.set(Calendar.MINUTE, 59);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return  cal.getTime();
-    }
-    
-    /**
-     * Manually triggers generation of reports for June 2025 (for testing).
-     * Output is printed to the console.
-     */
-    public void testGenerateReportsNow() {
-        int year = 2025;
-        int month = 6;
-        DBController.generateMonthlyReports(year, month);
-        System.out.println("✅ Manual generation done for " + year + "-" + String.format("%02d", month));
-    }
-
-
-    /**
-     * Stops the server and updates the GUI when disconnect button is clicked.
+     * Handles server shutdown.
+     * 
+     * Stops the server listener, cancels the monthly report scheduler if active,
+     * and updates all connected client statuses to "Disconnected".
      */
     @FXML
     void handleDisconnect() {
@@ -182,9 +121,10 @@ public class ServerMainController {
                 for (ClientInfo client : clients) {
                     client.setStatus("Disconnected");
                 }
-                if (monthlyReportTimer != null) {
-                    monthlyReportTimer.cancel();
-                    monthlyReportTimer = null;
+
+                if (reportScheduler != null) {
+                    reportScheduler.stop();
+                    reportScheduler = null;
                 }
 
                 clientTable.refresh();
@@ -197,21 +137,27 @@ public class ServerMainController {
         }
     }
 
+    
+    
     /**
-     * Exits the application completely.
+     * Exits the entire application process immediately.
      */
     @FXML
     void handleExit() {
         System.exit(0);
     }
 
+    
+    
     /**
-     * Adds or updates a client entry in the GUI table.
-     * Ensures duplicate or stale entries are removed.
+     * Adds a client entry to the connection table.
+     * 
+     * Removes any existing entries with the same IP/host or ID to avoid duplicates,
+     * and refreshes the table UI with the new entry.
      *
-     * @param ip the IP address of the client
-     * @param host the hostname of the client
-     * @param id a unique identifier (usually hashcode)
+     * @param ip   the IP address of the connected client
+     * @param host the hostname of the connected client
+     * @param id   a unique identifier for the client (used for distinguishing entries)
      */
     public void addClient(String ip, String host, int id) {
         Platform.runLater(() -> {
@@ -222,11 +168,16 @@ public class ServerMainController {
         });
     }
 
+    
+    
     /**
-     * Updates a client's status in the table.
+     * Updates a client's connection status in the UI table.
+     * 
+     * Searches the client list by unique ID and changes the status text,
+     * then refreshes the table to reflect the change.
      *
-     * @param id the client's ID
-     * @param status the new status (e.g., "Connected", "Disconnected")
+     * @param id     the unique identifier of the client
+     * @param status the updated status label ("Connected" or "Disconnected")
      */
     public void updateClientStatus(int id, String status) {
         Platform.runLater(() -> {
@@ -238,5 +189,20 @@ public class ServerMainController {
                 }
             }
         });
+    }
+
+    
+    
+    /**
+     * Triggers a one-time manual report generation.
+     * 
+     * This is useful for development and validation purposes,
+     * generating reports for a fixed date range (June 2025).
+     */
+    public void testGenerateReportsNow() {
+        int year = 2025;
+        int month = 6;
+        DBController.generateMonthlyReports(year, month);
+        System.out.println("✅ Manual generation done for " + year + "-" + String.format("%02d", month));
     }
 }
