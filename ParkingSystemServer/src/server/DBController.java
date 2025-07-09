@@ -139,7 +139,7 @@ public class DBController {
 	 * @return the user's role if found, otherwise null
 	 */
 	public String checkUserCredentials(String username, String password) {
-	    String sql = "SELECT role FROM users WHERE username = ? AND password = ?";
+		String sql = "SELECT role FROM users WHERE BINARY username = ? AND BINARY password = ?";
 	    Connection conn = null;
 	    try {
 	        conn = getConnection();
@@ -866,6 +866,7 @@ public class DBController {
 
 	/**
 	 * Handles all logic for creating a reservation:
+	 * - Checks if the subscriber already has a reservation within 4 hours
 	 * - Finds a random free parking spot for the requested 4-hour time window
 	 * - Generates a unique confirmation code
 	 * - Inserts the reservation into the database
@@ -878,6 +879,23 @@ public class DBController {
 	    Connection conn = null;
 	    try {
 	        conn = getConnection();
+
+	        // Step 0: Check if subscriber already has a reservation within 4 hours
+	        String overlapCheckSql = """
+	            SELECT COUNT(*) FROM reservation 
+	            WHERE subscriber_code = ? 
+	              AND ABS(TIMESTAMPDIFF(MINUTE, reservation_date, ?)) < 240
+	              AND status <> 'CANCELLED'
+	        """;
+	        try (PreparedStatement checkStmt = conn.prepareStatement(overlapCheckSql)) {
+	            checkStmt.setString(1, reservationRequest.getSubscriberCode());
+	            checkStmt.setTimestamp(2, Timestamp.valueOf(reservationRequest.getReservationDate()));
+	            ResultSet rs = checkStmt.executeQuery();
+	            if (rs.next() && rs.getInt(1) > 0) {
+	                System.err.println("Subscriber already has a reservation within 4 hours of the requested time.");
+	                return false;
+	            }
+	        }
 
 	        // Step 1: Find a random free parking spot for the reservation time window
 	        int spotId = getRandomFreeSpotForReservation(reservationRequest.getReservationDate(), conn);
@@ -900,13 +918,13 @@ public class DBController {
 	            stmt.executeUpdate();
 	        }
 
-	        // Step 5: Get subscriber email address
+	        // Step 4: Get subscriber email address
 	        String email = getSubscriberEmail(conn, reservationRequest.getSubscriberCode());
 	        if (email == null) {
 	            throw new SQLException("Subscriber email not found.");
 	        }
 
-	        // Step 6: Send confirmation email
+	        // Step 5: Send confirmation email
 	        String subject = "BPARK: Reservation Confirmation";
 	        String body = "Your reservation is confirmed.\n" +
 	                      "Parking Spot: " + spotId + "\n" +
