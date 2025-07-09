@@ -10,5 +10,16 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OCSF"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/SharedEntites"/>
 	<classpathentry kind="lib" path="/G11_ParkingSystem/external-libraries/mysql-connector-java-8.0.13.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.base.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.controls.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.fxml.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.graphics.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.media.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.swing.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx.web.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javafx-swt.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javax.activation-1.2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/javax.mail.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Administrator/git/G11_ParkingSystem/external-libraries/mysql-connector-java-8.0.13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
