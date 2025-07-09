@@ -123,7 +123,9 @@ public class ForgotCodeController {
     }
 
     /**
-     * Handles email send response.
+     * Handles the server response after attempting to send an email.
+     *
+     * @param response the server response indicating success or failure
      */
     public void handleEmailResponse(ServerResponse response) {
         Platform.runLater(() -> {
@@ -136,7 +138,9 @@ public class ForgotCodeController {
     }
 
     /**
-     * Updates the email display and masks it.
+     * Updates and masks the email address for display.
+     *
+     * @param email the full email address to be masked
      */
     public void updateEmailDisplay(String email) {
         if (email == null || !email.contains("@")) return;
@@ -157,7 +161,9 @@ public class ForgotCodeController {
     }
 
     /**
-     * Updates the phone display and masks it.
+     * Updates and masks the phone number for display.
+     *
+     * @param phone the full phone number to be masked
      */
     public void updatePhoneDisplay(String phone) {
         if (phone == null || phone.length() < 7) return;

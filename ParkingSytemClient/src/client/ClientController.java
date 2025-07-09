@@ -78,7 +78,7 @@ public class ClientController extends AbstractClient {
     /**
      * Sets the controller responsible for handling forgot code UI logic.
      *
-     * @param controller The {@link ForgotCodeController} instance.
+     * @param controller The {ForgotCodeController} instance.
      */
     public void setForgotCodeController(subscriberGui.ForgotCodeController controller) {
         this.forgotCodeController = controller;
@@ -272,7 +272,7 @@ public class ClientController extends AbstractClient {
     /**
      * Sets the controller used to display parking history for a specific subscriber in the admin panel.
      *
-     * @param adminParkingHistoryController The {@link AdminParkingHistoryController} instance.
+     * @param adminParkingHistoryController The {AdminParkingHistoryController} instance.
      */
     public void setAdminParkingHistoryController(adminGui.AdminParkingHistoryController adminParkingHistoryController) {
 		this.adminParkingHistoryController = adminParkingHistoryController;

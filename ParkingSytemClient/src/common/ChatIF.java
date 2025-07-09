@@ -2,7 +2,9 @@
 package common;
 
 /**
- * A minimal interface for chat clients to receive server messages.
+ * Displays a message received from the server.
+ *
+ * @param message the message to display
  */
 public interface ChatIF {
     void display(String message);

@@ -39,8 +39,9 @@ public class PublicAvailabilityController {
     private Button btnBack;
 
     /**
-     * Returns the current instance of this controller.
-     * Used for updates from the ClientController.
+     * Gets the current instance of this controller.
+     *
+     * @return the current {@code PublicAvailabilityController} instance
      */
     public static PublicAvailabilityController getCurrentInstance() {
         return currentInstance;

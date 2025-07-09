@@ -187,8 +187,10 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Handles deposit request as a ClientRequest.
-     * Rounds entry and exit time to nearest quarter hour before saving.
+     * Handles a car deposit request and saves it after rounding entry/exit times.
+     *
+     * @param request the client request containing a {@link ParkingHistory} object
+     * @param client  the client connection to send the response to
      */
     private void handleCarDeposit(ClientRequest request, ConnectionToClient client) {
         ParkingHistory history = (ParkingHistory) request.getParams()[0];
@@ -209,8 +211,10 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Rounds the given LocalDateTime to the nearest quarter hour:
-     * 0-14 → 0, 15-29 → 15, 30-44 → 30, 45-59 - > 45
+     * Rounds a given LocalDateTime to the nearest quarter hour.
+     *
+     * @param dt the datetime to round
+     * @return the rounded LocalDateTime
      */
     private LocalDateTime roundToQuarterHour(LocalDateTime dt) {
         int minute = dt.getMinute();
@@ -227,7 +231,10 @@ public class BParkServer extends AbstractServer {
 
 
     /**
-     * Handles extend parking time request as a ClientRequest.
+     * Handles a request to extend the subscriber's active parking time.
+     *
+     * @param request the client request containing the subscriber code
+     * @param client  the client connection to send the response to
      */
     private void handleExtendParkingRequest(ClientRequest request, ConnectionToClient client) {
         String subscriberCode = (String) request.getParams()[0];
@@ -322,7 +329,10 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Handles check_active (check if user has an active deposit) as a ClientRequest.
+     * Checks if the subscriber has an active parking deposit.
+     *
+     * @param request the client request containing the subscriber code
+     * @param client  the client connection to send the response to
      */
     private void handleCheckActive(ClientRequest request, ConnectionToClient client) {
         String subCode = (String) request.getParams()[0];
@@ -331,7 +341,10 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Handles parking history request as a ClientRequest.
+     * Handles a request to fetch parking history for a subscriber.
+     *
+     * @param request the client request containing the subscriber code
+     * @param client  the client connection to send the response to
      */
     private void handleParkingHistoryRequest(ClientRequest request, ConnectionToClient client) {
         String code = (String) request.getParams()[0];
@@ -340,7 +353,10 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Handles subscriber update request as a ClientRequest.
+     * Handles a request to update subscriber information.
+     *
+     * @param request the client request containing a {@link Subscriber} object
+     * @param client  the client connection to send the response to
      */
     private void handleEditData(ClientRequest request, ConnectionToClient client) {
         Subscriber subscriber = (Subscriber) request.getParams()[0];
@@ -350,8 +366,11 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Processes a login request and sends the result via {@link ServerResponse}.
-     * If the user is a subscriber, their detailed data is also sent.
+     * Handles a login request and sends a response with the user's role.
+     * If the user is a subscriber, their full data and access mode are also sent.
+     *
+     * @param request the login request containing username and password
+     * @param client  the client connection to send the response to
      */
     private void handleLoginRequest(LoginRequest request, ConnectionToClient client) {
         String role = dbController.checkUserCredentials(request.getUsername(), request.getPassword());
@@ -376,6 +395,11 @@ public class BParkServer extends AbstractServer {
         }
     }
 
+    /**
+     * Handles a new client connection and updates the GUI with client info.
+     *
+     * @param client the connected client
+     */
     @Override
     protected void clientConnected(ConnectionToClient client) {
         String ip = client.getInetAddress().getHostAddress();
@@ -387,6 +411,7 @@ public class BParkServer extends AbstractServer {
         }
         System.out.println("Client connected: " + ip + " / " + host);
     }
+
 
     /**
      * Utility method for sending a ServerResponse to a client.
@@ -407,11 +432,20 @@ public class BParkServer extends AbstractServer {
     }
 
     /**
-     * Utility method for sending an error ServerResponse to a client.
+     * Utility method for sending an error response to the client.
+     * <p>
+     * This method wraps {@link #sendServerResponse(ConnectionToClient, String, boolean, String, Object)}
+     * to simplify sending failure messages. It sets {@code success = false} and passes {@code null} as the data.
+     * </p>
+     *
+     * @param client  the {@link ConnectionToClient} instance representing the client to send the response to
+     * @param message the error message to be sent to the client
+     * @param context the command or context in which the error occurred (used as the response's command field)
      */
     private void sendError(ConnectionToClient client, String message, String context) {
         sendServerResponse(client, context, false, message, null);
     }
+
     
     /**
      * Handles the check for reservation availability.
@@ -436,13 +470,30 @@ public class BParkServer extends AbstractServer {
     }
     
     /**
-     * Handles the request to get valid start times for a given date and subscriber.
+     * Handles a client request to retrieve valid parking start times for a specific date
+     * and subscriber. This is typically used during the reservation process to present
+     * available time slots that are not in conflict with existing reservations or system constraints.
+     *
+     * <p>Expected request format:</p>
+     * <pre>{@code
+     * new ClientRequest("get_valid_start_times", new Object[] {LocalDate date, String subscriberCode})
+     * }</pre>
+     *
+     * <p>The server responds with:</p>
+     * <ul>
+     *     <li>{@code ServerResponse.command = "get_valid_start_times"}</li>
+     *     <li>{@code success = true}</li>
+     *     <li>{@code data = List<LocalTime>} — list of available time slots</li>
+     * </ul>
+     *
+     * @param request the {@link ClientRequest} containing the selected date and subscriber code
+     * @param client  the {@link ConnectionToClient} connection to which the response will be sent
      */
     private void handleGetValidStartTimes(ClientRequest request, ConnectionToClient client) {
         System.out.println("Server received request for valid start times! BParkServer.java");
 
         LocalDate selectedDate = (LocalDate) request.getParams()[0];
-        String subscriberCode = (String) request.getParams()[1]; // נוסף!
+        String subscriberCode = (String) request.getParams()[1];
 
         List<LocalTime> validStartTimes = dbController.getAvailableTimesForDate(selectedDate, subscriberCode);
 
@@ -458,6 +509,7 @@ public class BParkServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+
     /**
      * Handles a reservation request from the client.
      * Attempts to add a reservation with a random free spot, generates a confirmation code,
