@@ -36,7 +36,7 @@ public class ExtendParkingController {
         Subscriber currentSubscriber = ClientController.getClient().getCurrentSubscriber();
 
         if (currentSubscriber == null) {
-            System.out.println("❌ No subscriber is currently logged in.");
+            System.out.println("No subscriber is currently logged in.");
             return;
         }
 
@@ -61,7 +61,7 @@ public class ExtendParkingController {
      * @param message the server's response message
      */
     public void onUpdateResponse(boolean success, String message) {
-        System.out.println("🔔 onUpdateResponse called: " + message);
+        System.out.println("onUpdateResponse called: " + message);
 
         javafx.application.Platform.runLater(() -> {
             Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);

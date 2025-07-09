@@ -48,10 +48,10 @@ public class SubscriberSettingsController {
         Platform.runLater(() -> {
             Subscriber subscriber = ClientController.getClient().getCurrentSubscriber();
             if (subscriber == null) {
-                System.out.println("❌ No subscriber in client");
+                System.out.println("No subscriber in client");
                 return;
             }
-            System.out.println("✅ Populating fields for: " + subscriber.getFullName());
+            System.out.println("Populating fields for: " + subscriber.getFullName());
 
             lblFullName.setText(subscriber.getFullName());
             lblSubscriberId.setText(String.valueOf(subscriber.getId()));

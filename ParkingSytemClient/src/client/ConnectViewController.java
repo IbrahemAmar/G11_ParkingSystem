@@ -50,7 +50,7 @@ public class ConnectViewController {
         String portText = txtServerPort.getText().trim();
 
         if (ip.isEmpty() || portText.isEmpty()) {
-            statusLabel.setText("❌ Please enter server IP and port.");
+            statusLabel.setText("Please enter server IP and port.");
             return;
         }
 
@@ -80,10 +80,10 @@ public class ConnectViewController {
             stage.show();
 
         } catch (NumberFormatException e) {
-            statusLabel.setText("❌ Invalid port number.");
+            statusLabel.setText("Invalid port number.");
         } catch (IOException e) {
             e.printStackTrace();
-            statusLabel.setText("❌ Could not connect to server.");
+            statusLabel.setText("Could not connect to server.");
         }
     }
 }

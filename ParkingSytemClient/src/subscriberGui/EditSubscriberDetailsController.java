@@ -51,12 +51,12 @@ public class EditSubscriberDetailsController {
     public void initialize() {
         currentSubscriber = ClientController.getClient().getCurrentSubscriber();
         if (currentSubscriber != null) {
-            System.out.println("✅ Populating fields for: " + currentSubscriber.getFullName());
+            System.out.println("Populating fields for: " + currentSubscriber.getFullName());
             txtNewEmail.setText(currentSubscriber.getEmail());
             txtConfirmEmail.setText(currentSubscriber.getEmail());
             txtNewPhone.setText(currentSubscriber.getPhone().replaceAll("-", ""));
         } else {
-            System.out.println("⚠️ currentSubscriber is null - cannot populate fields");
+            System.out.println("currentSubscriber is null - cannot populate fields");
         }
 
         // Register this controller instance with ClientController so it can callback on update
@@ -93,23 +93,23 @@ public class EditSubscriberDetailsController {
     	String phone = txtNewPhone.getText().trim();
 
     	if (email.isEmpty() || confirmEmail.isEmpty() || phone.isEmpty()) {
-    	    lblStatus.setText("❌ All fields are required.");
+    	    lblStatus.setText("All fields are required.");
     	    return;
     	}
 
     	if (!email.matches("^(?![.])[a-zA-Z0-9._%+-]+(?<![.])@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
-    	    lblStatus.setText("❌ Invalid email format.");
+    	    lblStatus.setText("Invalid email format.");
     	    return;
     	}
 
 
     	if (!email.equals(confirmEmail)) {
-    	    lblStatus.setText("❌ Email confirmation does not match.");
+    	    lblStatus.setText("Email confirmation does not match.");
     	    return;
     	}
 
     	if (!phone.matches("\\d{10}")) {
-    	    lblStatus.setText("❌ Phone number must be exactly 10 digits.");
+    	    lblStatus.setText("Phone number must be exactly 10 digits.");
     	    return;
     	}
     	

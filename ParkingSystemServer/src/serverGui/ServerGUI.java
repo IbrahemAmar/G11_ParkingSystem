@@ -23,7 +23,7 @@ public class ServerGUI extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // ✅ Tell FXMLLoader where to find the FXML file
+        //Tell FXMLLoader where to find the FXML file
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ServerMain.fxml"));
         Parent root = loader.load();
 

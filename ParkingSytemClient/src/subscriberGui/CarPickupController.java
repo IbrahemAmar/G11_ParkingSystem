@@ -95,7 +95,7 @@ public class CarPickupController {
             );
             alert.setTitle(success ? "Pickup Successful" : "Pickup Failed");
             alert.setHeaderText(null);
-            alert.setContentText((success ? "✔️ " : "❌ ") + message);
+            alert.setContentText((success ? "yes" : "no") + message);
             alert.showAndWait();
 
             if (success) {
@@ -130,7 +130,7 @@ public class CarPickupController {
                 ClientController.getClient().sendObjectToServer(req);
             }
         } else {
-            System.err.println("❌ Failed to get ForgotCodeController");
+            System.err.println("Failed to get ForgotCodeController");
         }
     }
 

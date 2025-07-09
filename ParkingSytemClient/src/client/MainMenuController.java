@@ -124,7 +124,7 @@ public class MainMenuController implements ChatIF {
         try {
             ClientController.getClient().sendToServer(loginRequest);
         } catch (IOException e) {
-            showAlert("❌ Failed to send login request.");
+            showAlert("Failed to send login request.");
             e.printStackTrace();
         }
     }
@@ -157,9 +157,9 @@ public class MainMenuController implements ChatIF {
                 if (message.startsWith(prefix)) {
                     String role = message.substring(prefix.length()).trim();
 
-                    // ✅ Only show this alert if the login was from scan tag
+                    //Only show this alert if the login was from scan tag
                     if (isScanTagLogin && ("admin".equalsIgnoreCase(role) || "supervisor".equalsIgnoreCase(role))) {
-                        showAlert("🔒 Scan tag login is not supported for admin or supervisor roles.\nPlease log in manually.");
+                        showAlert("Scan tag login is not supported for admin or supervisor roles.\nPlease log in manually.");
                         isScanTagLogin = false; // Reset the flag
                         return;
                     }
@@ -167,7 +167,7 @@ public class MainMenuController implements ChatIF {
                     redirectBasedOnRole(role);
                 }
             } else {
-                showAlert("❌ " + message);
+                showAlert("Fail" + message);
             }
 
             // Always reset the flag after handling login
@@ -236,14 +236,14 @@ public class MainMenuController implements ChatIF {
             }
 
             if (currentStage != null) {
-                // ✅ Set primary stage for future event-less navigation
+                //Set primary stage for future event-less navigation
                 ClientController.setPrimaryStage(currentStage);
 
                 currentStage.setScene(new Scene(root));
                 currentStage.setTitle("BPARK - " + role);
                 currentStage.show();
             } else {
-                showAlert("❌ Could not find a valid window to load the scene.");
+                showAlert("Could not find a valid window to load the scene.");
             }
 
         } catch (Exception e) {
@@ -272,12 +272,12 @@ public class MainMenuController implements ChatIF {
 
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.setScene(new Scene(root));
-            currentStage.setTitle("🅿️ Parking Availability");
+            currentStage.setTitle("Parking Availability");
             currentStage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("❌ Failed to load Public Availability screen.");
+            showAlert("Failed to load Public Availability screen.");
         }
     }
     
@@ -298,7 +298,7 @@ public class MainMenuController implements ChatIF {
 
         statusLabel.setText("Scanning tag... please wait!");
 
-        // ✅ Mark that the next login is from a scan tag
+        //Mark that the next login is from a scan tag
         isScanTagLogin = true;
 
         

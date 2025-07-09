@@ -228,7 +228,7 @@ public class SubscriberDashboardController {
             }
         });
         
-     // ✅ Access mode login using your exact button names
+     //Access mode login using your exact button names
         String accessMode = ClientController.getClient().accessMode;
         if ("home".equals(accessMode)) {
             // Hide deposit and pickup buttons
@@ -250,7 +250,7 @@ public class SubscriberDashboardController {
                     new ClientRequest("get_parking_history", new Object[]{code})
                 );
             } else {
-                System.out.println("❌ No subscriber logged in.");
+                System.out.println("No subscriber logged in.");
             }
         });
     }
@@ -287,7 +287,7 @@ public class SubscriberDashboardController {
 	    if (controller != null) {
 	        controller.setClient(ClientController.getClient());
 	    } else {
-	        System.out.println("❌ Could not load DepositReservedParkingController.");
+	        System.out.println("Could not load DepositReservedParkingController.");
 	    }
 	}
 
@@ -300,8 +300,8 @@ public class SubscriberDashboardController {
 	            label.setAlignment(Pos.CENTER);
 	            label.setMaxWidth(Double.MAX_VALUE);
 	            label.setMaxHeight(Double.MAX_VALUE);
-	            setContentDisplay(ContentDisplay.GRAPHIC_ONLY); // רק הגרפיקה (בלי טקסט רגיל)
-	            setStyle("-fx-padding: 0;"); // ביטול רווחים פנימיים בתא
+	            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+	            setStyle("-fx-padding: 0;");
 	        }
 
 	        @Override

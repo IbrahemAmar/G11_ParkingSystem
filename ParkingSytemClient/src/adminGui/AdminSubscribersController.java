@@ -118,7 +118,7 @@ public class AdminSubscribersController {
             .collect(Collectors.toList());
 
         subscriberTable.setItems(FXCollections.observableArrayList(filtered));
-        lblStatus.setText("🔍 Showing " + filtered.size() + " filtered result(s).");
+        lblStatus.setText("Showing " + filtered.size() + " filtered result(s).");
     }
 
     /**
@@ -130,7 +130,7 @@ public class AdminSubscribersController {
     private void handleParkingHistory(ActionEvent event) {
     	Subscriber selected = subscriberTable.getSelectionModel().getSelectedItem();
     	if (selected == null) {
-    	    lblStatus.setText("⚠️ Please select a subscriber to view history.");
+    	    lblStatus.setText("Please select a subscriber to view history.");
     	    return;
     	}
 
@@ -158,7 +158,7 @@ public class AdminSubscribersController {
 
         if (idText.isEmpty() || password.isEmpty() ||
             firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneTrim.isEmpty()) {
-            lblStatus.setText("⚠️ Please fill in all fields.");
+            lblStatus.setText("Please fill in all fields.");
             return;
         }
 
@@ -166,7 +166,7 @@ public class AdminSubscribersController {
         try {
             id = Integer.parseInt(idText);
         } catch (NumberFormatException e) {
-            lblStatus.setText("⚠️ ID must be a number.");
+            lblStatus.setText("ID must be a number.");
             return;
         }
 
@@ -174,24 +174,24 @@ public class AdminSubscribersController {
         try {
             phoneNum = Integer.parseInt(phoneTrim);
         } catch (NumberFormatException e) {
-            lblStatus.setText("⚠️ Phone must be a number.");
+            lblStatus.setText("Phone must be a number.");
             return;
         }
         if (phoneTrim.length() != 10) {
-            lblStatus.setText("⚠️ Phone number must be exactly 10 digits.");
+            lblStatus.setText("Phone number must be exactly 10 digits.");
             return;
         }
 
         for (int i = 0; i <= 9; i++) {
             if (firstName.contains(String.valueOf(i))) {
-                lblStatus.setText("⚠️ FirstName must be a string.");
+                lblStatus.setText("FirstName must be a string.");
                 return;
             }
         }
 
         for (int i = 0; i <= 9; i++) {
             if (lastName.contains(String.valueOf(i))) {
-                lblStatus.setText("⚠️ LastName must be a string.");
+                lblStatus.setText("LastName must be a string.");
                 return;
             }
         }
@@ -207,7 +207,7 @@ public class AdminSubscribersController {
             }
         }
         if (!emailForm) {
-            lblStatus.setText("⚠️ Email must be in the form of 'example@example.example'");
+            lblStatus.setText("Email must be in the form of 'example@example.example'");
             return;
         }
 
@@ -215,7 +215,7 @@ public class AdminSubscribersController {
             .anyMatch(sub -> sub.getId() == id);
 
         if (idExists) {
-            lblStatus.setText("❌ A subscriber with this ID already exists.");
+            lblStatus.setText("A subscriber with this ID already exists.");
             return;
         }
 
@@ -245,7 +245,7 @@ public class AdminSubscribersController {
         ClientRequest request = new ClientRequest("add_subscriber", params);
         ClientController.getClient().sendObjectToServer(request);
 
-        lblStatus.setText("⏳ Adding subscriber...");
+        lblStatus.setText("Adding subscriber...");
 
         // Clear input fields
         txtPassword.clear();

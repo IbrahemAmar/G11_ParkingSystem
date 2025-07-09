@@ -321,7 +321,7 @@ public class ClientController extends AbstractClient {
         if (msg instanceof ServerResponse response) {
             handleServerResponse(response);
         } else {
-            System.out.println("⚠️ Unknown message type from server: " + msg.getClass().getSimpleName());
+            System.out.println("Unknown message type from server: " + msg.getClass().getSimpleName());
         }
     }
 
@@ -363,7 +363,7 @@ public class ClientController extends AbstractClient {
             case "monthly_subscriber_report_result" -> handleMonthlySubscriberReport(response);
             case "get_subscriber_contact" -> handleSubscriberContactResponse(success, message, data);
 
-            default -> System.out.println("⚠️ Unknown server response command: " + command);
+            default -> System.out.println("Unknown server response command: " + command);
         }
 
     }
@@ -421,7 +421,7 @@ public class ClientController extends AbstractClient {
     private void handleSubscriberData(Object data) {
         if (data instanceof Subscriber subscriber) {
             this.currentSubscriber = subscriber;
-            System.out.println("👤 Subscriber received: " + subscriber.getFullName());
+            System.out.println("Subscriber received: " + subscriber.getFullName());
         }
     }
 
@@ -449,7 +449,7 @@ public class ClientController extends AbstractClient {
         if (data instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof ParkingHistory) {
             List<ParkingHistory> historyList = (List<ParkingHistory>) list;
             Platform.runLater(() -> {
-                System.out.println("📋 Received parking history: " + historyList.size() + " records");
+                System.out.println("Received parking history: " + historyList.size() + " records");
                 
                 if (ClientController.getClient().getCurrentSubscriber() != null && subscriberDashboardController != null) {
                     subscriberDashboardController.setParkingHistoryData(
@@ -460,7 +460,7 @@ public class ClientController extends AbstractClient {
                 	adminParkingHistoryController.setParkingHistoryData(FXCollections.observableArrayList(historyList));
                 }
                 else {
-                    System.out.println("⚠️ subscriberDashboardController is null.");
+                    System.out.println("subscriberDashboardController is null.");
                 }
             });
         }
@@ -478,7 +478,7 @@ public class ClientController extends AbstractClient {
             if (controller != null) {
                 Platform.runLater(() -> controller.updateTable((List<ParkingSpace>) list));
             } else {
-                System.out.println("⚠️ PublicAvailabilityController instance is null.");
+                System.out.println("PublicAvailabilityController instance is null.");
             }
         }
     }
@@ -499,7 +499,7 @@ public class ClientController extends AbstractClient {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("No Available Parking");
                 alert.setHeaderText(null);
-                alert.setContentText("🚫 There are currently no available parking spots. Please try again later.");
+                alert.setContentText("There are currently no available parking spots. Please try again later.");
                 alert.showAndWait();
 
                 SceneNavigator.navigateTo(null,
@@ -510,7 +510,7 @@ public class ClientController extends AbstractClient {
                 if (controller != null) {
                     controller.setSpot(String.valueOf(((ParkingSpace) data).getParkingSpaceId()));
                 } else {
-                    System.out.println("⚠️ CarDepositController is not registered.");
+                    System.out.println("CarDepositController is not registered.");
                 }
             }
         });
@@ -530,7 +530,7 @@ public class ClientController extends AbstractClient {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Deposit Blocked");
                 alert.setHeaderText(null);
-                alert.setContentText("🚫 You already have an active parking.");
+                alert.setContentText("You already have an active parking.");
                 alert.showAndWait();
             } else {
                 // Directly navigate to the CarDeposit screen
@@ -542,7 +542,7 @@ public class ClientController extends AbstractClient {
                     controller.onLoaded();                     // Request spot
                     this.setCarDepositController(controller);  // Register controller for callbacks
                 } else {
-                    System.out.println("⚠️ Failed to load CarDepositController.");
+                    System.out.println("Failed to load CarDepositController.");
                 }
             }
         });
@@ -577,7 +577,7 @@ public class ClientController extends AbstractClient {
         if (extendParkingController != null) {
             extendParkingController.onUpdateResponse(success, message);
         } else {
-            System.out.println("⚠️ No ExtendParkingController registered for extend result.");
+            System.out.println("No ExtendParkingController registered for extend result.");
         }
     }
 
@@ -595,7 +595,7 @@ public class ClientController extends AbstractClient {
                 Alert alert = new Alert(success ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
                 alert.setTitle(success ? "Car Pickup" : "Pickup Failed");
                 alert.setHeaderText(null);
-                alert.setContentText((success ? "✅ " : "❌ ") + message);
+                alert.setContentText((success ? "yes" : "no") + message);
                 alert.showAndWait();
             });
         }
@@ -608,7 +608,7 @@ public class ClientController extends AbstractClient {
      */
     private void handleAccessMode(Object data) {
     	this.accessMode = (String) data;
-    	System.out.println("✅ Access mode received: " + accessMode);
+    	System.out.println("Access mode received: " + accessMode);
 
     }
     
@@ -743,7 +743,7 @@ public class ClientController extends AbstractClient {
     @SuppressWarnings("unchecked")
 	private void handleAdminActiveSessionsResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof ParkingHistory))) {
-            System.err.println("❌ Invalid or failed session data.");
+            System.err.println("Invalid or failed session data.");
             return;
         }
 
@@ -753,7 +753,7 @@ public class ClientController extends AbstractClient {
         if (controller != null) {
             controller.setActiveSessions(sessions);
         } else {
-            System.err.println("⚠️ AdminOrdersController not registered.");
+            System.err.println("AdminOrdersController not registered.");
         }
     }
     
@@ -766,7 +766,7 @@ public class ClientController extends AbstractClient {
     @SuppressWarnings("unchecked")
 	private void handleAdminSubscribersResponse(Object data) {
     	if (!(data instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Subscriber))) {
-            System.err.println("❌ Invalid or failed session data.");
+            System.err.println("Invalid or failed session data.");
             return;
         }
 
@@ -776,13 +776,13 @@ public class ClientController extends AbstractClient {
         if (controller != null) {
             controller.setAllSubscribers(sessions);
         } else {
-            System.err.println("⚠️ AdminOrdersController not registered.");
+            System.err.println("AdminOrdersController not registered.");
         }
     }
     
     private void handleAdminLogsResponse(Object data) {
         if (!(data instanceof List<?> rawList)) {
-            System.err.println("❌ Invalid or missing log data.");
+            System.err.println("Invalid or missing log data.");
             return;
         }
 
@@ -793,7 +793,7 @@ public class ClientController extends AbstractClient {
             if (item instanceof SystemLog log) {
                 logs.add(log);
             } else {
-                System.err.println("⚠️ Skipping invalid log entry: " + item);
+                System.err.println("Skipping invalid log entry: " + item);
             }
         }
 
@@ -801,7 +801,7 @@ public class ClientController extends AbstractClient {
         if (controller != null) {
             controller.setLogs(logs);
         } else {
-            System.err.println("⚠️ AdminLogsController not registered.");
+            System.err.println("AdminLogsController not registered.");
         }
     }
     /**
@@ -847,7 +847,7 @@ public class ClientController extends AbstractClient {
             if (controller != null) {
                 controller.showServerResponse(message);
             } else {
-                System.out.println("⚠️ DepositReservedParkingController is not registered.");
+                System.out.println("DepositReservedParkingController is not registered.");
             }
         });
     }

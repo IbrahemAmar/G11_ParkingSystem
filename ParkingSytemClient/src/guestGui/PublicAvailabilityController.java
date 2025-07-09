@@ -86,7 +86,7 @@ public class PublicAvailabilityController {
     public void updateTable(List<ParkingSpace> spots) {
         javafx.application.Platform.runLater(() -> {
             tableAvailability.getItems().setAll(spots);
-            lblAvailable.setText("✔ " + spots.size() + " spots available");
+            lblAvailable.setText("yes" + spots.size() + " spots available");
         });
     }
 

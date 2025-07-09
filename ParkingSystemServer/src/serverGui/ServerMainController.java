@@ -12,6 +12,12 @@ import server.DBController;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
+/**
+ * Main controller for the server-side GUI.
+ * Handles server startup, shutdown, and monthly report scheduling.
+ * Also updates the status label and manages connections to the database.
+ */
+
 
 public class ServerMainController {
 
@@ -67,7 +73,7 @@ public class ServerMainController {
     @FXML
     void handleConnect() {
         if (server != null && server.isListening()) {
-            statusLabel.setText("⚠️ Server is already running.");
+            statusLabel.setText("Server is already running.");
             return;
         }
 
@@ -83,21 +89,21 @@ public class ServerMainController {
             Connection conn = DriverManager.getConnection(jdbcUrl, user, pass);
             conn.close();
 
-            statusLabel.setText("✅ DB connected. Starting server...");
+            statusLabel.setText("DB connected. Starting server...");
 
             server = new BParkServer(serverPort, this);
             server.listen();
 
-            statusLabel.setText("✅ Server running on port " + serverPort);
+            statusLabel.setText("Server running on port " + serverPort);
 
             reportScheduler = new MonthlyReportScheduler(() ->
-                    statusLabel.setText("✅ Monthly reports generated and saved."));
+                    statusLabel.setText("Monthly reports generated and saved."));
             reportScheduler.start();
 
             testGenerateReportsNow(); // Optional: for development
 
         } catch (Exception e) {
-            statusLabel.setText("❌ Error: " + e.getMessage());
+            statusLabel.setText("Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -116,7 +122,7 @@ public class ServerMainController {
             try {
                 server.close();
                 server = null;
-                statusLabel.setText("🔴 Server stopped running.");
+                statusLabel.setText("Server stopped running.");
 
                 for (ClientInfo client : clients) {
                     client.setStatus("Disconnected");
@@ -129,11 +135,11 @@ public class ServerMainController {
 
                 clientTable.refresh();
             } catch (Exception e) {
-                statusLabel.setText("❌ Failed to stop server.");
+                statusLabel.setText("Failed to stop server.");
                 e.printStackTrace();
             }
         } else {
-            statusLabel.setText("⚠️ Server is not running.");
+            statusLabel.setText("Server is not running.");
         }
     }
 
@@ -203,6 +209,6 @@ public class ServerMainController {
         int year = 2025;
         int month = 6;
         DBController.generateMonthlyReports(year, month);
-        System.out.println("✅ Manual generation done for " + year + "-" + String.format("%02d", month));
+        System.out.println("Manual generation done for " + year + "-" + String.format("%02d", month));
     }
 }

@@ -60,7 +60,7 @@ public class BParkServer extends AbstractServer {
                 sendError(client, "Unsupported message type.", "GENERIC");
             }
         } catch (Exception e) {
-            System.err.println("❌ Failed to send response to client");
+            System.err.println("Failed to send response to client");
             e.printStackTrace();
             sendError(client, "Server error: " + e.getMessage(), "GENERIC");
         }
@@ -385,7 +385,7 @@ public class BParkServer extends AbstractServer {
         if (guiController != null) {
             guiController.addClient(ip, host, id);
         }
-        System.out.println("✅ Client connected: " + ip + " / " + host);
+        System.out.println("Client connected: " + ip + " / " + host);
     }
 
     /**
@@ -401,7 +401,7 @@ public class BParkServer extends AbstractServer {
         try {
             client.sendToClient(new ServerResponse(command, success, message, data));
         } catch (IOException e) {
-            System.err.println("❌ Failed to send ServerResponse to client: " + e.getMessage());
+            System.err.println("Failed to send ServerResponse to client: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -439,7 +439,7 @@ public class BParkServer extends AbstractServer {
      * Handles the request to get valid start times for a given date and subscriber.
      */
     private void handleGetValidStartTimes(ClientRequest request, ConnectionToClient client) {
-        System.out.println("✅ Server received request for valid start times! BParkServer.java");
+        System.out.println("Server received request for valid start times! BParkServer.java");
 
         LocalDate selectedDate = (LocalDate) request.getParams()[0];
         String subscriberCode = (String) request.getParams()[1]; // נוסף!
@@ -752,7 +752,7 @@ public class BParkServer extends AbstractServer {
 
             if (reservation == null) {
                 sendServerResponse(client, "CheckAndDepositReservedCar", false,
-                        "❌ Invalid confirmation code. No reservation found.", null);
+                        "Invalid confirmation code. No reservation found.", null);
                 return;
             }
 
@@ -763,7 +763,7 @@ public class BParkServer extends AbstractServer {
 
             if (now.isBefore(minTime)) {
                 sendServerResponse(client, "CheckAndDepositReservedCar", false,
-                        "⏱️ You arrived too early.\nYou may deposit your car between "
+                        "You arrived too early.\nYou may deposit your car between "
                                 + formatTime(minTime) + " and " + formatTime(maxTime) + ".", null);
                 return;
             }
@@ -771,7 +771,7 @@ public class BParkServer extends AbstractServer {
             if (now.isAfter(maxTime)) {
                 dbController.markReservationExpired(reservation.getReservationId());
                 sendServerResponse(client, "CheckAndDepositReservedCar", false,
-                        "❌ You arrived too late. The reservation has expired.", null);
+                        "You arrived too late. The reservation has expired.", null);
                 return;
             }
 
@@ -786,12 +786,12 @@ public class BParkServer extends AbstractServer {
             dbController.insertSystemLog("Deposit Reserved", "Reserved spot " + reservation.getParkingSpaceId(), reservation.getSubscriberCode());
 
             sendServerResponse(client, "CheckAndDepositReservedCar", true,
-                    "✅ Car successfully deposited into reserved spot.", null);
+                    "Car successfully deposited into reserved spot.", null);
 
         } catch (Exception e) {
             e.printStackTrace();
             sendServerResponse(client, "CheckAndDepositReservedCar", false,
-                    "❌ Server error while processing deposit request.", null);
+                    "Server error while processing deposit request.", null);
         }
     }
 
@@ -819,14 +819,14 @@ public class BParkServer extends AbstractServer {
 
         if (reservation == null || !"active".equalsIgnoreCase(reservation.getStatus())) {
             sendServerResponse(client, "CancelReservationByCode", false,
-                "❌ Reservation not found or already cancelled.", null);
+                "Reservation not found or already cancelled.", null);
             return;
         }
 
         dbController.cancelReservation(reservation.getReservationId());
 
         sendServerResponse(client, "CancelReservationByCode", true,
-            "✅ Reservation cancelled successfully.", null);
+            "Reservation cancelled successfully.", null);
     }
 
 

@@ -72,7 +72,7 @@ public class DepositReservedParkingController {
             return;
         }
         if (client == null || client.getCurrentSubscriber() == null) {
-            lblMessage.setText("❌ Client or subscriber not available.");
+            lblMessage.setText("Client or subscriber not available.");
             return;
         }
 
@@ -133,7 +133,7 @@ public class DepositReservedParkingController {
             return;
         }
         if (client == null || client.getCurrentSubscriber() == null) {
-            lblMessage.setText("❌ Client or subscriber not available.");
+            lblMessage.setText("Client or subscriber not available.");
             return;
         }
 

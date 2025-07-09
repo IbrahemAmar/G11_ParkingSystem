@@ -88,8 +88,8 @@
 }
 .text-field,
 .password-field {
-    -fx-background-color: #FFF8F0; /* צבע בז' בהיר, תואם לרקע */
-    -fx-text-fill: #3E2723; /* טקסט כהה */
+    -fx-background-color: #FFF8F0;
+    -fx-text-fill: #3E2723;
     -fx-font-size: 13px;
     -fx-border-color: #BCAAA4;
     -fx-border-radius: 6;
@@ -97,7 +97,7 @@
     -fx-padding: 6 10;
 }
 
-/* שינוי מסגרת בעת מיקוד */
+
 .text-field:focused,
 .password-field:focused {
     -fx-border-color: #EB726A;

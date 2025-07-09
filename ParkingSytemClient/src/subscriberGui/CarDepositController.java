@@ -40,7 +40,7 @@ public class CarDepositController {
                 new ClientRequest("get_random_spot", new Object[0])
             );
         } else {
-            System.out.println("❌ Client not set — cannot request parking spot.");
+            System.out.println("Client not set — cannot request parking spot.");
         }
     }
 
@@ -70,9 +70,9 @@ public class CarDepositController {
     public void setSpot(String spot) {
         labelSpotNumber.setText(spot);
         try {
-            selectedSpotId = Integer.parseInt(spot); // 🟢 store the ID
+            selectedSpotId = Integer.parseInt(spot); // store the ID
         } catch (NumberFormatException e) {
-            System.err.println("❌ Invalid spot format: " + spot);
+            System.err.println("Invalid spot format: " + spot);
             selectedSpotId = -1;
         }
     }
@@ -128,7 +128,7 @@ public class CarDepositController {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Deposit Confirmed");
                         alert.setHeaderText(null);
-                        alert.setContentText("✅ Your vehicle was successfully deposited.");
+                        alert.setContentText("Your vehicle was successfully deposited.");
                         alert.showAndWait();
 
                         SceneNavigator.navigateTo(null,

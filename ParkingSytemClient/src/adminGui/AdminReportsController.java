@@ -113,7 +113,7 @@ public class AdminReportsController {
     public void loadParkingTimeReport(MonthlyParkingTimeReport report) {
         if (report == null) {
             Platform.runLater(() -> {
-                labelTotalHours.setText("⚠️ No parking time report available for this month.");
+                labelTotalHours.setText("No parking time report available for this month.");
                 parkingTimePieChart.getData().clear();
             });
             return;
@@ -122,7 +122,7 @@ public class AdminReportsController {
         Platform.runLater(() -> {
             int total = report.getNormalHours() + report.getExtendedHours() + report.getDelayedHours();
             labelTotalHours.setText(
-                    String.format("📅 Report for %s – Total: %d hours", report.getMonth(), total)
+                    String.format("Report for %s – Total: %d hours", report.getMonth(), total)
             );
 
             parkingTimePieChart.getData().clear();

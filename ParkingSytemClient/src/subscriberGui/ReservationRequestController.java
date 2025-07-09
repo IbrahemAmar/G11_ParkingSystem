@@ -79,7 +79,7 @@ public class ReservationRequestController {
         if (selectedDate == null) return;
 
         // Show loading state
-        lblResult.setText("⏳ Loading available times...");
+        lblResult.setText("Loading available times...");
         lblResult.setStyle("-fx-text-fill: blue;");
 
         // Let server handle real validation
@@ -106,20 +106,21 @@ public class ReservationRequestController {
 
 
     /**
-     * Called by ClientController when the server sends available times.
+     * Called by ClientController when the server sends available times
+     *@param availableTimes list of available time slots to show in the combo box
      */
     public void updateTimeComboBox(List<LocalTime> availableTimes) {
         timeCombo.setDisable(false); // Enable the combo box
 
         timeCombo.getItems().clear();
 
-        // הוספת בדיקה כדי למנוע NullPointerException
+        //NullPointerException
         if (availableTimes != null && !availableTimes.isEmpty()) {
             timeCombo.getItems().addAll(availableTimes);
-            lblResult.setText("✅ Available slots loaded!");
+            lblResult.setText("Available slots loaded!");
             lblResult.setStyle("-fx-text-fill: green;");
         } else {
-            lblResult.setText("❌ No available time slots. Please choose another date.");
+            lblResult.setText("No available time slots. Please choose another date.");
             lblResult.setStyle("-fx-text-fill: red;");
         }
     }
@@ -141,14 +142,14 @@ public class ReservationRequestController {
 
         // Validate date selection
         if (selectedDate == null) {
-            lblResult.setText("❗ Please select a date.");
+            lblResult.setText("Please select a date.");
             lblResult.setStyle("-fx-text-fill: red;");
             return;
         }
 
         // Validate time selection
         if (selectedTime == null) {
-            lblResult.setText("❗ Please select a time.");
+            lblResult.setText("Please select a time.");
             lblResult.setStyle("-fx-text-fill: red;");
             return;
         }
@@ -177,7 +178,7 @@ public class ReservationRequestController {
         ClientController.getClient().sendObjectToServer(request);
 
         // Show a loading or confirmation message to the user
-        lblResult.setText("⏳ Sending reservation request...");
+        lblResult.setText("Sending reservation request...");
         lblResult.setStyle("-fx-text-fill: blue;");
     }
 

@@ -48,7 +48,7 @@ public class MonthlyReportScheduler {
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH) + 1;
 
-                System.out.printf("⚙️ Generating monthly reports for %d-%02d...", year, month);
+                System.out.printf("Generating monthly reports for %d-%02d...", year, month);
                 DBController.generateMonthlyReports(year, month);
 
                 if (onReportGenerated != null) {
@@ -60,7 +60,7 @@ public class MonthlyReportScheduler {
         };
 
         timer.schedule(task, getNextRunDate());
-        System.out.println("✅ Monthly report generation scheduled for: " + getNextRunDate());
+        System.out.println("Monthly report generation scheduled for: " + getNextRunDate());
     }
 
     /**

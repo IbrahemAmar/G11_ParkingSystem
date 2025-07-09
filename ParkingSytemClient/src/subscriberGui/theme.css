@@ -200,9 +200,9 @@
     -fx-text-fill: black;
 }
 .text-field {
-    -fx-background-color: #FFF8F0;       /* רקע בז' */
-    -fx-text-fill: #3E2723;              /* טקסט חום כהה */
-    -fx-border-color: #BCAAA4;           /* מסגרת עדינה */
+    -fx-background-color: #FFF8F0;      /* רקע בז' */
+    -fx-text-fill: #3E2723;             
+    -fx-border-color: #BCAAA4;         
     -fx-border-radius: 6;
     -fx-background-radius: 6;
     -fx-padding: 6 10;
@@ -212,7 +212,7 @@
 
 /* במצב פוקוס */
 .text-field:focused {
-    -fx-border-color: #EB726A;           /* קו אדום תואם כפתור */
+    -fx-border-color: #EB726A;         
     -fx-border-width: 1.5;
     -fx-background-color: #FFF8F0;
     -fx-text-fill: #3E2723;
@@ -237,14 +237,12 @@
     -fx-cursor: hand;
     -fx-background-color: transparent;
 }
-/* רקע חיצוני */
 .background-pane {
     -fx-background-color: #F6EDE3;
     -fx-padding: 40;
     -fx-font-family: "Segoe UI", "Roboto", sans-serif;
 }
 
-/* כרטיס לבן עם עיגול פינות וצל */
 .card-pane {
     -fx-background-color: white;
     -fx-background-radius: 10;
@@ -252,27 +250,23 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0.5, 0, 4);
 }
 
-/* כותרת גדולה */
 .section-title-large {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #5D4037;
 }
 
-/* תיאור שקט */
 .description-text {
     -fx-font-size: 13px;
     -fx-text-fill: #444444;
 }
 
-/* טקסט מודגש – מספר מקום */
 .highlighted-label {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2e7d32; /* ירוק כהה */
+    -fx-text-fill: #2e7d32; 
 }
 
-/* טקסט תיאור קטן */
 .form-note {
     -fx-font-size: 14px;
     -fx-text-fill: #666666;
@@ -285,7 +279,7 @@
     -fx-cursor: hand;
 }
 .btn-danger {
-    -fx-background-color: #D32F2F; /* צבע אדום עמוק */
+    -fx-background-color: #D32F2F; 
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-radius: 8;

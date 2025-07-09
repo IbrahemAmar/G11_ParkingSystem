@@ -52,7 +52,7 @@ public class SceneNavigator {
                 stage.setTitle(title);
                 stage.show();
             } else {
-                System.err.println("❌ Could not determine a valid stage for navigation.");
+                System.err.println("Could not determine a valid stage for navigation.");
             }
 
         } catch (IOException e) {
@@ -64,6 +64,7 @@ public class SceneNavigator {
      * Loads the given FXML, returns its controller, and sets the window scene and title.
      * Useful for retrieving the controller to call methods like setClient().
      *
+     * @param <T>      The type of the controller class.
      * @param event    The ActionEvent that triggered the navigation, or null.
      * @param fxmlPath Path to the FXML file.
      * @param title    The window title.
@@ -89,7 +90,7 @@ public class SceneNavigator {
                 stage.setTitle(title);
                 stage.show();
             } else {
-                System.err.println("❌ Could not determine a valid stage for navigation.");
+                System.err.println("Could not determine a valid stage for navigation.");
             }
 
             return controller;
@@ -98,5 +99,5 @@ public class SceneNavigator {
             e.printStackTrace();
             return null;
         }
-    }
+    } 
 }

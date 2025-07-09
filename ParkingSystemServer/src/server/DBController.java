@@ -71,9 +71,13 @@ public class DBController {
 
 	// --------- Universal Mappers ---------
 
-	/**
-	 * Maps a ResultSet row to a ParkingHistory object.
-	 */
+    /**
+     * Maps the given ResultSet to a ParkingHistory object.
+     *
+     * @param rs the ResultSet containing parking history data
+     * @return a ParkingHistory object mapped from the result set
+     * @throws SQLException if a database access error occurs
+     */
 	public ParkingHistory mapParkingHistory(ResultSet rs) throws SQLException {
 		return new ParkingHistory(rs.getInt("history_id"), rs.getString("subscriber_code"),
 				rs.getInt("parking_space_id"), rs.getTimestamp("entry_time").toLocalDateTime(),
@@ -82,14 +86,22 @@ public class DBController {
 	}
 
 	/**
-	 * Maps a ResultSet row to a ParkingSpace object.
+	 * Maps the given ResultSet to a ParkingSpace object.
+	 *
+	 * @param rs the ResultSet containing parking space data
+	 * @return a ParkingSpace object mapped from the result set
+	 * @throws SQLException if a database access error occurs
 	 */
 	public ParkingSpace mapParkingSpace(ResultSet rs) throws SQLException {
 		return new ParkingSpace(rs.getInt("parking_space_id"), rs.getBoolean("is_available"));
 	}
 
 	/**
-	 * Maps a ResultSet row to a Subscriber object.
+	 * Maps the given ResultSet to a Subscriber object.
+	 *
+	 * @param rs the ResultSet containing subscriber data
+	 * @return a Subscriber object mapped from the result set
+	 * @throws SQLException if a database access error occurs
 	 */
 	public Subscriber mapSubscriber(ResultSet rs) throws SQLException {
 		int id = rs.getInt("id");
@@ -337,7 +349,7 @@ public class DBController {
 	            stmt.executeUpdate();
 	        }
 	    } catch (SQLException e) {
-	        System.err.println("❌ Failed to update spot availability.");
+	        System.err.println("Failed to update spot availability.");
 	        e.printStackTrace();
 	    } finally {
 	        releaseConnection(conn);
@@ -397,7 +409,7 @@ public class DBController {
 	            stmt.executeUpdate();
 	        }
 	    } catch (SQLException e) {
-	        System.err.println("❌ Failed to insert system log.");
+	        System.err.println("Failed to insert system log.");
 	        e.printStackTrace();
 	    } finally {
 	        releaseConnection(conn);
@@ -436,10 +448,10 @@ public class DBController {
 	            stmt.setBoolean(7, history.isWasLate());
 	            stmt.setBoolean(8, history.isPickedUp());
 	            stmt.executeUpdate();
-	            System.out.println("✅ Parking deposit saved for " + history.getSubscriberCode());
+	            System.out.println("Parking deposit saved for " + history.getSubscriberCode());
 	        }
 	    } catch (SQLException e) {
-	        System.err.println("❌ Failed to insert parking deposit");
+	        System.err.println("Failed to insert parking deposit");
 	        e.printStackTrace();
 	    } finally {
 	        releaseConnection(conn);
@@ -471,7 +483,7 @@ public class DBController {
 	            }
 	        }
 	    } catch (SQLException e) {
-	        System.err.println("❌ Error checking active reservation:");
+	        System.err.println("Error checking active reservation:");
 	        e.printStackTrace();
 	        return false;
 	    } finally {
@@ -482,11 +494,13 @@ public class DBController {
 
 	/**
 	 * Returns the current active parking session for the given subscriber.
-	 * An active session is where: entry_time <= NOW() <= exit_time AND picked_up = 0
+	 * An active session is defined as: entry_time &lt;= NOW() &lt;= exit_time AND picked_up = 0
 	 *
 	 * @param subscriberCode The code of the subscriber.
 	 * @return The active ParkingHistory record, or null if none found.
 	 */
+
+
 	public ParkingHistory getActiveParkingBySubscriber(String subscriberCode) {
 	    String query = "SELECT * FROM parking_history " +
 	                   "WHERE subscriber_code = ? " +
@@ -1292,7 +1306,7 @@ public class DBController {
 	            stmt.executeUpdate();
 	        }
 	    } catch (SQLException e) {
-	        System.err.println("❌ Failed to insert system log.");
+	        System.err.println("Failed to insert system log.");
 	        e.printStackTrace();
 	    } finally {
 	        releaseConnection(conn);
@@ -1382,7 +1396,7 @@ public class DBController {
 
 	        }
 	    } catch (SQLException e) {
-	        System.err.println("❌ Error fetching system logs: " + e.getMessage());
+	        System.err.println("Error fetching system logs: " + e.getMessage());
 	        e.printStackTrace();
 	    } finally {
 	        releaseConnection(conn);
@@ -1664,7 +1678,7 @@ public class DBController {
 	    try {
 	        conn = getConnection();
 
-	        // 1️⃣ Aggregate parking hours
+	        // Aggregate parking hours
 	        String sql = """
 	            SELECT entry_time, exit_time, extended, was_late
 	            FROM parking_history
@@ -1690,7 +1704,7 @@ public class DBController {
 	            }
 	        }
 
-	        // 2️⃣ Aggregate subscriber daily counts
+	        // Aggregate subscriber daily counts
 	        YearMonth ym = YearMonth.of(year, month);
 	        int lastDay = ym.lengthOfMonth();
 
@@ -1710,7 +1724,7 @@ public class DBController {
 	            }
 	        }
 
-	        // 3️⃣ Store into monthly_parking_time_report
+	        // Store into monthly_parking_time_report
 	        String storeTime = """
 	            INSERT INTO monthly_parking_time_report (year, month, normal_hours, extended_hours, delayed_hours)
 	            VALUES (?, ?, ?, ?, ?)
@@ -1728,7 +1742,7 @@ public class DBController {
 	            ps.executeUpdate();
 	        } 
 
-	        // 4️⃣ Store into monthly_subscriber_report
+	        // Store into monthly_subscriber_report
 	        String csvCounts = dailyCounts.stream()
 	            .map(Object::toString)
 	            .reduce((a, b) -> a + "," + b)
@@ -1747,7 +1761,7 @@ public class DBController {
 	            ps.executeUpdate();
 	        }
 
-	        System.out.printf("✅ Monthly reports for %s generated successfully.%n", ymPrefix);
+	        System.out.printf("Monthly reports for %s generated successfully.%n", ymPrefix);
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();

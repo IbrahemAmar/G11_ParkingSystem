@@ -132,7 +132,7 @@ public class AdminParkingHistoryController {
                     new ClientRequest("get_parking_history", new Object[]{code})
                 );
             } else {
-                System.out.println("❌ No subscriber selected for history.");
+                System.out.println("No subscriber selected for history.");
             }
         });
     }
