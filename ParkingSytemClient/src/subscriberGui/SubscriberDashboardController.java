@@ -64,7 +64,7 @@ public class SubscriberDashboardController {
 
     @FXML
     private void openDetails(ActionEvent event) {
-        SceneNavigator.navigateTo(event, "/subscriberGui/subscriberSettings.fxml", "BPARK - Subscriber Settings");
+        SceneNavigator.navigateTo(event, "/subscriberGui/SubscriberSettings.fxml", "BPARK - Subscriber Settings");
     }
 
     @FXML
