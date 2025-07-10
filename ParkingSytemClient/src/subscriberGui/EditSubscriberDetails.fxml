@@ -3,7 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+<AnchorPane prefWidth="850" prefHeight="600"
+			xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="subscriberGui.EditSubscriberDetailsController"
             stylesheets="@theme.css">

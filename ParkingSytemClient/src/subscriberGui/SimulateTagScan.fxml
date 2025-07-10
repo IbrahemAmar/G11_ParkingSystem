@@ -2,7 +2,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
+<AnchorPane prefWidth="850" prefHeight="600"
+			xmlns:fx="http://javafx.com/fxml"
             xmlns="http://javafx.com/javafx/8"
             fx:controller="subscriberGui.SimulateTagController">
 

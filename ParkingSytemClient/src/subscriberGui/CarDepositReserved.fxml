@@ -4,7 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+<AnchorPane prefWidth="850" prefHeight="600"
+			xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="subscriberGui.DepositReservedParkingController"
             stylesheets="@theme.css">
@@ -21,7 +22,10 @@
         <Label text="Enter your confirmation code:" styleClass="form-label" />
 
         <!-- Input Field -->
-        <TextField fx:id="txtConfirmationCode" promptText="e.g., 123456" prefWidth="250" styleClass="text-field"/>
+        <HBox alignment="CENTER">
+    	<TextField fx:id="txtConfirmationCode" promptText="e.g., 123456"
+               prefWidth="250" maxWidth="250" styleClass="text-field"/>
+		</HBox>
 
         <!-- Action Buttons -->
         <HBox spacing="20" alignment="CENTER">
@@ -38,7 +42,10 @@
         <Label text="❌ Cancel a Reservation" styleClass="section-title" />
         <Label text="Enter confirmation code to cancel:" styleClass="form-label" />
 
-        <TextField fx:id="txtCancelCode" promptText="e.g., 123456" prefWidth="250" styleClass="text-field"/>
+		<HBox alignment="CENTER">
+    	<TextField fx:id="txtCancelCode" promptText="e.g., 123456"
+               prefWidth="250" maxWidth="250" styleClass="text-field"/>
+		</HBox>
 
         <Button fx:id="btnCancelReservation"
                 text="Cancel Reservation"

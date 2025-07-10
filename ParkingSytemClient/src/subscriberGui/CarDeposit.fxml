@@ -5,7 +5,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Pos?>
 
-<StackPane xmlns="http://javafx.com/javafx/8"
+<StackPane prefWidth="850" prefHeight="600"
+		   xmlns="http://javafx.com/javafx/8"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="subscriberGui.CarDepositController"
            styleClass="background-pane"

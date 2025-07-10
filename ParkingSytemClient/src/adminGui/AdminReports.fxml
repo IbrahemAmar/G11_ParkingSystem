@@ -4,10 +4,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8"
+<AnchorPane prefWidth="1100" prefHeight="800"
+			xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="adminGui.AdminReportsController"
-            prefWidth="1000.0" prefHeight="720.0"
             stylesheets="@admincss.css"
             styleClass="admin-background">
 

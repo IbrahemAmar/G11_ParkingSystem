@@ -9,9 +9,12 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane stylesheets="@theme.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.SubscriberSettingsController">
+<AnchorPane prefWidth="850" prefHeight="600" stylesheets="@theme.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="subscriberGui.SubscriberSettingsController">
 
-    <VBox alignment="CENTER" prefHeight="430.0" prefWidth="395.0" spacing="25" styleClass="background-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <VBox alignment="CENTER" spacing="10" styleClass="background-pane"
+      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+      maxWidth="Infinity">
 
         <!-- Back Button -->
         <HBox alignment="TOP_LEFT">
@@ -22,7 +25,7 @@
         <Label styleClass="section-title" text="👤 My Details:" />
 
         <!-- My Details Grid -->
-        <GridPane alignment="CENTER" hgap="15" vgap="15">
+        <GridPane alignment="CENTER" hgap="60" vgap="30">
 
             <Label styleClass="form-label" text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <Label fx:id="lblFullName" styleClass="form-value" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0" />
